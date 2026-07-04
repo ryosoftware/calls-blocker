@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <string name="app_name">Bloqueador de Llamadas</string>
+
+    <!-- Notification channels -->
+    <string name="notification_channel_name">Llamadas bloqueadas</string>
+    <string name="notification_blocked_title">Llamada bloqueada</string>
+
+    <!-- Notification -->
+    <string name="notification_blocked_body">%1$s ha llamado el %3$s</string>
+    <string name="notification_suggestion_channel_name">Sugerencias de bloqueo</string>
+    <string name="notification_suggestion_title" />
+    <string name="notification_suggestion_body">%1$s ha llamado el %2$s.</string>
+    <string name="notification_suggestion_block">Bloquear</string>
+    <string name="notification_suggestion_dismiss">Conozco el número</string>
+
+    <!-- Navigation -->
+    <string name="nav_block_list">Números</string>
+    <string name="nav_history">Historial</string>
+    <string name="nav_settings">Ajustes</string>
+
+    <!-- Numbers List Screen -->
+    <string name="numbers_list_empty">No hay números</string>
+    <string name="search">Buscar</string>
+    <string name="search_numbers_hint">Buscar números…</string>
+    <string name="no_results">Sin resultados</string>
+    <string name="add_number">Agregar número</string>
+    <string name="delete">Eliminar</string>
+    <string name="label_exact">Coincidencia exacta</string>
+    <string name="label_prefix">Parte inicial del número</string>
+    <string name="label_allowed">Permitido</string>
+    <string name="label_blocked">Bloqueado</string>
+    <string name="delete_entries_title">¿Eliminar números?</string>
+    <string name="delete_entries_message">¿Eliminar %d números?</string>
+    <string name="delete_entry_title">¿Eliminar número?</string>
+    <string name="delete_entry_message">¿Eliminar este número?</string>
+
+    <!-- Add Number Dialog -->
+    <string name="add_number_title">Agregar número</string>
+    <string name="fab_add_label">Añadir entrada manualmente</string>
+    <string name="fab_import_label">Importar números a bloquear de un archivo</string>
+    <string name="phone_number_label">Número de teléfono</string>
+    <string name="country_label">País</string>
+    <string name="description_label">Descripción (opcional)</string>
+    <string name="number_type_label">Tipo de número</string>
+    <string name="number_type_exact">Número exacto</string>
+    <string name="number_type_prefix">Prefijo</string>
+    <string name="action_label">Acción</string>
+    <string name="action_block">Bloquear</string>
+    <string name="action_allow">Permitir</string>
+
+    <!-- History Screen -->
+    <string name="history_empty">No hay llamadas registradas</string>
+    <string name="delete_history_entry_title">¿Eliminar entrada?</string>
+    <string name="delete_history_entry_message">¿Eliminar esta entrada del historial?</string>
+    <string name="delete_history_entries_title">¿Eliminar entradas?</string>
+    <string name="delete_history_entries_message">¿Eliminar %d entradas del historial?</string>
+    <string name="also_unblock">No seguir bloqueando este número</string>
+    <string name="also_unallow">No seguir aceptando este número</string>
+    <string name="delete_all_entries_for_number">Eliminar las %1$d entradas de este número</string>
+    <string name="history_header_today">%1$s hoy</string>
+    <string name="history_header_yesterday">%1$s ayer</string>
+    <string name="history_header_this_week">%1$s esta semana</string>
+    <string name="history_header_this_month">%1$s este mes</string>
+    <string name="history_header_month_without_year">%1$s en %2$s</string>
+    <string name="history_header_month_with_year">%1$s en %2$s %3$d</string>
+    <string name="history_export">Exportar como CSV</string>
+    <string name="history_export_success">Historial exportado correctamente</string>
+    <string name="private_number">Número privado</string>
+
+    <!-- Settings Screen -->
+    <string name="default_country_title">Tú país</string>
+    <string name="default_country_description">Usado al importar números sin código de país o cuando se recibe una llamada que no include el prefijo de país y el sistema no reporta la SIM en la que se ha recibido la llamada o el país de la misma.</string>
+    <string name="default_country_not_set">No establecido</string>
+
+    <string name="blocking_rules_title">Tú teléfono, tus reglas</string>
+    <string name="blocking_rules_description">A continuación puede establecer reglas de bloqueo generalistas, pero debe tener en cuenta que estas reglas no se aplican a los números o prefijos que haya incluido en la lista blanca de números (pestaña de números), que nunca se bloquean.</string>
+
+    <string name="schedule_blocking_title">Bloqueo por horario</string>
+    <string name="schedule_blocking_description">Se bloquearán las llamadas en los periodos indicados</string>
+    <string name="schedule_blocking_add">Añadir</string>
+    <string name="schedule_blocking_edit">Editar periodo</string>
+    <string name="schedule_blocking_no_rules">No hay periodos añadidos</string>
+
+    <string name="block_unknown_title">Bloquear números desconocidos</string>
+    <string name="block_unknown_description">Se bloquearán los llamadas desde números que no estén en su agenda de contactos</string>
+
+    <string name="block_hidden_title">Bloquear números ocultos</string>
+    <string name="block_hidden_description">Se bloquearán las llamadas de números privados u ocultos</string>
+
+    <string name="block_groups_title">Bloqueo de grupos</string>
+    <string name="block_groups_description">Bloquea las llamadas de contactos que pertenecen a los grupos seleccionados</string>
+    <string name="selected_groups">Grupos</string>
+    <string name="select_groups">Seleccionar grupos</string>
+    <string name="no_groups_warning">No hay grupos seleccionados.\nTodas las llamadas de contactos serán permitidas.</string>
+    <string name="group_contacts_count_zero">Sin contactos</string>
+
+    <string name="block_international_title">Bloquear llamadas internacionales</string>
+    <string name="block_international_description">Se bloquearán las llamadas desde otros países</string>
+    <string name="select_allowed_countries">Países permitidos</string>
+    <string name="select_countries">Seleccionar países</string>
+    <string name="number_from_country_name_and_flag">%2$s %1$s</string>
+    <string name="no_allowed_countries_warning">Todas las llamadas se bloquearán si no añade al menos un país.</string>
+
+    <string name="block_not_called_title">Bloquear no marcados</string>
+    <string name="block_not_called_description">Bloquea llamadas desde números a los que no se ha llamado previamente.</string>
+    <string name="not_called_window_label">Días a comprobar</string>
+
+    <string name="block_rejected_title">Bloquear ya rechazados</string>
+    <string name="block_rejected_description">Bloquea llamadas desde números que se han rechazado previamente.\n\nTenga en cuenta que nos referimos a llamadas rechazadas desde la app de teléfono, no a llamadas bloqueadas anteriormente por esta app.</string>
+    <string name="rejected_window_label">Días a comprobar</string>
+
+    <string name="block_repeated_title">Bloquear llamadas repetidas</string>
+    <string name="block_repeated_description">Bloquea llamadas desde números que llaman repetidamente</string>
+    <string name="repeated_call_count_label">Número de llamadas permitidas</string>
+    <string name="repeated_call_window_label">Tiempo</string>
+    <string name="value_in_minutes">%1$d min</string>
+
+    <string name="skip_call_log_title">No registrar llamadas bloqueadas</string>
+    <string name="skip_call_log_description">Evita que las llamadas bloqueadas aparezcan en el registro de llamadas del teléfono</string>
+
+    <string name="find_my_phone_background_permission_description">Si esta característica no está funcionando correctamente, considera permitir que la app pueda ejecutarse en segundo plano y que pueda iniciarse automáticamente (habitualmente estas opciones se encuentran dentro de la sección \"Batería\").</string>
+    <string name="find_my_phone_activated_no_number">Buscar mi teléfono</string>
+    <string name="find_my_phone_description">Haz sonar tu teléfono, incluso si está en silencio, cuando un número preconfigurado te llame repetidamente.\n\nEsta no es una función de bloqueo de llamadas pero bloqueará llamadas.\n\nEl funcionamiento es el siguiente: Cuando reciba una llamada de alguno de los números preconfigurados, la llamada sonará normalmente o se bloqueará, según resulte de aplicar sus reglas de configuración; pero si se cumplen las reglas indicadas más abajo (número de llamadas e intervalo entre ellas), la llamada se rechazará automáticamente y su teléfono sonará fuertemente.</string>
+    <string name="find_my_phone_enabled_label">Activar</string>
+
+    <string name="permissions_title">Otros permisos</string>
+    <string name="permissions_description">Estos permisos no son obligatorios pero se recomiendan</string>
+    <string name="permission_notifications">Notificaciones</string>
+    <string name="permission_battery">Ignorar optimizaciones de batería</string>
+    <string name="open_app_settings">Abrir ajustes de la app</string>
+
+    <string name="grant_permission">Otorgar permiso</string>
+
+    <string name="debug_screen_title">Depuración</string>
+    <string name="debug_information">Información de depuración</string>
+    <string name="debug_information_enabled">Se están guardando registros</string>
+    <string name="debug_information_disabled">No se están guardando registros</string>
+
+    <string name="about_title">Acerca de</string>
+    <string name="app_version">%1$s (%2$s)</string>
+
+    <!-- Permissions -->
+    <string name="permission_read_media_audio_required">Acceso a archivos multimedia</string>
+    <string name="permission_read_media_audio_rationale_title">Acceso a archivos multimedia</string>
+    <string name="permission_read_media_audio_rationale_message">Para reproducir el archivo de audio que selecciones como tono de búsqueda del teléfono, necesitamos tu permiso para leer los archivos multimedia.</string>
+
+    <string name="permission_read_phone_state_required">Acceso al estado del teléfono</string>
+    <string name="permission_read_phone_state_rationale_title">Estado del teléfono</string>
+    <string name="permission_read_phone_state_rationale_message">Para poder obtener el estado del teléfono y el número desde el que se reciben las llamadas, necesitamos tu permiso para ver el estado del teléfono.</string>
+
+    <string name="permission_read_contacts_required">Acceso a los contactos</string>
+    <string name="permission_read_contacts_rationale_title">Lectura de contactos</string>
+    <string name="permission_read_contacts_rationale_message">Para poder identificar números desconocidos y bloquear grupos de contactos, necesitamos tu permiso para leer los contactos.</string>
+
+    <string name="permission_call_log_required">Acceso al registro de llamadas</string>
+    <string name="permission_call_log_rationale_title">Acceso al registro de llamadas</string>
+    <string name="permission_call_log_rationale_message">Para bloquear llamadas repetidas o a números a los que no has llamado, necesitamos poder acceder al registro de llamadas.</string>
+
+    <string name="permission_ignore_battery_optimizations_required">Permitir ejecución en segundo plano</string>
+
+    <string name="permission_notifications_rationale_title">Notificaciones</string>
+    <string name="permission_notifications_rationale_message">Para poder informate sobre cuándo bloqueemos una llamada y para poder gestionar rápidamente las funciones de bloqueo, necesitamos poder postear notificaciones</string>
+
+    <!-- Find My Phone -->
+    <string name="find_my_phone_add">Añadir</string>
+    <string name="find_my_phone_remove">Eliminar</string>
+    <string name="find_my_phone_trusted_numbers">Números de confianza</string>
+    <string name="find_my_phone_no_numbers">No se han añadido números</string>
+    <string name="find_my_phone_call_count_label">Llamadas necesarias</string>
+    <string name="find_my_phone_window_label">Tiempo</string>
+    <string name="find_my_phone_ringtone">Elija el tono</string>
+    <string name="find_my_phone_media_audio_description">Si el tono seleccionado no es un tono de los incluidos por defecto en el sistema, necesitará permitir el acceso de lectura a los archivos multimedia.</string>
+    <string name="find_my_phone_activated_from">Buscar mi teléfono activado desde\n%1$s</string>
+    <string name="find_my_phone_stop_sound">¡Lo encontré!</string>
+    <string name="find_my_phone_notification_playing">Buscar mi teléfono</string>
+
+    <!-- Block reasons -->
+    <string name="reason">%1$s</string>
+    <string name="reason_whitelisted_number">Número en lista de aceptados</string>
+    <string name="reason_whitelisted_prefix">Prefijo en lista de aceptados</string>
+    <string name="reason_hidden">Número oculto</string>
+    <string name="reason_blacklisted_number">Número en lista de rechazados</string>
+    <string name="reason_blacklisted_prefix">Prefijo en lista de rechazados</string>
+    <string name="reason_unknown_number">No es un contacto</string>
+    <string name="reason_group">Contacto de un grupo bloqueado</string>
+    <string name="reason_international">Número internacional</string>
+    <string name="reason_not_called">Número no marcado previamente</string>
+    <string name="reason_rejected_before">Rechazada anteriormente</string>
+    <string name="reason_repeated_call">Llamada repetida</string>
+    <string name="reason_schedule">Horario</string>
+    <string name="reason_unknown">Desconocida</string>
+
+    <!-- Schedule blocking -->
+    <string name="schedule_blocking_start">Inicio</string>
+    <string name="schedule_blocking_end">Fin</string>
+    <string name="schedule_blocking_select_day">Seleccionar día</string>
+    <string name="schedule_blocking_select_time">Seleccionar hora</string>
+    <string name="schedule_blocking_period">%1$s → %2$s</string>
+
+    <!-- Test screening -->
+    <string name="test_screening_title">Probar el bloqueo</string>
+    <string name="test_screening_description">Comprueba si la configuración actual bloquearía un número o no.</string>
+    <string name="test_screening_description_addon_scheduler">Para la comprobación de los bloqueos por horario, se asumirá que la llamada entra en el momento actual.</string>
+    <string name="test_screening_description_addon_permissions">Ha activado reglas que requiren de permisos que no ha otorgado.</string>
+    <string name="test_screening_button">Probar</string>
+    <string name="test_screening_result_blocked">Las llamadas desde el número %1$s se bloquearán (%2$s)</string>
+    <string name="test_screening_result_blocked_find_by_phone">Las llamadas desde el número %1$s se podrían bloquear (%2$s)</string>
+    <string name="test_screening_result_not_blocked">Las llamadas desde el número %1$s no se bloquearán</string>
+
+    <!-- Call Screening -->
+    <string name="screening_permissions_description">Si la app no está filtrando llamadas o si recibes llamadas y no quedan registradas en la pestaña \"Historial\", considera permitir los siguientes permisos, que son necesarios en algunos dispositivos.</string>
+    <string name="screening_active_title">Bloqueo activo</string>
+    <string name="screening_active_description">\"%1$s\" puede interceptar llamadas entrantes</string>
+    <string name="screening_inactive_title">Bloqueo inactivo</string>
+    <string name="screening_inactive_description">Activa el bloqueo para que \"%1$s\" pueda interceptar llamadas no deseadas</string>
+    <string name="screening_enable_button">Activar bloqueo de llamadas</string>
+
+    <!-- Screening Dialog -->
+    <string name="screening_dialog_title">¿Activar bloqueo de llamadas?</string>
+    <string name="screening_dialog_message">\"%1$s\" necesita permiso para interceptar llamadas entrantes y bloquear números no deseados. ¿Quieres activarlo ahora?</string>
+    <string name="screening_dialog_allow">Activar</string>
+    <string name="screening_dialog_later">Más tarde</string>
+
+    <!-- Backup & Restore -->
+    <string name="backup_title">Copia de seguridad</string>
+    <string name="backup_export">Exportar</string>
+    <string name="backup_import">Importar</string>
+    <string name="backup_success">Copia de seguridad completada</string>
+    <string name="backup_restore_success">Restauración completada</string>
+    <string name="backup_restore_confirm_title">Restaurar copia de seguridad</string>
+    <string name="backup_restore_confirm_message">Los datos actuales serán reemplazados por los de la copia de seguridad.\n\nLos ajustes, números, historial y sugerencias descartadas se perderán.\n\n¿Estás seguro de que quieres continuar?</string>
+
+    <!-- Import -->
+    <string name="import_title">Importar</string>
+    <string name="processing_data_title">@string/import_title</string>
+    <string name="processing_data_message">Analizando los números incluidos en el archivo&#8230;</string>
+    <string name="importing_data_title">@string/import_title</string>
+    <string name="importing_data_message">Se están guardando los números que se pueden importar&#8230;</string>
+    <string name="import_preview_title">Vista previa</string>
+    <string name="import_confirm">Importar</string>
+    <string name="import_success_toast">Importación finalizada</string>
+    <string name="import_error_toast">No se ha podido completar la importación</string>
+    <string name="import_file_summary">El archivo contiene %1$s.\n\nIndica cómo deseas validarlos:</string>
+    <string name="force_possible_number">Requerir que los números sean posibles</string>
+    <string name="force_valid_number">Requerir que los números sean válidos</string>
+    <string name="collapse">Contraer</string>
+    <string name="expand">Expandir</string>
+    <string name="blank_after_removing_non_digits_error">Vacío después de eliminar carácteres no numéricos</string>
+    <string name="not_possible_number">El número no es posible</string>
+    <string name="not_valid_number">El número no es válido</string>
+    <string name="parse_error">Error procesando el número</string>
+    <string name="format_error">Error de formato</string>
+
+    <!-- Debug -->
+    <string name="log_to_file">Generar archivo de registro</string>
+    <string name="share_log">Compartir archivo de depuración</string>
+    <string name="save_log">Guardar archivo de depuración</string>
+    <string name="cant_read_log_file">No se ha podido leer el archivo de registro</string>
+    <string name="log_file_has_been_saved">Se ha guardado el archivo de registro</string>
+    <string name="logging_dialog_title">Depuración</string>
+    <string name="start_logging_dialog_body">¿Quieres eliminar el archivo actual y empezar uno nuevo?</string>
+    <string name="saving_log_title">Guardando</string>
+    <string name="saving_log_message">Guardando archivo de registro&#8230;</string>
+    <string name="stop_logging_dialog_body">¿Quieres dejar de guardar registros de depuración y eliminar el archivo actual?</string>
+    <string name="obfuscate_phone_numbers_title">Privacidad</string>
+    <string name="obfuscate_phone_numbers_message">¿Quieres ofuscar los números de teléfono?</string>
+    <string name="no_log_data">No hay datos</string>
+
+    <!-- Deleting -->
+    <string name="deleting_title">Espere un momento</string>
+    <string name="deleting_message">Se están borrando los números&#8230;</string>
+
+    <!-- CSV Export -->
+    <string name="csv_column_phone_number">Número de teléfono</string>
+    <string name="csv_column_date">Fecha</string>
+    <string name="csv_column_reason">Razón</string>
+
+    <!-- Misc -->
+    <string name="error_title">Error</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="error_duplicate_exact">El número exacto ya existe</string>
+    <string name="error_duplicate_prefix">El prefijo ya existe</string>
+    <string name="ok">Aceptar</string>
+    <string name="back">Atrás</string>
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
+
+</resources>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="section_blocked_exact_numbers">
+        <item quantity="one">%1$d número bloqueado</item>
+        <item quantity="other">%1$d números bloqueados</item>
+        <item quantity="many">%1$d números bloqueados</item>
+    </plurals>
+    <plurals name="section_blocked_prefixes">
+        <item quantity="one">%1$d prefijo bloqueado</item>
+        <item quantity="other">%1$d prefijos bloqueados</item>
+        <item quantity="many">%1$d prefijos bloqueados</item>
+    </plurals>
+    <plurals name="section_allowed_exact_numbers">
+        <item quantity="one">%1$d número permitido</item>
+        <item quantity="other">%1$d números permitidos</item>
+        <item quantity="many">%1$d números permitidos</item>
+    </plurals>
+    <plurals name="section_allowed_prefixes">
+        <item quantity="one">%1$d prefijo permitido</item>
+        <item quantity="other">%1$d prefijos permitidos</item>
+        <item quantity="many">%1$d prefijos permitidos</item>
+    </plurals>
+    <plurals name="import_preview_message">
+        <item quantity="one">%1$d nuevo</item>
+        <item quantity="other">%1$d nuevos</item>
+        <item quantity="many">%1$d nuevos</item>
+    </plurals>
+    <plurals name="import_preview_already_blocked_or_allowed">
+        <item quantity="one">%1$d ya añadido</item>
+        <item quantity="other">%1$d ya añadidos</item>
+        <item quantity="many">%1$d ya añadidos</item>
+    </plurals>
+    <plurals name="import_preview_errors">
+        <item quantity="one">%1$d erróneo</item>
+        <item quantity="other">%1$d erróneos</item>
+        <item quantity="many">%1$d erróneos</item>
+    </plurals>
+    <plurals name="n_selected">
+        <item quantity="one">%d seleccionado</item>
+        <item quantity="other">%d seleccionados</item>
+        <item quantity="many">%d seleccionados</item>
+    </plurals>
+    <plurals name="log_file_messages_count">
+        <item quantity="one">%1$d mensaje</item>
+        <item quantity="other">%1$d mensajes</item>
+        <item quantity="many">%1$d mensajes</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">%d día</item>
+        <item quantity="other">%d días</item>
+        <item quantity="many">%d días</item>
+    </plurals>
+    <plurals name="group_contacts_count">
+        <item quantity="one">%1$d contacto</item>
+        <item quantity="other">%1$d contactos</item>
+        <item quantity="many">%1$d contactos</item>
+    </plurals>
+    <plurals name="calls">
+        <item quantity="one">%d llamada</item>
+        <item quantity="other">%d llamadas</item>
+        <item quantity="many">%d llamadas</item>
+    </plurals>
+    <plurals name="numbers">
+        <item quantity="one">%d número</item>
+        <item quantity="other">%d números</item>
+        <item quantity="many">%d números</item>
+    </plurals>
+    <plurals name="date_and_time">
+        <item quantity="one">%1$s a la %2$s</item>
+        <item quantity="other">%1$s a las %2$s</item>
+        <item quantity="many">%1$s a las %2$s</item>
+    </plurals>
+    <plurals name="weekday_and_time">
+        <item quantity="one">%1$s a la %2$s</item>
+        <item quantity="other">%1$s a las %2$s</item>
+        <item quantity="many">%1$s a las %2$s</item>
+    </plurals>
+</resources>
+

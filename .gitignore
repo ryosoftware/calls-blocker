@@ -1,0 +1,14 @@
+*.iml
+.gradle
+/local.properties
+/.idea/
+.DS_Store
+/build
+local.properties
+key.properties
+app/build/
+app/release/
+.java-version
+.kotlin
+gradle/gradle-daemon-jvm.properties
+import-summary.txt

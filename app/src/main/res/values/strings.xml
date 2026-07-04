@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <string name="app_name">Calls Blocker</string>
+
+    <!-- Notification channels -->
+    <string name="notification_channel_name">Blocked calls</string>
+    <string name="notification_blocked_title">Call blocked</string>
+
+    <!-- Notification -->
+    <string name="notification_blocked_body">%1$s has called %3$s</string>
+    <string name="notification_suggestion_channel_name">Block suggestions</string>
+    <string name="notification_suggestion_title" />
+    <string name="notification_suggestion_body">%1$s has called %2$s.</string>
+    <string name="notification_suggestion_block">Block</string>
+    <string name="notification_suggestion_dismiss">I known this number</string>
+
+    <!-- Navigation -->
+    <string name="nav_block_list">Numbers</string>
+    <string name="nav_history">History</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Numbers List Screen -->
+    <string name="numbers_list_empty">No numbers</string>
+    <string name="search">Search</string>
+    <string name="search_numbers_hint">Search numbers…</string>
+    <string name="no_results">No results</string>
+
+    <string name="add_number">Add number</string>
+    <string name="delete">Delete</string>
+    <string name="label_exact">Exact coincidence</string>
+    <string name="label_prefix">Number prefix</string>
+    <string name="label_allowed">Allowed</string>
+    <string name="label_blocked">Blocked</string>
+    <string name="delete_entries_title">Remove numbers?</string>
+    <string name="delete_entries_message">Remove %d numbers ?</string>
+    <string name="delete_entry_title">Remove number?</string>
+    <string name="delete_entry_message">Remove this number?</string>
+
+    <!-- Add Number Dialog -->
+    <string name="add_number_title">Add number</string>
+    <string name="fab_add_label">Add manually</string>
+    <string name="fab_import_label">Import numbers to block from a file</string>
+    <string name="phone_number_label">Phone number</string>
+    <string name="country_label">Country</string>
+    <string name="description_label">Description (optional)</string>
+    <string name="number_type_label">Number type</string>
+    <string name="number_type_exact">Exact number</string>
+    <string name="number_type_prefix">Prefix</string>
+    <string name="action_label">Action</string>
+    <string name="action_block">Block</string>
+    <string name="action_allow">Allow</string>
+
+    <!-- History Screen -->
+    <string name="history_empty">No logged calls</string>
+    <string name="delete_history_entry_title">Remove entry?</string>
+    <string name="delete_history_entry_message">Remove this entry from the history?</string>
+    <string name="delete_history_entries_title">Remove entries?</string>
+    <string name="delete_history_entries_message">Remove %d entries from the history?</string>
+    <string name="also_unblock">Stop blocking this number</string>
+    <string name="also_unallow">Stop allowing this number</string>
+    <string name="delete_all_entries_for_number">Delete all %1$d entries for this number</string>
+    <string name="history_header_today">%1$s today</string>
+    <string name="history_header_yesterday">%1$s yesterday</string>
+    <string name="history_header_this_week">%1$s this week</string>
+    <string name="history_header_this_month">%1$s this month</string>
+    <string name="history_header_month_without_year">%1$s in %2$s</string>
+    <string name="history_header_month_with_year">%1$s in %2$s %3$d</string>
+    <string name="history_export">Export as CSV</string>
+    <string name="history_export_success">History exported successfully</string>
+    <string name="private_number">Private number</string>
+
+    <!-- Settings Screen -->
+    <string name="default_country_title">Your country</string>
+    <string name="default_country_description">Used when importing numbers that does not include a country code or when a call is received but the country code is missing and the system does not report the SIM card on which the call was received or the country of the SIM.</string>
+    <string name="default_country_not_set">Not set</string>
+
+    <string name="blocking_rules_title">You phone, your rules!</string>
+    <string name="blocking_rules_description">Below you can configure general blocking rules. Please note that these rules do not apply to phone numbers or prefixes included in your allowlist (Numbers tab), which are never blocked.</string>
+
+    <string name="schedule_blocking_title">Schedule blocking</string>
+    <string name="schedule_blocking_description">Blocks calls in the specified periods</string>
+    <string name="schedule_blocking_add">Add</string>
+    <string name="schedule_blocking_edit">Edit period</string>
+    <string name="schedule_blocking_no_rules">No time periods added</string>
+
+    <string name="block_unknown_title">Block unknown numbers</string>
+    <string name="block_unknown_description">Blocks calls from numbers not in your contacts</string>
+
+    <string name="block_hidden_title">Block hidden numbers</string>
+    <string name="block_hidden_description">Blocks calls from private or hidden numbers</string>
+
+    <string name="block_groups_title">Block groups</string>
+    <string name="block_groups_description">Blocks calls from contacts that belong to selected groups</string>
+    <string name="selected_groups">Groups</string>
+    <string name="select_groups">Select groups</string>
+    <string name="no_groups_warning">No groups selected.\nAll calls from contacts will be allowed.</string>
+    <string name="group_contacts_count_zero">No contacts</string>
+
+    <string name="block_international_title">Block international calls</string>
+    <string name="block_international_description">Blocks calls from other countries</string>
+    <string name="select_allowed_countries">Allowed countries</string>
+    <string name="select_countries">Select countries</string>
+    <string name="number_from_country_name_and_flag">%2$s %1$s</string>
+    <string name="no_allowed_countries_warning">All calls will be blocked if you don\'t add at least one country</string>
+
+    <string name="block_not_called_title">Block not called before</string>
+    <string name="block_not_called_description">Blocks calls from numbers that haven\'t been called before</string>
+    <string name="not_called_window_label">Days to check</string>
+
+    <string name="block_rejected_title">Block if previously rejected</string>
+    <string name="block_rejected_description">Blocks calls from numbers that you have rejected before.\n\nPlease note that this refers to calls rejected from the phone app, not calls previously blocked by this app.</string>
+    <string name="rejected_window_label">Days to check</string>
+
+    <string name="block_repeated_title">Block repeated calls</string>
+    <string name="block_repeated_description">Blocks calls from numbers that call repeatedly</string>
+    <string name="repeated_call_count_label">Number of calls allowed</string>
+    <string name="repeated_call_window_label">Time window</string>
+    <string name="value_in_minutes">%1$d min</string>
+
+    <string name="skip_call_log_title">Don\'t log blocked calls</string>
+    <string name="skip_call_log_description">Prevents blocked calls from appearing in the Phone calls log</string>
+
+    <string name="find_my_phone_background_permission_description">If this feature is not working properly, consider allowing the app to run in the background and to auto-start (these options are usually found within the \"Battery\" section).</string>
+    <string name="find_my_phone_activated_no_number">Find my phone</string>
+    <string name="find_my_phone_description">Make your phone ring, even if it\'s on silent, when a preconfigured number calls repeatedly.\n\nThis is not a call blocking feature, but it can block calls.\n\nIt works as follows: when you receive a call from one of the preconfigured phone numbers, the call will either ring normally or be blocked according to your configured rules. However, if the conditions defined below (number of calls and the time interval between them) are met, the call will be automatically rejected and your phone will ring loudly.</string>
+    <string name="find_my_phone_enabled_label">Enable</string>
+
+    <string name="permissions_title">Other permissions</string>
+    <string name="permissions_description">These permissions are not required but are recommended</string>
+    <string name="permission_notifications">Notifications</string>
+    <string name="permission_battery">Ignore battery optimizations</string>
+    <string name="open_app_settings">Open app settings</string>
+
+    <string name="grant_permission">Grant permission</string>
+
+    <string name="debug_screen_title">Debug</string>
+    <string name="debug_information">Debug information</string>
+    <string name="debug_information_enabled">Logging to file enabled</string>
+    <string name="debug_information_disabled">Logging to file disabled</string>
+
+    <string name="about_title">About</string>
+    <string name="app_version">%1$s (%2$s)</string>
+
+    <!-- Permissions -->
+    <string name="permission_read_media_audio_required">Read media audio</string>
+    <string name="permission_read_media_audio_rationale_title">Media audio access</string>
+    <string name="permission_read_media_audio_rationale_message">We need your permission to read the audio file to play the \"find my phone\" ringtone.</string>
+    <string name="permission_read_phone_state_required">Read Phone state</string>
+    <string name="permission_read_phone_state_rationale_title">Read Phone state</string>
+    <string name="permission_read_phone_state_rationale_message">We need your permission to read the phone status and the number from which calls are received.</string>
+
+    <string name="permission_read_contacts_required">Read contacts</string>
+    <string name="permission_read_contacts_rationale_title">Read contacts</string>
+    <string name="permission_read_contacts_rationale_message">We need your permission to read your contacts to identify unknown numbers and block groups of contacts.</string>
+
+    <string name="permission_call_log_required">Call log access</string>
+    <string name="permission_call_log_rationale_title">Call log access</string>
+    <string name="permission_call_log_rationale_message">We need your permission to read the call log to detect repeated calls and dialed calls.</string>
+
+    <string name="permission_ignore_battery_optimizations_required">Allow background execution</string>
+
+    <string name="permission_notifications_rationale_title">Notifications</string>
+    <string name="permission_notifications_rationale_message">We would like to be able to post notifications, to keep you informed about when we block a call and to be able to quickly manage blocking functions.</string>
+
+    <!-- Find My Phone -->
+    <string name="find_my_phone_add">Add</string>
+    <string name="find_my_phone_remove">Remove</string>
+    <string name="find_my_phone_trusted_numbers">Trusted numbers</string>
+    <string name="find_my_phone_no_numbers">No numbers added</string>
+    <string name="find_my_phone_call_count_label">Calls required</string>
+    <string name="find_my_phone_window_label">Time</string>
+    <string name="find_my_phone_ringtone">Select a ringtone</string>
+    <string name="find_my_phone_media_audio_description">If the selected ringtone is not a system default one, you may need to grant read audio access.</string>
+    <string name="find_my_phone_activated_from">Find my phone activated from\n%1$s</string>
+    <string name="find_my_phone_stop_sound">I found it!</string>
+    <string name="find_my_phone_notification_playing">Find my phone</string>
+
+    <!-- Block reasons -->
+    <string name="reason">%1$s</string>
+    <string name="reason_whitelisted_number">Whitelisted number</string>
+    <string name="reason_whitelisted_prefix">Whitelisted prefix</string>
+    <string name="reason_hidden">Hidden number</string>
+    <string name="reason_blacklisted_number">Blacklisted number</string>
+    <string name="reason_blacklisted_prefix">Blacklisted prefix</string>
+    <string name="reason_unknown_number">It\'s not a contact</string>
+    <string name="reason_group">Contact from a blocked group</string>
+    <string name="reason_international">International call</string>
+    <string name="reason_not_called">Number not called before</string>
+    <string name="reason_rejected_before">Previously rejected</string>
+    <string name="reason_repeated_call">Repeated call</string>
+    <string name="reason_schedule">Schedule</string>
+    <string name="reason_unknown">Unknown</string>
+
+    <!-- Schedule blocking -->
+    <string name="schedule_blocking_start">Start</string>
+    <string name="schedule_blocking_end">End</string>
+    <string name="schedule_blocking_select_day">Select day</string>
+    <string name="schedule_blocking_select_time">Select time</string>
+    <string name="schedule_blocking_period">%1$s → %2$s</string>
+
+    <!-- Test screening -->
+    <string name="test_screening_title">Test if number be blocked</string>
+    <string name="test_screening_description">Check whether the current configuration would block a phone number.</string>
+    <string name="test_screening_description_addon_scheduler">When checking schedule blocking rules, the call is assumed to be received at the current time.</string>
+    <string name="test_screening_description_addon_permissions">Some of the enabled rules require permissions that have not been granted.</string>
+    <string name="test_screening_button">Test</string>
+    <string name="test_screening_result_blocked">Calls from number %1$s will be blocked (%2$s)</string>
+    <string name="test_screening_result_blocked_find_by_phone">Calls from number %1$s will maybe be blocked (%2$s)</string>
+    <string name="test_screening_result_not_blocked">Calls from number %1$s will not be blocked</string>
+
+    <!-- Call Screening -->
+    <string name="screening_permissions_description">If the app is not filtering calls or you receive calls that are not recorded in the History tab, consider granting the following permissions, which are required on some devices.</string>
+    <string name="screening_active_title">Call screening active</string>
+    <string name="screening_active_description">\"%1$s\" can intercept incoming calls</string>
+    <string name="screening_inactive_title">Call screening inactive</string>
+    <string name="screening_inactive_description">Enable call screening to allow \"%1$s\" to block unwanted calls</string>
+    <string name="screening_enable_button">Enable call screening</string>
+
+    <!-- Screening Dialog -->
+    <string name="screening_dialog_title">Enable call blocking?</string>
+    <string name="screening_dialog_message">\"%1$s\" needs permission to intercept incoming calls and block unwanted numbers. Would you like to enable this now?</string>
+    <string name="screening_dialog_allow">Enable</string>
+    <string name="screening_dialog_later">Later</string>
+
+    <!-- Backup & Restore -->
+    <string name="backup_title">Backup &amp; Restore</string>
+    <string name="backup_export">Backup</string>
+    <string name="backup_import">Restore</string>
+    <string name="backup_success">Backup completed successfully</string>
+    <string name="backup_restore_success">Restore completed successfully</string>
+    <string name="backup_restore_confirm_title">Restore backup</string>
+    <string name="backup_restore_confirm_message">Current data will be replaced by the backup.\n\nSettings, numbers, history and dismissed suggestions will be lost.\n\nAre you sure you want to continue?</string>
+
+    <!-- Import -->
+    <string name="import_title">Import</string>
+    <string name="processing_data_title">@string/import_title</string>
+    <string name="processing_data_message">Analyzing the numbers in the file&#8230;</string>
+    <string name="importing_data_title">@string/import_title</string>
+    <string name="importing_data_message">Storing the numbers that can be imported&#8230;</string>
+    <string name="import_preview_title">Import preview</string>
+    <string name="import_confirm">Import</string>
+    <string name="import_success_toast">Import completed</string>
+    <string name="import_error_toast">Import could not be completed</string>
+    <string name="import_file_summary">The file contains %1$s.\n\nConfigure how you want them to be validated:</string>
+    <string name="force_possible_number">Require numbers to be possible</string>
+    <string name="force_valid_number">Require numbers to be valid</string>
+    <string name="collapse">Collapse</string>
+    <string name="expand">Expand</string>
+    <string name="blank_after_removing_non_digits_error">Blank after removing non-digits</string>
+    <string name="not_possible_number">Not possible number</string>
+    <string name="not_valid_number">Not valid number</string>
+    <string name="parse_error">Number parse error</string>
+    <string name="format_error">Number format error</string>
+
+    <!-- Logging -->
+    <string name="log_to_file">Log to file</string>
+    <string name="share_log">Share log file</string>
+    <string name="save_log">Save log file</string>
+    <string name="cant_read_log_file">Error reading log file</string>
+    <string name="log_file_has_been_saved">Log file has been saved</string>
+    <string name="logging_dialog_title">Logging</string>
+    <string name="start_logging_dialog_body">Do you want to delete the current log file and start a new one?</string>
+    <string name="stop_logging_dialog_body">Do you want to stop saving debug logs and delete the current log file?</string>
+    <string name="saving_log_title">Saving</string>
+    <string name="saving_log_message">Saving log file&#8230;</string>
+    <string name="obfuscate_phone_numbers_title">Privacy</string>
+    <string name="obfuscate_phone_numbers_message">Do you want to obfuscate phone numbers?</string>
+    <string name="no_log_data">No log data</string>
+
+    <!-- Deleting -->
+    <string name="deleting_title">Please wait</string>
+    <string name="deleting_message">Deleting entries&#8230;</string>
+
+    <!-- CSV Export -->
+    <string name="csv_column_phone_number">Phone Number</string>
+    <string name="csv_column_date">Date</string>
+    <string name="csv_column_reason">Reason</string>
+
+    <!-- Misc -->
+    <string name="error_title">Error</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="error_duplicate_exact">The exact number already exists</string>
+    <string name="error_duplicate_prefix">The prefix already exists</string>
+    <string name="ok">OK</string>
+    <string name="back">Back</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+</resources>

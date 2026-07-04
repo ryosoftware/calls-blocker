@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="section_blocked_exact_numbers">
+        <item quantity="one">%1$d blocked number</item>
+        <item quantity="other">%1$d blocked numbers</item>
+    </plurals>
+    <plurals name="section_blocked_prefixes">
+        <item quantity="one">%1$d blocked prefix</item>
+        <item quantity="other">%1$d blocked prefixes</item>
+    </plurals>
+    <plurals name="section_allowed_exact_numbers">
+        <item quantity="one">%1$d allowed number</item>
+        <item quantity="other">%1$d allowed numbers</item>
+    </plurals>
+    <plurals name="section_allowed_prefixes">
+        <item quantity="one">%1$d allowed prefix</item>
+        <item quantity="other">%1$d allowed prefixes</item>
+    </plurals>
+    <plurals name="import_preview_message">
+        <item quantity="one">%1$d new number</item>
+        <item quantity="other">%1$d new numbers</item>
+    </plurals>
+    <plurals name="import_preview_already_blocked_or_allowed">
+        <item quantity="one">%1$d already added</item>
+        <item quantity="other">%1$d already added</item>
+    </plurals>
+    <plurals name="import_preview_errors">
+        <item quantity="one">%1$d erroneous</item>
+        <item quantity="other">%1$d erroneous</item>
+    </plurals>
+    <plurals name="n_selected">
+        <item quantity="one">%d selected</item>
+        <item quantity="other">%d selected</item>
+    </plurals>
+    <plurals name="log_file_messages_count">
+        <item quantity="one">%1$d message</item>
+        <item quantity="other">%1$d messages</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="group_contacts_count">
+        <item quantity="one">%1$d contact</item>
+        <item quantity="other">%1$d contacts</item>
+    </plurals>
+    <plurals name="calls">
+        <item quantity="one">%d call</item>
+        <item quantity="other">%d calls</item>
+    </plurals>
+    <plurals name="numbers">
+        <item quantity="one">%d number</item>
+        <item quantity="other">%d numbers</item>
+    </plurals>
+    <plurals name="date_and_time">
+        <item quantity="one">%1$s at %2$s</item>
+        <item quantity="other">%1$s at %2$s</item>
+    </plurals>
+    <plurals name="weekday_and_time">
+        <item quantity="one">%1$s at %2$s</item>
+        <item quantity="other">%1$s at %2$s</item>
+    </plurals>
+</resources>
+

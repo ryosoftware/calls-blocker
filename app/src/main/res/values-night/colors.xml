@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <color name="splash_background">#1C1B1F</color>
+
+    <color name="primary">#FFB785</color>
+    <color name="on_primary">#FF4A2800</color>
+    <color name="primary_container">#FF6E3E00</color>
+    <color name="on_primary_container">#FFFFDBC2</color>
+    <color name="status_active_container">#FF1B5E20</color>
+    <color name="status_inactive_container">#FFB71C1C</color>
+
+</resources>

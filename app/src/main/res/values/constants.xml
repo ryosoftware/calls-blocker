@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+
+    <string name="github_repo">https://github.com/ryosoftware/calls-blocker</string>
+
+    <integer name="repeated_call_count_default">3</integer>
+    <integer name="repeated_call_window_minutes_default">5</integer>
+    <integer name="not_called_window_days_default">7</integer>
+    <integer name="rejected_window_days_default">7</integer>
+    <integer name="find_my_phone_call_count_default">3</integer>
+    <integer name="find_my_phone_window_minutes_default">2</integer>
+
+</resources>
