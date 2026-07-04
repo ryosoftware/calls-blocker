@@ -61,6 +61,16 @@
   <img src="assets/settings-4.png" alt="Settings" width="200">
 </p>
 
+## CERTIFICATE SIGNATURE VERIFICATION
+
+The SHA-256 digest of the certificate used to sign the app is as follows, and remains constant regardless of the version:
+
+`ab5d51948ad88f0229624faae00c0a5ee4754ed8e17e7f00821eb73ebdfa2152`
+
+The app signature certification can be checked by the following command:
+
+`apksigner verify --verbose --print-certs app-release.apk | grep "Signer #1 certificate SHA-256 digest"`
+
 ## 🚀 Getting Started
 
 1. Clone the repo:
