@@ -23,13 +23,14 @@
 - **Call Screening** — Intercepts incoming calls and blocks or allows them based on your rules, using the official `CallScreeningService` API.
 - **Block & Allow Lists** — Add individual numbers or prefixes, choose between exact or prefix matching, batch delete.
 - **Smart Blocking Rules**:
-  - 🔇 Block unknown, hidden, or private numbers
+  - 🔇 Block All, Block unknown, hidden, or private numbers
   - 🌍 Block international calls (whitelist countries)
   - 👥 Block calls from specific contact groups
   - 📞 Block if you've never called them before
   - 🔁 Block repeated calls (configurable time window)
   - ⏰ Schedule-based blocking
 - **Find My Phone** — Trusted numbers can trigger a loud ringing alarm, even on silent mode, with a full-screen "I found it!" button.
+- **Quick Settings Tile** — Shortcut to Block All incoming calls in the status bar
 - **Blocking History** — Every screened call is logged, grouped by date, with CSV export and one-tap unblock.
 - **CSV Import** — Bulk import numbers to block/allow.
 - **Full Backup & Restore** — JSON export/import of all settings, lists, and history.
@@ -53,12 +54,12 @@
 ## 📱 Screenshots
 
 <p align="center">
-  <img src="assets/numbers.png" alt="Numbers list" width="200">
-  <img src="assets/history.png" alt="Call history" width="200">
-  <img src="assets/settings-1.png" alt="Settings" width="200">
-  <img src="assets/settings-2.png" alt="Settings" width="200">
-  <img src="assets/settings-3.png" alt="Settings" width="200">
-  <img src="assets/settings-4.png" alt="Settings" width="200">
+  <img src="assets/screenshots/numbers.png" alt="Numbers list" width="200">
+  <img src="assets/screenshots/history.png" alt="Call history" width="200">
+  <img src="assets/screenshots/settings-1.png" alt="Settings" width="200">
+  <img src="assets/screenshots/settings-2.png" alt="Settings" width="200">
+  <img src="assets/screenshots/settings-3.png" alt="Settings" width="200">
+  <img src="assets/screenshots/settings-4.png" alt="Settings" width="200">
 </p>
 
 ## CERTIFICATE SIGNATURE VERIFICATION
