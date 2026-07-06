@@ -36,16 +36,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
-import com.ryosoftware.calls_blocker.data.formatPhoneNumber
-import com.ryosoftware.calls_blocker.service.callsblocker.PostServiceWorker
+import com.ryosoftware.calls_blocker.service.callsblocker.FindMyPhonePlayer
 
 @Composable
 fun FindMyPhoneScreen() {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val phoneNumber = remember {
-        (context as? Activity)?.intent?.getStringExtra(PostServiceWorker.EXTRA_PHONE_NUMBER) ?: ""
+        (context as? Activity)?.intent?.getStringExtra(FindMyPhonePlayer.EXTRA_PHONE_NUMBER) ?: ""
     }
 
     DisposableEffect(lifecycleOwner) {
@@ -63,7 +63,7 @@ fun FindMyPhoneScreen() {
         val activity = context as? Activity
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                if (intent.action == PostServiceWorker.ACTION_SERVICE_DESTROYED) {
+                if (intent.action == FindMyPhonePlayer.ACTION_SERVICE_DESTROYED) {
                     activity?.finish()
                 }
             }
@@ -71,7 +71,7 @@ fun FindMyPhoneScreen() {
         ContextCompat.registerReceiver(
             context,
             receiver,
-            IntentFilter(PostServiceWorker.ACTION_SERVICE_DESTROYED),
+            IntentFilter(FindMyPhonePlayer.ACTION_SERVICE_DESTROYED),
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
         onDispose {
@@ -97,7 +97,8 @@ fun FindMyPhoneScreen() {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = stringResource(R.string.find_my_phone_activated_from, formatPhoneNumber(phoneNumber)),
+            text = if (phoneNumber.isEmpty()) stringResource(R.string.find_my_phone_activated_no_number)
+                   else (stringResource(R.string.find_my_phone_activated_from, PhoneUtils.formatPhoneNumber(phoneNumber))),
             style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Center
         )
@@ -106,7 +107,7 @@ fun FindMyPhoneScreen() {
 
         Button(
             onClick = {
-                PostServiceWorker.stop(context)
+                FindMyPhonePlayer.stop(context)
 
                 (context as? Activity)?.finish()
             },

@@ -1,7 +1,6 @@
 package com.ryosoftware.calls_blocker.data
 
 import android.content.Context
-import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.ryosoftware.calls_blocker.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
@@ -13,17 +12,6 @@ data class Country(
     val nameResId: Int,
     val flag: String
 )
-
-fun formatPhoneNumber(phoneNumber: String): String {
-    if (!phoneNumber.startsWith("+")) return phoneNumber
-    return try {
-        val phoneUtil = PhoneNumberUtil.getInstance()
-        val parsed = phoneUtil.parse(phoneNumber, null)
-        phoneUtil.format(parsed, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL)
-    } catch (_: Exception) {
-        phoneNumber
-    }
-}
 
 fun phoneCodesForIso(isos: Set<String>): Set<String> =
     countries.filter { it.iso in isos }.map { it.code }.toSet()
@@ -51,6 +39,19 @@ val countries = listOf(
     Country("1", "BM", R.string.country_bermuda, "🇧🇲"),
     Country("1", "KY", R.string.country_cayman_islands, "🇰🇾"),
     Country("1", "VI", R.string.country_u_s_virgin_islands, "🇻🇮"),
+    Country("1", "AS", R.string.country_american_samoa, "🇦🇸"),
+    Country("1", "AG", R.string.country_antigua_and_barbuda, "🇦🇬"),
+    Country("1", "AI", R.string.country_anguilla, "🇦🇮"),
+    Country("1", "DM", R.string.country_dominica, "🇩🇲"),
+    Country("1", "GD", R.string.country_grenada, "🇬🇩"),
+    Country("1", "GU", R.string.country_guam, "🇬🇺"),
+    Country("1", "MS", R.string.country_montserrat, "🇲🇸"),
+    Country("1", "MP", R.string.country_northern_mariana_islands, "🇲🇵"),
+    Country("1", "KN", R.string.country_saint_kitts_and_nevis, "🇰🇳"),
+    Country("1", "LC", R.string.country_saint_lucia, "🇱🇨"),
+    Country("1", "SX", R.string.country_sint_maarten, "🇸🇽"),
+    Country("1", "VC", R.string.country_saint_vincent_and_the_grenadines, "🇻🇨"),
+    Country("1", "TC", R.string.country_turks_and_caicos_islands, "🇹🇨"),
     Country("7", "RU", R.string.country_russia, "🇷🇺"),
     Country("7", "KZ", R.string.country_kazakhstan, "🇰🇿"),
     Country("30", "GR", R.string.country_greece, "🇬🇷"),
@@ -98,7 +99,7 @@ val countries = listOf(
     Country("20", "EG", R.string.country_egypt, "🇪🇬"),
     Country("27", "ZA", R.string.country_south_africa, "🇿🇦"),
     Country("212", "MA", R.string.country_morocco, "🇲🇦"),
-    Country("213", "AF", R.string.country_algeria, "🇦🇫"),
+    Country("213", "DZ", R.string.country_algeria, "🇦🇫"),
     Country("216", "TN", R.string.country_tunisia, "🇹🇳"),
     Country("218", "LY", R.string.country_libya, "🇱🇾"),
     Country("220", "GM", R.string.country_gambia, "🇬🇲"),
@@ -143,6 +144,7 @@ val countries = listOf(
     Country("260", "ZM", R.string.country_zambia, "🇿🇲"),
     Country("261", "MG", R.string.country_madagascar, "🇲🇬"),
     Country("262", "RE", R.string.country_reunion, "🇷🇪"),
+    Country("262", "YT", R.string.country_mayotte, "🇾🇹"),
     Country("263", "ZW", R.string.country_zimbabwe, "🇿🇼"),
     Country("264", "NA", R.string.country_namibia, "🇳🇦"),
     Country("265", "MW", R.string.country_malawi, "🇲🇼"),
@@ -209,7 +211,7 @@ val countries = listOf(
     Country("670", "TL", R.string.country_east_timor, "🇹🇱"),
     Country("672", "NF", R.string.country_norfolk_island, "🇳🇫"),
     Country("673", "BN", R.string.country_brunei, "🇧🇳"),
-    Country("674", "NB", R.string.country_nauru, "🇳🇧"),
+    Country("674", "NR", R.string.country_nauru, "🇳🇧"),
     Country("675", "PG", R.string.country_papua_new_guinea, "🇵🇬"),
     Country("676", "TO", R.string.country_tonga, "🇹🇴"),
     Country("677", "SB", R.string.country_solomon_islands, "🇸🇧"),

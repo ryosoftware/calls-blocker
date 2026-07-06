@@ -2,13 +2,16 @@ package com.ryosoftware.calls_blocker.service
 
 import android.telecom.Call
 import android.telecom.CallScreeningService
+import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.ryosoftware.calls_blocker.Logger
 import com.ryosoftware.calls_blocker.NORMALIZED_PHONE_NUMBER_REF
 import com.ryosoftware.calls_blocker.data.SettingsManager
+import com.ryosoftware.calls_blocker.data.db.Direction
 import com.ryosoftware.calls_blocker.data.db.Reason
+import com.ryosoftware.calls_blocker.service.callsblocker.DIRECTION_PARAM
 import com.ryosoftware.calls_blocker.service.callsblocker.PHONE_NUMBER_PARAM
 import com.ryosoftware.calls_blocker.service.callsblocker.REASON_PARAM
 import com.ryosoftware.calls_blocker.service.callsblocker.PostServiceWorker
@@ -42,26 +45,47 @@ class CallsBlockerService : CallScreeningService() {
         logger.log("Call from $NORMALIZED_PHONE_NUMBER_REF has been rejected due to $reasonString", normalizedPhoneNumber = normalizedPhoneNumber ?: "unknown")
     }
 
+    private fun allowCall(callDetails: Call.Details) =
+        respondToCall(callDetails, CallResponse.Builder().build())
+
     private fun allowCall(callDetails: Call.Details, normalizedPhoneNumber: String?, reason: Reason) {
-        respondToCall(
-            callDetails,
-            CallResponse.Builder()
-                .build()
-        )
+        allowCall(callDetails)
 
         val reasonString = HistoryViewModel.getReasonString(applicationContext, reason)
         logger.log("Call from $NORMALIZED_PHONE_NUMBER_REF has been allowed due to $reasonString", normalizedPhoneNumber = normalizedPhoneNumber ?: "unknown")
     }
 
+    private fun enqueueWorker(data: Data) {
+        val request = OneTimeWorkRequestBuilder<PostServiceWorker>()
+            .setInputData(data)
+            .build()
+
+        WorkManager.getInstance(applicationContext).enqueue(request)
+    }
+
     override fun onScreenCall(callDetails: Call.Details) {
         val startedInMemory = logger.startInMemory()
         try {
+            if (callDetails.callDirection != Call.Details.DIRECTION_INCOMING) {
+                if (callDetails.callDirection == Call.Details.DIRECTION_OUTGOING) {
+                    val normalizedPhoneNumber = callScreeningLogic.normalizePhoneNumber(callDetails)
+
+                    val workerData = workDataOf(
+                        PHONE_NUMBER_PARAM to normalizedPhoneNumber,
+                        DIRECTION_PARAM to Direction.OUTGOING.code,
+                        TIME_PARAM to System.currentTimeMillis()
+                    )
+                    enqueueWorker(workerData)
+                }
+                return
+            }
+
             val (normalizedPhoneNumber, reason) = callScreeningLogic.test(callDetails)
 
             val isAllowed = (reason in listOf(
-                Reason.REASON_NONE,
-                Reason.REASON_WHITELISTED_NUMBER,
-                Reason.REASON_WHITELISTED_PREFIX
+                Reason.NONE,
+                Reason.WHITELISTED_NUMBER,
+                Reason.WHITELISTED_PREFIX
             ))
 
             if (isAllowed) {
@@ -72,15 +96,11 @@ class CallsBlockerService : CallScreeningService() {
 
             val workerData = workDataOf(
                 PHONE_NUMBER_PARAM to normalizedPhoneNumber,
+                DIRECTION_PARAM to Direction.INCOMING.code,
                 REASON_PARAM to reason.code,
                 TIME_PARAM to System.currentTimeMillis()
             )
-
-            val request = OneTimeWorkRequestBuilder<PostServiceWorker>()
-                .setInputData(workerData)
-                .build()
-
-            WorkManager.getInstance(applicationContext).enqueue(request)
+            enqueueWorker(workerData)
         }
         finally {
             if (startedInMemory) {

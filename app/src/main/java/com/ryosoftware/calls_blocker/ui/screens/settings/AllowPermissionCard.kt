@@ -61,7 +61,8 @@ fun AllowPermissionCard(
                         Icon(
                             imageVector = Icons.Default.Warning,
                             contentDescription = null,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(16.dp),
+                            tint = colorResource(R.color.status_inactive_text)
                         )
 
                         Spacer(Modifier.width(6.dp))
@@ -79,7 +80,8 @@ fun AllowPermissionCard(
 
                                 else -> ""
                             },
-                            style = MaterialTheme.typography.bodySmall
+                            style = MaterialTheme.typography.bodySmall,
+                            color = colorResource(R.color.status_inactive_text)
                         )
                     }
 

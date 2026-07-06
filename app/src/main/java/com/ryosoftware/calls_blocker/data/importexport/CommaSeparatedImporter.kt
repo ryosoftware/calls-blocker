@@ -3,11 +3,11 @@ package com.ryosoftware.calls_blocker.data.importexport
 import android.content.Context
 import android.net.Uri
 import com.ryosoftware.calls_blocker.Logger
+import com.ryosoftware.calls_blocker.NormalizeError
 import com.ryosoftware.calls_blocker.PHONE_NUMBER_REF
+import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.db.Type
-import com.ryosoftware.calls_blocker.service.callsblocker.Logic
-import com.ryosoftware.calls_blocker.service.callsblocker.NormalizeError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -60,7 +60,7 @@ class CommaSeparatedImporter(private val logger: Logger) : Importer {
                                 return@forEach
                             }
 
-                            val normalizeResult = Logic.normalizeToE164OrNull(
+                            val normalizeResult = PhoneUtils.normalizeToE164OrNull(
                                 phoneNumber = rawPhoneNumber,
                                 networkCountryIso = defaultCountryIso,
                                 requirePossibleNumber = options.requirePossibleNumber,

@@ -15,7 +15,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -100,7 +99,7 @@ fun CallScreeningStatusCard(
 
                 Spacer(Modifier.height(8.dp))
 
-                OutlinedButton(
+                Button(
                     onClick = onRequestPhoneStatePermission,
                     enabled = !phoneStatePermissionGranted,
                     modifier = Modifier.fillMaxWidth()
@@ -110,7 +109,7 @@ fun CallScreeningStatusCard(
 
                 Spacer(Modifier.height(8.dp))
 
-                OutlinedButton(
+                Button(
                     onClick = onRequestContactsPermission,
                     enabled = !contactsPermissionGranted,
                     modifier = Modifier.fillMaxWidth()

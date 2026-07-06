@@ -9,6 +9,8 @@
     <color name="primary_container">#FFFFDBC2</color>
     <color name="on_primary_container">#FF2C1600</color>
     <color name="status_active_container">#FFC8E6C9</color>
+    <color name="status_active_text">#FF1B5E20</color>
     <color name="status_inactive_container">#FFFFCDD2</color>
+    <color name="status_inactive_text">#FFB71C1C</color>
 
 </resources>

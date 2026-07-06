@@ -9,6 +9,7 @@ import com.ryosoftware.calls_blocker.data.Country
 import com.ryosoftware.calls_blocker.data.CountryNameProvider
 import com.ryosoftware.calls_blocker.data.db.Reason
 import com.ryosoftware.calls_blocker.data.db.Action
+import com.ryosoftware.calls_blocker.data.db.Type
 import com.ryosoftware.calls_blocker.data.db.NumberDao
 import com.ryosoftware.calls_blocker.data.db.HistoryEntry
 import com.ryosoftware.calls_blocker.data.repository.HistoryRepository
@@ -40,20 +41,22 @@ class HistoryViewModel @Inject constructor(
     companion object {
         fun getReasonString(context: Context, reason: Reason): String =
             when (reason) {
-                Reason.REASON_WHITELISTED_NUMBER -> context.getString(R.string.reason_whitelisted_number)
-                Reason.REASON_WHITELISTED_PREFIX -> context.getString(R.string.reason_whitelisted_prefix)
-                Reason.REASON_FIND_MY_PHONE -> context.getString(R.string.find_my_phone_activated_no_number)
-                Reason.REASON_HIDDEN_NUMBER -> context.getString(R.string.reason_hidden)
-                Reason.REASON_BLACKLISTED_NUMBER -> context.getString(R.string.reason_blacklisted_number)
-                Reason.REASON_BLACKLISTED_PREFIX -> context.getString(R.string.reason_blacklisted_prefix)
-                Reason.REASON_UNKNOWN_NUMBER -> context.getString(R.string.reason_unknown_number)
-                Reason.REASON_GROUP -> context.getString(R.string.reason_group)
-                Reason.REASON_INTERNATIONAL_NUMBER -> context.getString(R.string.reason_international)
-                Reason.REASON_NOT_CALLED -> context.getString(R.string.reason_not_called)
-                Reason.REASON_REJECTED_BEFORE -> context.getString(R.string.reason_rejected_before)
-                Reason.REASON_REPEATED_CALL -> context.getString(R.string.reason_repeated_call)
-                Reason.REASON_SCHEDULE -> context.getString(R.string.reason_schedule)
-                Reason.REASON_NONE -> context.getString(R.string.reason_unknown)
+                Reason.WHITELISTED_NUMBER -> context.getString(R.string.reason_whitelisted_number)
+                Reason.WHITELISTED_PREFIX -> context.getString(R.string.reason_whitelisted_prefix)
+                Reason.BLOCK_ALL -> context.getString(R.string.reason_block_all)
+                Reason.HIDDEN_NUMBER -> context.getString(R.string.reason_hidden)
+                Reason.BLACKLISTED_NUMBER -> context.getString(R.string.reason_blacklisted_number)
+                Reason.BLACKLISTED_PREFIX -> context.getString(R.string.reason_blacklisted_prefix)
+                Reason.NOT_A_CONTACT -> context.getString(R.string.reason_unknown_number)
+                Reason.MEMBER_OF_BLOCKED_GROUP_OF_CONTACTS -> context.getString(R.string.reason_group)
+                Reason.INTERNATIONAL_NUMBER -> context.getString(R.string.reason_international)
+                Reason.NOT_CALLED -> context.getString(R.string.reason_not_called)
+                Reason.REJECTED_BEFORE -> context.getString(R.string.reason_rejected_before)
+                Reason.REPEATED_CALL -> context.getString(R.string.reason_repeated_call)
+                Reason.SCHEDULE -> context.getString(R.string.reason_schedule)
+                Reason.NONE -> context.getString(R.string.reason_unknown)
+                Reason.FIND_MY_PHONE -> context.getString(R.string.reason_find_my_phone)
+                Reason.FIND_MY_PHONE_CANCELLED -> context.getString(R.string.reason_find_my_phone_cancelled)
             }
     }
     @Inject
@@ -62,11 +65,11 @@ class HistoryViewModel @Inject constructor(
     val history: StateFlow<List<HistoryEntry>> = repo.allEntries
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val blockedPhoneNumbers: StateFlow<Set<String>> = numberDao.getPhoneNumbersByAction(Action.ACTION_BLOCK)
+    val blockedPhoneNumbers: StateFlow<Set<String>> = numberDao.getPhoneNumbers(Action.BLOCK)
         .map { it.toSet() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
-    val allowedPhoneNumbers: StateFlow<Set<String>> = numberDao.getPhoneNumbersByAction(Action.ACTION_ALLOW)
+    val allowedPhoneNumbers: StateFlow<Set<String>> = numberDao.getPhoneNumbers(Action.ALLOW)
         .map { it.toSet() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
@@ -107,6 +110,30 @@ class HistoryViewModel @Inject constructor(
             repo.clearAll()
 
             _isDeleting.value = false
+        }
+    }
+
+    fun blockNumber(phoneNumber: String) {
+        viewModelScope.launch {
+            numberRepository.add(phoneNumber, "", Action.BLOCK, Type.EXACT_COINCIDENCE)
+        }
+    }
+
+    fun unblockNumber(phoneNumber: String) {
+        viewModelScope.launch {
+            numberRepository.removeByPhoneNumber(phoneNumber)
+        }
+    }
+
+    fun allowNumber(phoneNumber: String) {
+        viewModelScope.launch {
+            numberRepository.add(phoneNumber, "", Action.ALLOW, Type.EXACT_COINCIDENCE)
+        }
+    }
+
+    fun unallowNumber(phoneNumber: String) {
+        viewModelScope.launch {
+            numberRepository.removeByPhoneNumber(phoneNumber)
         }
     }
 

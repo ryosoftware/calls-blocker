@@ -9,25 +9,33 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,11 +44,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.IntentCompat
 import androidx.core.net.toUri
+import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.Country
 import com.ryosoftware.calls_blocker.ui.screens.AddNumberDialog
@@ -61,6 +71,7 @@ fun FindMyPhoneSection(
     findMyPhoneRingtoneUri: String,
     onFindMyPhoneRingtoneUriChange: (String) -> Unit,
     callLogPermissionGranted: Boolean,
+    onTestFindMyPhone: () -> Unit = {},
     batteryOptimizationGranted: Boolean,
     onRequestCallLogPermission: () -> Unit,
     onRequestBatteryOptimization: () -> Unit,
@@ -69,6 +80,7 @@ fun FindMyPhoneSection(
 ) {
     val context = LocalContext.current
     var showAddDialog by remember { mutableStateOf(false) }
+    var showTestDialog by remember { mutableStateOf(false) }
 
     val ringtonePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -104,7 +116,7 @@ fun FindMyPhoneSection(
         ),
     ) {
         Text(
-            text = stringResource(R.string.find_my_phone_activated_no_number),
+            text = stringResource(R.string.find_my_phone_title),
             style = MaterialTheme.typography.titleMedium
         )
 
@@ -120,7 +132,7 @@ fun FindMyPhoneSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onFindMyPhoneEnabledChange(!findMyPhoneEnabled) },
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Text(
                 text = stringResource(R.string.find_my_phone_enabled_label),
@@ -146,23 +158,6 @@ fun FindMyPhoneSection(
 
             Spacer(Modifier.height(8.dp))
 
-            Button(
-                onClick = { showAddDialog = true },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-
-                Spacer(Modifier.width(8.dp))
-
-                Text(stringResource(R.string.find_my_phone_add))
-            }
-
-            Spacer(Modifier.height(8.dp))
-
             val numbers = findMyPhonePhoneNumbers.split(",")
                 .map { it.trim() }
                 .filter { it.isNotEmpty() }
@@ -170,30 +165,63 @@ fun FindMyPhoneSection(
             if (numbers.isEmpty()) {
                 Text(
                     text = stringResource(R.string.find_my_phone_no_numbers),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colorResource(R.color.status_inactive_text)
                 )
-            } else {
-                numbers.forEach { number ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = number,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.weight(1f)
-                        )
 
-                        IconButton(
-                            onClick = {
-                                val updated = numbers.filter { it != number }.joinToString(",")
-                                onFindMyPhonePhoneNumbersChange(updated)
+                Spacer(Modifier.height(8.dp))
+            }
+
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                numbers.forEach { number ->
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        modifier = Modifier.height(32.dp),
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(start = 12.dp, end = 4.dp, top = 4.dp, bottom = 4.dp)
+                        ) {
+                            Text(
+                                text = PhoneUtils.formatPhoneNumber(number),
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(end = 4.dp)
+                            )
+                            IconButton(
+                                onClick = {
+                                    val updated = numbers.filter { it != number }.joinToString(",")
+                                    onFindMyPhonePhoneNumbersChange(updated)
+                                },
+                                modifier = Modifier.size(20.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = stringResource(R.string.find_my_phone_remove),
+                                    modifier = Modifier.size(16.dp)
+                                )
                             }
+                        }
+                    }
+                }
+
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        IconButton(
+                            onClick = { showAddDialog = true },
+                            modifier = Modifier.fillMaxSize()
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = stringResource(R.string.find_my_phone_remove)
+                                Icons.Default.Add,
+                                contentDescription = stringResource(R.string.find_my_phone_add),
+                                modifier = Modifier.size(16.dp)
                             )
                         }
                     }
@@ -300,7 +328,7 @@ fun FindMyPhoneSection(
 
             Spacer(Modifier.height(8.dp))
 
-            OutlinedButton(
+            Button(
                 onClick = {
                     context.startActivity(
                         Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
@@ -312,7 +340,37 @@ fun FindMyPhoneSection(
             ) {
                 Text(stringResource(R.string.open_app_settings))
             }
+
+            Spacer(Modifier.height(16.dp))
+
+            OutlinedButton(
+                onClick = { showTestDialog = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.find_my_phone_test_button))
+            }
         }
+    }
+
+    if (showTestDialog) {
+        AlertDialog(
+            onDismissRequest = { showTestDialog = false },
+            title = { Text(stringResource(R.string.find_my_phone_test_title)) },
+            text = { Text(stringResource(R.string.find_my_phone_test_message)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showTestDialog = false
+                    onTestFindMyPhone()
+                }) {
+                    Text(stringResource(R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTestDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 
     if (showAddDialog) {

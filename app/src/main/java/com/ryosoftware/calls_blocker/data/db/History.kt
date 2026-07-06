@@ -5,31 +5,55 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 
+enum class Direction(val code: Int) {
+    INCOMING(0),
+    OUTGOING(1);
+
+    companion object {
+        private val map = entries.associateBy { it.code }
+
+        fun fromCode(code: Int): Direction =
+            map[code] ?: INCOMING
+    }
+}
+
 enum class Reason(val code: Int) {
-    REASON_NONE(0),
-    REASON_WHITELISTED_NUMBER(1),
-    REASON_WHITELISTED_PREFIX(2),
-    REASON_FIND_MY_PHONE(3),
-    REASON_HIDDEN_NUMBER(4),
-    REASON_BLACKLISTED_NUMBER(5),
-    REASON_BLACKLISTED_PREFIX(6),
-    REASON_UNKNOWN_NUMBER(7),
-    REASON_GROUP(8),
-    REASON_INTERNATIONAL_NUMBER(9),
-    REASON_NOT_CALLED(10),
-    REASON_REJECTED_BEFORE(11),
-    REASON_REPEATED_CALL(12),
-    REASON_SCHEDULE(13);
+    NONE(0),
+    WHITELISTED_NUMBER(11),
+    WHITELISTED_PREFIX(12),
+    BLOCK_ALL(21),
+    HIDDEN_NUMBER(31),
+    BLACKLISTED_NUMBER(41),
+    BLACKLISTED_PREFIX(42),
+    NOT_A_CONTACT(51),
+    MEMBER_OF_BLOCKED_GROUP_OF_CONTACTS(52),
+    INTERNATIONAL_NUMBER(61),
+    NOT_CALLED(71),
+    REJECTED_BEFORE(72),
+    REPEATED_CALL(73),
+    SCHEDULE(81),
+    FIND_MY_PHONE(91),
+    FIND_MY_PHONE_CANCELLED(92);
 
     companion object {
         private val map = entries.associateBy { it.code }
 
         fun fromCode(code: Int): Reason =
-            map[code] ?: REASON_NONE
+            map[code] ?: NONE
     }
 }
 
-class CallReasonConverter {
+class DirectionConverter {
+    @TypeConverter
+    fun fromDirection(direction: Direction): Int =
+        direction.code
+
+    @TypeConverter
+    fun toDirection(code: Int): Direction =
+        Direction.fromCode(code)
+}
+
+class ReasonConverter {
     @TypeConverter
     fun fromCallReason(reason: Reason): Int =
         reason.code
@@ -39,14 +63,17 @@ class CallReasonConverter {
         Reason.fromCode(code)
 }
 
+
 @Entity(tableName = "history")
 data class HistoryEntry(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     @ColumnInfo(name = "phone_number")
     val phoneNumber: String,
+    @ColumnInfo(name = "direction")
+    val direction: Direction = Direction.INCOMING,
     @ColumnInfo(name = "timestamp")
     val timeStamp: Long = System.currentTimeMillis(),
     @ColumnInfo(name = "reason")
-    val reason: Reason = Reason.REASON_NONE,
+    val reason: Reason = Reason.NONE,
 )

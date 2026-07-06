@@ -4,11 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Surface
-import com.ryosoftware.calls_blocker.data.SettingsManager
 import com.ryosoftware.calls_blocker.ui.screens.FindMyPhoneScreen
 import com.ryosoftware.calls_blocker.ui.theme.CallsBlockerTheme
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class FindMyPhoneActivity : ComponentActivity() {

@@ -15,6 +15,7 @@ class SettingsManager(private val context: Context) {
         private const val KEY_DEFAULT_COUNTRY_ISO = "default-country-iso"
         private const val KEY_BLOCK_UNKNOWN = "block-unknown"
         private const val KEY_BLOCK_HIDDEN = "block-hidden"
+        private const val KEY_BLOCK_ALL = "block-all"
         private const val KEY_BLOCK_GROUPS = "block-groups"
         private const val KEY_BLOCKED_GROUP_IDS = "blocked-group-ids"
         private const val KEY_BLOCK_INTERNATIONAL = "block-international"
@@ -82,6 +83,7 @@ class SettingsManager(private val context: Context) {
     var isLoggingToFile by booleanPref(KEY_LOGGING_TO_FILE_ENABLED, BuildConfig.DEBUG)
     var blockUnknown by booleanPref(KEY_BLOCK_UNKNOWN, false)
     var blockHidden by booleanPref(KEY_BLOCK_HIDDEN, false)
+    var blockAll by booleanPref(KEY_BLOCK_ALL, false)
     var screeningDialogDismissed by booleanPref(KEY_DIALOG_DISMISSED, false)
     var blockInternational by booleanPref(KEY_BLOCK_INTERNATIONAL, false)
     var allowedCountryIsos by stringPref(KEY_ALLOWED_COUNTRY_ISOS)

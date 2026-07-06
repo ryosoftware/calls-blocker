@@ -18,46 +18,46 @@ class NumberRepository(private val dao: NumberDao) {
     private val loadLatch = CountDownLatch(1)
 
     @Volatile
-    private var blockedExactNumbers: HashSet<String> = HashSet()
+    private var blockedIncomingExactNumbers: HashSet<String> = HashSet()
 
     @Volatile
-    private var blockedPrefixes: HashSet<String> = HashSet()
+    private var blockedIncomingPrefixes: HashSet<String> = HashSet()
 
     @Volatile
-    private var allowedExactNumbers: HashSet<String> = HashSet()
+    private var allowedIncomingExactNumbers: HashSet<String> = HashSet()
 
     @Volatile
-    private var allowedPrefixes: HashSet<String> = HashSet()
+    private var allowedIncomingPrefixes: HashSet<String> = HashSet()
 
-    private val _prefixBlocks = MutableStateFlow<List<Number>>(emptyList())
-    val prefixBlocks: Flow<List<Number>> = _prefixBlocks.asStateFlow()
+    private val _incomingExactBlocks = MutableStateFlow<List<Number>>(emptyList())
+    val incomingExactBlocks: Flow<List<Number>> = _incomingExactBlocks.asStateFlow()
 
-    private val _manualBlocks = MutableStateFlow<List<Number>>(emptyList())
-    val manualBlocks: Flow<List<Number>> = _manualBlocks.asStateFlow()
+    private val _incomingPrefixBlocks = MutableStateFlow<List<Number>>(emptyList())
+    val incomingPrefixBlocks: Flow<List<Number>> = _incomingPrefixBlocks.asStateFlow()
 
-    private val _manualAllows = MutableStateFlow<List<Number>>(emptyList())
-    val manualAllows: Flow<List<Number>> = _manualAllows.asStateFlow()
+    private val _incomingExactAllows = MutableStateFlow<List<Number>>(emptyList())
+    val incomingExactAllows: Flow<List<Number>> = _incomingExactAllows.asStateFlow()
 
-    private val _prefixAllows = MutableStateFlow<List<Number>>(emptyList())
-    val prefixAllows: Flow<List<Number>> = _prefixAllows.asStateFlow()
+    private val _incomingPrefixAllows = MutableStateFlow<List<Number>>(emptyList())
+    val incomingPrefixAllows: Flow<List<Number>> = _incomingPrefixAllows.asStateFlow()
 
     init {
         scope.launch {
-            blockedExactNumbers = dao.getNumbersByTypeAndAction(Type.EXACT_COINCIDENCE, Action.ACTION_BLOCK).toHashSet()
-            blockedPrefixes = dao.getNumbersByTypeAndAction(Type.PREFIX, Action.ACTION_BLOCK).toHashSet()
-            allowedExactNumbers = dao.getNumbersByTypeAndAction(Type.EXACT_COINCIDENCE, Action.ACTION_ALLOW).toHashSet()
-            allowedPrefixes = dao.getNumbersByTypeAndAction(Type.PREFIX, Action.ACTION_ALLOW).toHashSet()
+            blockedIncomingExactNumbers = dao.getNumbersByType(Action.BLOCK, Type.EXACT_COINCIDENCE).toHashSet()
+            blockedIncomingPrefixes = dao.getNumbersByType(Action.BLOCK, Type.PREFIX).toHashSet()
+            allowedIncomingExactNumbers = dao.getNumbersByType(Action.ALLOW, Type.EXACT_COINCIDENCE).toHashSet()
+            allowedIncomingPrefixes = dao.getNumbersByType(Action.ALLOW, Type.PREFIX).toHashSet()
             loadLatch.countDown()
             loadAllLists()
         }
     }
 
-    private suspend fun loadTypeToList(type: Type, action: Action = Action.ACTION_BLOCK): List<Number> {
+    private suspend fun loadTypeToList(action: Action, type: Type): List<Number> {
         val result = mutableListOf<Number>()
         val batchSize = 500
         var offset = 0
         do {
-            val batch = dao.getByTypeBatch(type, action, batchSize, offset)
+            val batch = dao.getByTypeBatch(action, type, batchSize, offset)
             result.addAll(batch)
             offset += batchSize
         } while (batch.size == batchSize)
@@ -65,124 +65,129 @@ class NumberRepository(private val dao: NumberDao) {
     }
 
     private suspend fun loadAllLists() {
-        _manualBlocks.value = loadTypeToList(Type.EXACT_COINCIDENCE, Action.ACTION_BLOCK)
-        _prefixBlocks.value = loadTypeToList(Type.PREFIX, Action.ACTION_BLOCK)
-        _manualAllows.value = loadTypeToList(Type.EXACT_COINCIDENCE, Action.ACTION_ALLOW)
-        _prefixAllows.value = loadTypeToList(Type.PREFIX, Action.ACTION_ALLOW)
+        _incomingExactBlocks.value = loadTypeToList(Action.BLOCK, Type.EXACT_COINCIDENCE)
+        _incomingPrefixBlocks.value = loadTypeToList(Action.BLOCK, Type.PREFIX)
+        _incomingExactAllows.value = loadTypeToList(Action.ALLOW, Type.EXACT_COINCIDENCE)
+        _incomingPrefixAllows.value = loadTypeToList(Action.ALLOW, Type.PREFIX)
     }
 
-    val blockedNumbersCount: Flow<Int> = dao.getCountByAction(Action.ACTION_BLOCK)
-    val allowedNumbersCount: Flow<Int> = dao.getCountByAction(Action.ACTION_ALLOW)
+    val blockedNumbersCount: Flow<Int> = dao.getCountByAction(Action.BLOCK)
+    val allowedNumbersCount: Flow<Int> = dao.getCountByAction(Action.ALLOW)
 
-    suspend fun add(phoneNumber: String, description: String, type: Type, action: Action = Action.ACTION_BLOCK) {
+    suspend fun add(phoneNumber: String, description: String, action: Action, type: Type) {
         dao.insert(
             Number(
                 phoneNumber = phoneNumber,
                 description = description,
-                type = type,
-                action = action
+                action = action,
+                type = type
             )
         )
-        if (type == Type.EXACT_COINCIDENCE) {
-            if (action == Action.ACTION_BLOCK) {
-                blockedExactNumbers.add(phoneNumber)
-                _manualBlocks.value = loadTypeToList(Type.EXACT_COINCIDENCE, Action.ACTION_BLOCK)
-            } else {
-                allowedExactNumbers.add(phoneNumber)
-                _manualAllows.value = loadTypeToList(Type.EXACT_COINCIDENCE, Action.ACTION_ALLOW)
+        if (action == Action.BLOCK) {
+            if (type == Type.EXACT_COINCIDENCE) {
+                blockedIncomingExactNumbers.add(phoneNumber)
+                _incomingExactBlocks.value = loadTypeToList(Action.BLOCK, Type.EXACT_COINCIDENCE)
+            } else if (type == Type.PREFIX) {
+                blockedIncomingPrefixes.add(phoneNumber)
+                _incomingPrefixBlocks.value = loadTypeToList(Action.BLOCK, Type.PREFIX)
             }
-        }
-        else {
-            if (action == Action.ACTION_BLOCK) {
-                blockedPrefixes.add(phoneNumber)
-                _prefixBlocks.value = loadTypeToList(Type.PREFIX, Action.ACTION_BLOCK)
-            } else {
-                allowedPrefixes.add(phoneNumber)
-                _prefixAllows.value = loadTypeToList(Type.PREFIX, Action.ACTION_ALLOW)
+        } else if (action == Action.ALLOW) {
+            if (type == Type.EXACT_COINCIDENCE) {
+                allowedIncomingExactNumbers.add(phoneNumber)
+                _incomingExactAllows.value = loadTypeToList(Action.ALLOW, Type.EXACT_COINCIDENCE)
+            } else if (type == Type.PREFIX) {
+                allowedIncomingPrefixes.add(phoneNumber)
+                _incomingPrefixAllows.value = loadTypeToList(Action.ALLOW, Type.PREFIX)
             }
         }
     }
 
     suspend fun addAll(numbers: List<Pair<String, Type>>): Int {
-        val beforeExact = dao.getNumbersByTypeAndAction(Type.EXACT_COINCIDENCE, Action.ACTION_BLOCK).toHashSet()
-        val beforePrefix = dao.getNumbersByTypeAndAction(Type.PREFIX, Action.ACTION_BLOCK).toHashSet()
+        val beforeExact = dao.getNumbersByType(Action.BLOCK, Type.EXACT_COINCIDENCE).toHashSet()
+        val beforePrefix = dao.getNumbersByType(Action.BLOCK, Type.PREFIX).toHashSet()
         val entries = numbers.map { (phoneNumber, type) ->
-            Number(phoneNumber = phoneNumber, description = "", type = type, action = Action.ACTION_BLOCK)
+            Number(phoneNumber = phoneNumber, description = "", action = Action.BLOCK, type = type)
         }
         entries.chunked(500).forEach { chunk -> dao.insertAll(chunk) }
-        blockedExactNumbers = dao.getNumbersByTypeAndAction(Type.EXACT_COINCIDENCE, Action.ACTION_BLOCK).toHashSet()
-        blockedPrefixes = dao.getNumbersByTypeAndAction(Type.PREFIX, Action.ACTION_BLOCK).toHashSet()
+        blockedIncomingExactNumbers = dao.getNumbersByType(Action.BLOCK, Type.EXACT_COINCIDENCE).toHashSet()
+        blockedIncomingPrefixes = dao.getNumbersByType(Action.BLOCK, Type.PREFIX).toHashSet()
         loadAllLists()
-        return (blockedExactNumbers.size + blockedPrefixes.size) - (beforeExact.size + beforePrefix.size)
+        return (blockedIncomingExactNumbers.size + blockedIncomingPrefixes.size) - (beforeExact.size + beforePrefix.size)
     }
 
     suspend fun remove(number: Number) {
         dao.delete(number)
-        if (number.type == Type.EXACT_COINCIDENCE) {
-            if (number.action == Action.ACTION_BLOCK) {
-                blockedExactNumbers.remove(number.phoneNumber)
-                _manualBlocks.value = loadTypeToList(Type.EXACT_COINCIDENCE, Action.ACTION_BLOCK)
-            } else {
-                allowedExactNumbers.remove(number.phoneNumber)
-                _manualAllows.value = loadTypeToList(Type.EXACT_COINCIDENCE, Action.ACTION_ALLOW)
+        if (number.action == Action.BLOCK) {
+            if (number.type == Type.EXACT_COINCIDENCE) {
+                blockedIncomingExactNumbers.remove(number.phoneNumber)
+                _incomingExactBlocks.value =
+                    loadTypeToList(Action.BLOCK, Type.EXACT_COINCIDENCE)
+            } else if (number.type == Type.PREFIX) {
+                blockedIncomingPrefixes.remove(number.phoneNumber)
+                _incomingPrefixBlocks.value = loadTypeToList(Action.BLOCK, Type.PREFIX)
             }
-        }
-        else {
-            if (number.action == Action.ACTION_BLOCK) {
-                blockedPrefixes.remove(number.phoneNumber)
-                _prefixBlocks.value = loadTypeToList(Type.PREFIX, Action.ACTION_BLOCK)
-            } else {
-                allowedPrefixes.remove(number.phoneNumber)
-                _prefixAllows.value = loadTypeToList(Type.PREFIX, Action.ACTION_ALLOW)
+        } else if (number.action == Action.ALLOW) {
+            if (number.type == Type.EXACT_COINCIDENCE) {
+                allowedIncomingExactNumbers.remove(number.phoneNumber)
+                _incomingExactAllows.value = loadTypeToList(Action.ALLOW, Type.EXACT_COINCIDENCE)
+            } else if (number.type == Type.PREFIX) {
+                allowedIncomingPrefixes.remove(number.phoneNumber)
+                _incomingPrefixAllows.value = loadTypeToList(Action.ALLOW, Type.PREFIX)
             }
         }
     }
 
+    suspend fun updateDescription(number: Number) {
+        dao.updateDescription(number.id, number.description)
+        loadAllLists()
+    }
+
     suspend fun removeByPhoneNumber(phoneNumber: String) {
-        dao.deleteByPhoneNumber(phoneNumber)
-        blockedExactNumbers = dao.getNumbersByTypeAndAction(Type.EXACT_COINCIDENCE, Action.ACTION_BLOCK).toHashSet()
-        blockedPrefixes = dao.getNumbersByTypeAndAction(Type.PREFIX, Action.ACTION_BLOCK).toHashSet()
-        allowedExactNumbers = dao.getNumbersByTypeAndAction(Type.EXACT_COINCIDENCE, Action.ACTION_ALLOW).toHashSet()
-        allowedPrefixes = dao.getNumbersByTypeAndAction(Type.PREFIX, Action.ACTION_ALLOW).toHashSet()
+        dao.deleteByPhoneNumber(phoneNumber,  Action.BLOCK)
+        dao.deleteByPhoneNumber(phoneNumber, Action.ALLOW)
+        blockedIncomingExactNumbers = dao.getNumbersByType(Action.BLOCK, Type.EXACT_COINCIDENCE).toHashSet()
+        blockedIncomingPrefixes = dao.getNumbersByType(Action.BLOCK, Type.PREFIX).toHashSet()
+        allowedIncomingExactNumbers = dao.getNumbersByType(Action.ALLOW, Type.EXACT_COINCIDENCE).toHashSet()
+        allowedIncomingPrefixes = dao.getNumbersByType(Action.ALLOW, Type.PREFIX).toHashSet()
         loadAllLists()
     }
 
     suspend fun removeEntries(ids: List<Long>) {
         ids.chunked(500).forEach { chunk -> dao.deleteByIds(chunk) }
-        blockedExactNumbers = dao.getNumbersByTypeAndAction(Type.EXACT_COINCIDENCE, Action.ACTION_BLOCK).toHashSet()
-        blockedPrefixes = dao.getNumbersByTypeAndAction(Type.PREFIX, Action.ACTION_BLOCK).toHashSet()
-        allowedExactNumbers = dao.getNumbersByTypeAndAction(Type.EXACT_COINCIDENCE, Action.ACTION_ALLOW).toHashSet()
-        allowedPrefixes = dao.getNumbersByTypeAndAction(Type.PREFIX, Action.ACTION_ALLOW).toHashSet()
+        blockedIncomingExactNumbers = dao.getNumbersByType(Action.BLOCK, Type.EXACT_COINCIDENCE).toHashSet()
+        blockedIncomingPrefixes = dao.getNumbersByType(Action.BLOCK, Type.PREFIX).toHashSet()
+        allowedIncomingExactNumbers = dao.getNumbersByType(Action.ALLOW, Type.EXACT_COINCIDENCE).toHashSet()
+        allowedIncomingPrefixes = dao.getNumbersByType(Action.ALLOW, Type.PREFIX).toHashSet()
         loadAllLists()
     }
 
-    fun isBlockedExact(phoneNumber: String): Boolean {
+    fun isIncomingBlockedExact(phoneNumber: String): Boolean {
         loadLatch.await()
-        return phoneNumber in blockedExactNumbers
+        return phoneNumber in blockedIncomingExactNumbers
     }
 
-    fun isBlockedByPrefix(phoneNumber: String): Boolean {
+    fun isIncomingBlockedByPrefix(phoneNumber: String): Boolean {
         loadLatch.await()
-        return blockedPrefixes.any { phoneNumber.startsWith(it) }
+        return blockedIncomingPrefixes.any { phoneNumber.startsWith(it) }
     }
 
-    fun isAllowedExact(phoneNumber: String): Boolean {
+    fun isIncomingAllowedExact(phoneNumber: String): Boolean {
         loadLatch.await()
-        return phoneNumber in allowedExactNumbers
+        return phoneNumber in allowedIncomingExactNumbers
     }
 
-    fun isAllowedByPrefix(phoneNumber: String): Boolean {
+    fun isIncomingAllowedByPrefix(phoneNumber: String): Boolean {
         loadLatch.await()
-        return allowedPrefixes.any { phoneNumber.startsWith(it) }
+        return allowedIncomingPrefixes.any { phoneNumber.startsWith(it) }
     }
 
-    fun isAddedExact(phoneNumber: String): Boolean {
+    fun isIncomingAddedExact(phoneNumber: String): Boolean {
         loadLatch.await()
-        return (isBlockedExact(phoneNumber) || isAllowedExact(phoneNumber))
+        return (isIncomingBlockedExact(phoneNumber) || isIncomingAllowedExact(phoneNumber))
     }
 
-    fun isAddedPrefix(prefix: String): Boolean {
+    fun isIncomingAddedPrefix(prefix: String): Boolean {
         loadLatch.await()
-        return (prefix in blockedPrefixes || prefix in allowedPrefixes)
+        return (prefix in blockedIncomingPrefixes || prefix in allowedIncomingPrefixes)
     }
 }

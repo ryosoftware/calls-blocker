@@ -1,11 +1,13 @@
 package com.ryosoftware.calls_blocker.ui.screens
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.app.Activity
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.Manifest
+import android.annotation.SuppressLint
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -21,16 +23,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -48,7 +49,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -67,7 +67,6 @@ import com.ryosoftware.calls_blocker.data.ContactGroup
 import com.ryosoftware.calls_blocker.data.countries
 import com.ryosoftware.calls_blocker.data.db.Reason
 import com.ryosoftware.calls_blocker.data.db.ScheduleRule
-import com.ryosoftware.calls_blocker.ui.screens.settings.AllowPermissionCard
 import com.ryosoftware.calls_blocker.ui.screens.settings.BlockingRulesSection
 import com.ryosoftware.calls_blocker.ui.screens.settings.CallLogRulesSection
 import com.ryosoftware.calls_blocker.ui.screens.settings.CallScreeningStatusCard
@@ -77,6 +76,7 @@ import com.ryosoftware.calls_blocker.viewmodel.BackupEvent
 import com.ryosoftware.calls_blocker.viewmodel.HistoryViewModel
 import com.ryosoftware.calls_blocker.viewmodel.SettingsViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.ryosoftware.calls_blocker.service.BlockAllTileService
 
 @Composable
 fun SettingsScreen(
@@ -84,6 +84,7 @@ fun SettingsScreen(
     onNavigateToDebugLog: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    var blockAll by remember { mutableStateOf(viewModel.blockAll) }
     var blockHidden by remember { mutableStateOf(viewModel.blockHidden) }
     var blockUnknown by remember { mutableStateOf(viewModel.blockUnknown) }
     var blockInternational by remember { mutableStateOf(viewModel.blockInternational) }
@@ -132,6 +133,31 @@ fun SettingsScreen(
     var showScheduleRuleDialog by remember { mutableStateOf(false) }
     var editingScheduleRule by remember { mutableStateOf<ScheduleRule?>(null) }
     val scheduleRules by viewModel.scheduleRules.collectAsState()
+
+    // Listen for blockAll changes from Quick Settings Tile
+    DisposableEffect(Unit) {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (intent.action == BlockAllTileService.ACTION_BLOCK_ALL_CHANGED) {
+                    val newValue = intent.getBooleanExtra(BlockAllTileService.EXTRA_VALUE, false)
+                    blockAll = newValue
+                    viewModel.blockAll = newValue
+                }
+            }
+        }
+
+        val filter = IntentFilter(BlockAllTileService.ACTION_BLOCK_ALL_CHANGED)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            @SuppressLint("UnspecifiedRegisterReceiverFlag")
+            context.registerReceiver(receiver, filter)
+        }
+
+        onDispose {
+            context.unregisterReceiver(receiver)
+        }
+    }
 
     val contactGroups by produceState(
         initialValue = emptyList<ContactGroup>(),
@@ -381,19 +407,29 @@ fun SettingsScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(12.dp))
 
                 val defaultCountry = defaultCountryIso.let { iso ->
                     if (iso.isNotEmpty()) countries.firstOrNull { it.iso == iso }
                     else null
                 }
 
-                TextButton(onClick = { showDefaultCountryDialog = true }) {
-                    Text(
-                        text = defaultCountry?.let { "${it.flag} ${viewModel.getCountryName(it)}" }
-                            ?: stringResource(R.string.default_country_not_set),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    modifier = Modifier.height(32.dp),
+                    onClick = { showDefaultCountryDialog = true }
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextButton(onClick = { showDefaultCountryDialog = true }) {
+                            Text(
+                                text = defaultCountry?.let { stringResource(R.string.country_name_and_flag, viewModel.getCountryName(it), it.flag) } ?: stringResource(R.string.default_country_not_set),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -427,6 +463,11 @@ fun SettingsScreen(
         Spacer(Modifier.height(12.dp))
 
         BlockingRulesSection(
+            blockAll = blockAll,
+            onBlockAllChange = {
+                blockAll = it
+                viewModel.blockAll = it
+            },
             blockUnknown = blockUnknown,
             onBlockUnknownChange = { enabled ->
                 if (enabled && !contactsPermissionGranted) {
@@ -533,7 +574,6 @@ fun SettingsScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { showTestScreeningDialog = true }
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
@@ -546,12 +586,22 @@ fun SettingsScreen(
                 val lines = mutableListOf(stringResource(R.string.test_screening_description))
                 if (!scheduleRules.isEmpty()) lines.add(stringResource(R.string.test_screening_description_addon_scheduler))
                 if (needsContactsPermission || needsCallLogPermission) lines.add(stringResource(R.string.test_screening_description_addon_permissions))
+                if (findMyPhoneEnabled) lines.add(stringResource(R.string.test_screening_description_addon_find_my_phone))
 
                 Text(
                     text = lines.joinToString("\n\n"),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
+                Spacer(Modifier.height(16.dp))
+
+                OutlinedButton(
+                    onClick = { showTestScreeningDialog = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.test_screening_button))
+                }
             }
         }
 
@@ -566,7 +616,7 @@ fun SettingsScreen(
                             skipCallLog = !skipCallLog
                             viewModel.skipCallLog = skipCallLog
                         },
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.Top
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
@@ -616,6 +666,7 @@ fun SettingsScreen(
             findMyPhoneRingtoneUri = findMyPhoneRingtoneUri,
             onFindMyPhoneRingtoneUriChange = { findMyPhoneRingtoneUri = it; viewModel.findMyPhoneRingtoneUri = it },
             callLogPermissionGranted = callLogPermissionGranted,
+            onTestFindMyPhone = { viewModel.testFindMyPhone() },
             batteryOptimizationGranted = batteryOptimizationGranted,
             onRequestCallLogPermission = { showReadCallLogRationale = true },
             onRequestBatteryOptimization = { context.requestIgnoreBatteryOptimizationsPermission() },
@@ -623,39 +674,41 @@ fun SettingsScreen(
             defaultCountryIso = defaultCountryIso,
         )
 
-        Spacer(Modifier.height(12.dp))
+        if ((!notificationPermissionGranted) || (!batteryOptimizationGranted)) {
+            Spacer(Modifier.height(12.dp))
 
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = stringResource(R.string.permissions_title),
-                    style = MaterialTheme.typography.titleMedium
-                )
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = stringResource(R.string.permissions_title),
+                        style = MaterialTheme.typography.titleMedium
+                    )
 
-                Text(
-                    text = stringResource(R.string.permissions_description),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                    Text(
+                        text = stringResource(R.string.permissions_description),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
 
-                Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(8.dp))
 
-                Button(
-                    onClick = { showPostNotificationsRationale = true },
-                    enabled = !notificationPermissionGranted,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.permission_notifications))
-                }
+                    Button(
+                        onClick = { showPostNotificationsRationale = true },
+                        enabled = !notificationPermissionGranted,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.permission_notifications))
+                    }
 
-                Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(8.dp))
 
-                Button(
-                    onClick = { context.requestIgnoreBatteryOptimizationsPermission() },
-                    enabled = !batteryOptimizationGranted,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.permission_battery))
+                    Button(
+                        onClick = { context.requestIgnoreBatteryOptimizationsPermission() },
+                        enabled = !batteryOptimizationGranted,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.permission_battery))
+                    }
                 }
             }
         }
@@ -775,7 +828,7 @@ fun SettingsScreen(
                 text = {
                     Column {
                         Text(
-                            text = if (isBlocked) stringResource(if (reason == Reason.REASON_FIND_MY_PHONE) R.string.test_screening_result_blocked_find_by_phone else R.string.test_screening_result_blocked, number, HistoryViewModel.getReasonString(context, reason))
+                            text = if (isBlocked) stringResource(if (reason == Reason.FIND_MY_PHONE) R.string.test_screening_result_blocked_find_by_phone else R.string.test_screening_result_blocked, number, HistoryViewModel.getReasonString(context, reason))
                                    else stringResource(R.string.test_screening_result_not_blocked, number),
                         )
                     }

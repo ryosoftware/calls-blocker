@@ -1,25 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="section_blocked_exact_numbers">
-        <item quantity="one">%1$d número bloqueado</item>
-        <item quantity="other">%1$d números bloqueados</item>
-        <item quantity="many">%1$d números bloqueados</item>
-    </plurals>
-    <plurals name="section_blocked_prefixes">
-        <item quantity="one">%1$d prefijo bloqueado</item>
-        <item quantity="other">%1$d prefijos bloqueados</item>
-        <item quantity="many">%1$d prefijos bloqueados</item>
-    </plurals>
-    <plurals name="section_allowed_exact_numbers">
-        <item quantity="one">%1$d número permitido</item>
-        <item quantity="other">%1$d números permitidos</item>
-        <item quantity="many">%1$d números permitidos</item>
-    </plurals>
-    <plurals name="section_allowed_prefixes">
-        <item quantity="one">%1$d prefijo permitido</item>
-        <item quantity="other">%1$d prefijos permitidos</item>
-        <item quantity="many">%1$d prefijos permitidos</item>
-    </plurals>
     <plurals name="import_preview_message">
         <item quantity="one">%1$d nuevo</item>
         <item quantity="other">%1$d nuevos</item>

@@ -72,7 +72,7 @@ fun AddNumberDialog(
     addNumberError: AddNumberError? = null,
     confirmButtonText: String = stringResource(R.string.save),
     onDismiss: () -> Unit,
-    onConfirm: (String, String, Type, Action) -> Unit
+    onConfirm: (String, String, Action, Type) -> Unit
 ) {
     val initialCountry = remember(defaultCountryIso) {
         defaultCountryIso.let { iso ->
@@ -86,7 +86,7 @@ fun AddNumberDialog(
     var phoneNumber by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var blockType by remember { mutableStateOf(Type.EXACT_COINCIDENCE) }
-    var action by remember { mutableStateOf(Action.ACTION_BLOCK) }
+    var action by remember { mutableStateOf(Action.BLOCK) }
     var showCountryPicker by remember { mutableStateOf(false) }
 
     val prefixIsValid = countryCode.isNotBlank() && countries.any { it.code == countryCode }
@@ -163,6 +163,51 @@ fun AddNumberDialog(
                     )
                 }
 
+                Spacer(Modifier.height(12.dp))
+
+                if (showActionSelector) {
+                    Spacer(Modifier.height(12.dp))
+
+                    Text(
+                        text = stringResource(R.string.action_label),
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+
+                    Spacer(Modifier.height(4.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { action = Action.BLOCK }
+                    ) {
+                        RadioButton(
+                            selected = action == Action.BLOCK,
+                            onClick = { action = Action.BLOCK }
+                        )
+
+                        Spacer(Modifier.width(8.dp))
+
+                        Text(stringResource(R.string.action_block))
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { action = Action.ALLOW }
+                    ) {
+                        RadioButton(
+                            selected = action == Action.ALLOW,
+                            onClick = { action = Action.ALLOW }
+                        )
+
+                        Spacer(Modifier.width(8.dp))
+
+                        Text(stringResource(R.string.action_allow))
+                    }
+                }
+
                 if (showBlockType) {
                     Spacer(Modifier.height(12.dp))
 
@@ -206,49 +251,6 @@ fun AddNumberDialog(
                     }
                 }
 
-                if (showActionSelector) {
-                    Spacer(Modifier.height(12.dp))
-
-                    Text(
-                        text = stringResource(R.string.action_label),
-                        style = MaterialTheme.typography.titleSmall,
-                    )
-
-                    Spacer(Modifier.height(4.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { action = Action.ACTION_BLOCK }
-                    ) {
-                        RadioButton(
-                            selected = action == Action.ACTION_BLOCK,
-                            onClick = { action = Action.ACTION_BLOCK }
-                        )
-
-                        Spacer(Modifier.width(8.dp))
-
-                        Text(stringResource(R.string.action_block))
-                    }
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { action = Action.ACTION_ALLOW }
-                    ) {
-                        RadioButton(
-                            selected = action == Action.ACTION_ALLOW,
-                            onClick = { action = Action.ACTION_ALLOW }
-                        )
-
-                        Spacer(Modifier.width(8.dp))
-
-                        Text(stringResource(R.string.action_allow))
-                    }
-                }
-
                 val errorText = when (addNumberError) {
                     is AddNumberError.DuplicateExact -> stringResource(R.string.error_duplicate_exact)
                     is AddNumberError.DuplicatePrefix -> stringResource(R.string.error_duplicate_prefix)
@@ -266,7 +268,7 @@ fun AddNumberDialog(
         },
         confirmButton = {
             TextButton(
-                onClick = { onConfirm("+$countryCode$phoneNumber", description, blockType, action) },
+                onClick = { onConfirm("+$countryCode$phoneNumber", description, action, blockType) },
                 enabled = canSave
             ) {
                 Text(confirmButtonText)

@@ -18,7 +18,11 @@
 
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" tools:node="remove" />
+
     <uses-feature android:name="android.hardware.vibrator" android:required="false" />
+
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
 
     <application
         android:name=".Main"
@@ -59,7 +63,7 @@
             android:foregroundServiceType="mediaPlayback" />
 
         <receiver
-            android:name=".receiver.BlockSuggestionReceiver"
+            android:name=".receiver.SuggestionNotificationActionsReceiver"
             android:exported="false" />
 
         <provider
@@ -83,6 +87,17 @@
                 android:value="androidx.startup"
                 tools:node="remove" />
         </provider>
+
+        <service
+            android:name=".service.BlockAllTileService"
+            android:icon="@drawable/ic_stat_notification_blocked_call"
+            android:label="@string/block_all_title"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
 
     </application>
 

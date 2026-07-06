@@ -1,9 +1,7 @@
 package com.ryosoftware.calls_blocker.ui.screens
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,13 +12,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.CallMade
+import androidx.compose.material.icons.automirrored.filled.CallReceived
+import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.LaunchedEffect
@@ -28,12 +32,15 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -45,15 +52,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
+import com.ryosoftware.calls_blocker.data.db.Direction
 import com.ryosoftware.calls_blocker.data.findCountryByPhoneNumber
-import com.ryosoftware.calls_blocker.data.formatPhoneNumber
 import com.ryosoftware.calls_blocker.data.db.HistoryEntry
 import com.ryosoftware.calls_blocker.data.db.Reason
 import com.ryosoftware.calls_blocker.viewmodel.HistoryViewModel
@@ -107,10 +116,14 @@ fun HistoryScreen(
     val history by viewModel.history.collectAsState()
     val blockedPhoneNumbers by viewModel.blockedPhoneNumbers.collectAsState()
     val allowedPhoneNumbers by viewModel.allowedPhoneNumbers.collectAsState()
+    val knownNumbers = remember(blockedPhoneNumbers, allowedPhoneNumbers) {
+        blockedPhoneNumbers + allowedPhoneNumbers
+    }
     val isDeleting by viewModel.isDeleting.collectAsState()
     var entryToDelete by remember { mutableStateOf<HistoryEntry?>(null) }
     var selectedIds by remember { mutableStateOf(setOf<Long>()) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    var pendingAction by remember { mutableStateOf<Pair<String, String>?>(null) }
     var searchQuery by remember { mutableStateOf("") }
     var searchVisible by remember { mutableStateOf(true) }
 
@@ -272,12 +285,18 @@ fun HistoryScreen(
                             is HistoryListItem.Entry -> HistoryItem(
                                 entry = item.entry,
                                 viewModel = viewModel,
+                                isBlocked = item.entry.phoneNumber in blockedPhoneNumbers,
+                                isAllowed = item.entry.phoneNumber in allowedPhoneNumbers,
                                 isSelected = item.entry.id in selectedIds,
                                 multiSelect = multiSelect,
                                 onLongClick = { toggleSelection(item.entry.id) },
                                 onClick = {
                                     if (multiSelect) toggleSelection(item.entry.id)
                                 },
+                                onBlock = { pendingAction = item.entry.phoneNumber to "block" },
+                                onUnblock = { pendingAction = item.entry.phoneNumber to "unblock" },
+                                onAllow = { pendingAction = item.entry.phoneNumber to "allow" },
+                                onUnallow = { pendingAction = item.entry.phoneNumber to "unallow" },
                                 onDelete = { entryToDelete = item.entry }
                             )
                         }
@@ -287,12 +306,22 @@ fun HistoryScreen(
     }
 
     if (showDeleteConfirm) {
+        val selectedEntries = remember(selectedIds, filteredHistory) {
+            filteredHistory.filter { it.id in selectedIds }
+        }
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
             title = { Text(stringResource(R.string.delete_history_entries_title)) },
             text = {
+                val displayEntries = selectedEntries.take(10)
+                val remaining = selectedEntries.size - displayEntries.size
+
                 Text(
-                    stringResource(R.string.delete_history_entries_message, selectedIds.size)
+                    stringResource(
+                        if (remaining > 0) R.string.delete_numbers_and_x_more else R.string.delete_numbers,
+                        displayEntries.joinToString("\n") { PhoneUtils.formatPhoneNumber(it.phoneNumber) },
+                        remaining
+                    )
                 )
             },
             confirmButton = {
@@ -329,6 +358,57 @@ fun HistoryScreen(
         )
     }
 
+    pendingAction?.let { (phoneNumber, action) ->
+        val isBlockAction = action == "block"
+        val isUnblockAction = action == "unblock"
+        val isAllowAction = action == "allow"
+        val isUnallowAction = action == "unallow"
+        
+        AlertDialog(
+            onDismissRequest = { pendingAction = null },
+            title = {
+                Text(
+                    when {
+                        isBlockAction -> stringResource(R.string.action_block)
+                        isUnblockAction -> stringResource(R.string.action_unblock)
+                        isAllowAction -> stringResource(R.string.action_allow)
+                        isUnallowAction -> stringResource(R.string.action_unallow)
+                        else -> ""
+                    }
+                )
+            },
+            text = {
+                Text(
+                    when {
+                        isBlockAction -> stringResource(R.string.confirm_block_number, PhoneUtils.formatPhoneNumber(phoneNumber))
+                        isUnblockAction -> stringResource(R.string.confirm_unblock_number, PhoneUtils.formatPhoneNumber(phoneNumber))
+                        isAllowAction -> stringResource(R.string.confirm_allow_number, PhoneUtils.formatPhoneNumber(phoneNumber))
+                        isUnallowAction -> stringResource(R.string.confirm_unallow_number, PhoneUtils.formatPhoneNumber(phoneNumber))
+                        else -> ""
+                    }
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    when {
+                        isBlockAction -> viewModel.blockNumber(phoneNumber)
+                        isUnblockAction -> viewModel.unblockNumber(phoneNumber)
+                        isAllowAction -> viewModel.allowNumber(phoneNumber)
+                        isUnallowAction -> viewModel.unallowNumber(phoneNumber)
+                    }
+                    pendingAction = null
+                }) {
+                    Text(stringResource(R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingAction = null }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
     entryToDelete?.let { entry ->
         var alsoRemoveFromNumbers by remember(entryToDelete) { mutableStateOf(false) }
         var deleteAllForNumber by remember(entryToDelete) { mutableStateOf(false) }
@@ -337,7 +417,7 @@ fun HistoryScreen(
 
         AlertDialog(
             onDismissRequest = { entryToDelete = null },
-            title = { Text(stringResource(R.string.delete_history_entry_title)) },
+            title = { Text(PhoneUtils.formatPhoneNumber(entry.phoneNumber)) },
             text = {
                 Column {
                     Text(stringResource(R.string.delete_history_entry_message))
@@ -401,15 +481,21 @@ fun HistoryScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun HistoryItem(
     entry: HistoryEntry,
     viewModel: HistoryViewModel,
+    isBlocked: Boolean,
+    isAllowed: Boolean,
     isSelected: Boolean,
     multiSelect: Boolean,
     onLongClick: () -> Unit,
     onClick: () -> Unit,
+    onBlock: () -> Unit,
+    onUnblock: () -> Unit,
+    onAllow: () -> Unit,
+    onUnallow: () -> Unit,
     onDelete: () -> Unit
 ) {
     val context = LocalContext.current
@@ -423,6 +509,8 @@ private fun HistoryItem(
     val countryInfo = remember(entry.phoneNumber) {
         findCountryByPhoneNumber(entry.phoneNumber)
     }
+
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     Card(
         colors = if (isSelected) {
@@ -445,7 +533,7 @@ private fun HistoryItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             if (multiSelect) {
                 Checkbox(
@@ -455,11 +543,60 @@ private fun HistoryItem(
                 )
             }
 
-            Column(modifier = Modifier.weight(1f)) {
+            Icon(
+                imageVector = when (entry.direction) {
+                    Direction.INCOMING -> Icons.AutoMirrored.Filled.CallReceived
+                    Direction.OUTGOING -> Icons.AutoMirrored.Filled.CallMade
+                },
+                contentDescription = null,
+                tint = when (entry.reason) {
+                    Reason.BLOCK_ALL,
+                    Reason.HIDDEN_NUMBER,
+                    Reason.BLACKLISTED_NUMBER,
+                    Reason.BLACKLISTED_PREFIX,
+                    Reason.NOT_A_CONTACT,
+                    Reason.MEMBER_OF_BLOCKED_GROUP_OF_CONTACTS,
+                    Reason.INTERNATIONAL_NUMBER,
+                    Reason.NOT_CALLED,
+                    Reason.REJECTED_BEFORE,
+                    Reason.REPEATED_CALL,
+                    Reason.SCHEDULE,
+                    Reason.FIND_MY_PHONE,
+                    Reason.FIND_MY_PHONE_CANCELLED -> colorResource(R.color.status_inactive_text)
+                    Reason.WHITELISTED_NUMBER,
+                    Reason.WHITELISTED_PREFIX -> colorResource(R.color.status_active_text)
+                    Reason.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
+                },
+                modifier = Modifier.size(24.dp)
+            )
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 12.dp)
+            ) {
                 Text(
-                    text = entry.phoneNumber.takeIf { it.isNotEmpty() }?.let { formatPhoneNumber(it) } ?: stringResource(R.string.private_number),
+                    text = entry.phoneNumber.takeIf { it.isNotEmpty() }?.let { PhoneUtils.formatPhoneNumber(it) } ?: stringResource(R.string.hidden_number),
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = when (entry.reason) {
+                        Reason.BLOCK_ALL,
+                        Reason.HIDDEN_NUMBER,
+                        Reason.BLACKLISTED_NUMBER,
+                        Reason.BLACKLISTED_PREFIX,
+                        Reason.NOT_A_CONTACT,
+                        Reason.MEMBER_OF_BLOCKED_GROUP_OF_CONTACTS,
+                        Reason.INTERNATIONAL_NUMBER,
+                        Reason.NOT_CALLED,
+                        Reason.REJECTED_BEFORE,
+                        Reason.REPEATED_CALL,
+                        Reason.SCHEDULE,
+                        Reason.FIND_MY_PHONE,
+                        Reason.FIND_MY_PHONE_CANCELLED -> colorResource(R.color.status_inactive_text)
+                        Reason.WHITELISTED_NUMBER,
+                        Reason.WHITELISTED_PREFIX -> colorResource(R.color.status_active_text)
+                        Reason.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
+                    }
                 )
 
                 if (countryInfo != null) {
@@ -468,27 +605,17 @@ private fun HistoryItem(
                     Spacer(Modifier.height(8.dp))
 
                     Text(
-                        text = stringResource(R.string.number_from_country_name_and_flag, viewModel.getCountryName(country), country.flag),
+                        text = stringResource(R.string.country_name_and_flag, viewModel.getCountryName(country), country.flag),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
                 Spacer(Modifier.height(8.dp))
 
-                val callAllowed = when(entry.reason) {
-                    Reason.REASON_WHITELISTED_NUMBER,
-                    Reason.REASON_WHITELISTED_PREFIX,
-                    Reason.REASON_NONE -> true
-                    else -> false
-                }
-
-                if (entry.reason != Reason.REASON_NONE) {
+                if (entry.reason != Reason.NONE) {
                     Text(
                         text = stringResource(R.string.reason, HistoryViewModel.getReasonString(context, entry.reason)),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (callAllowed) MaterialTheme.colorScheme.primary
-                                else MaterialTheme.colorScheme.error
+                        style = MaterialTheme.typography.bodySmall
                     )
 
                     Spacer(Modifier.height(8.dp))
@@ -496,16 +623,153 @@ private fun HistoryItem(
 
                 Text(
                     text = dateFormat.format(Date(entry.timeStamp)),
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+
             if (!multiSelect) {
-                IconButton(onClick = onDelete) {
+                IconButton(
+                    onClick = { showBottomSheet = true },
+                    modifier = Modifier.align(Alignment.Bottom)
+                ) {
                     Icon(
-                        Icons.Default.Delete,
-                        contentDescription = stringResource(R.string.delete),
+                        Icons.Default.MoreVert,
+                        contentDescription = stringResource(R.string.more_options),
                     )
+                }
+            }
+        }
+
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showBottomSheet = false },
+                sheetState = rememberModalBottomSheetState()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = PhoneUtils.formatPhoneNumber(entry.phoneNumber),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 24.dp)
+                    )
+
+                    if (entry.phoneNumber.isNotEmpty()) {
+                        if (isBlocked) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        showBottomSheet = false
+                                        onUnblock()
+                                    }
+                                    .padding(vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.Block,
+                                    contentDescription = null,
+                                )
+                                Spacer(Modifier.width(16.dp))
+                                Text(
+                                    text = stringResource(R.string.action_unblock),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        } else if (!isAllowed) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        showBottomSheet = false
+                                        onBlock()
+                                    }
+                                    .padding(vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.Block,
+                                    contentDescription = null,
+                                )
+                                Spacer(Modifier.width(16.dp))
+                                Text(
+                                    text = stringResource(R.string.action_block),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        }
+
+                        if (isAllowed) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        showBottomSheet = false
+                                        onUnallow()
+                                    }
+                                    .padding(vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.CheckCircleOutline,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                                Spacer(Modifier.width(16.dp))
+                                Text(
+                                    text = stringResource(R.string.action_unallow),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        } else if (! isBlocked) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        showBottomSheet = false
+                                        onAllow()
+                                    }
+                                    .padding(vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.CheckCircleOutline,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(Modifier.width(16.dp))
+                                Text(
+                                    text = stringResource(R.string.action_allow),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showBottomSheet = false
+                                onDelete()
+                            }
+                            .padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = null
+                        )
+                        Spacer(Modifier.width(16.dp))
+                        Text(
+                            text = stringResource(R.string.delete),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
                 }
             }
         }

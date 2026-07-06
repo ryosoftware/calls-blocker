@@ -12,8 +12,8 @@ interface NumberDao {
     @Query("SELECT * FROM numbers ORDER BY created_at DESC")
     fun getAll(): Flow<List<Number>>
 
-    @Query("SELECT * FROM numbers WHERE type = :type AND action = :action ORDER BY phone_number ASC LIMIT :limit OFFSET :offset")
-    suspend fun getByTypeBatch(type: Type, action: Action = Action.ACTION_BLOCK, limit: Int, offset: Int): List<Number>
+    @Query("SELECT * FROM numbers WHERE action = :action AND type = :type ORDER BY phone_number ASC LIMIT :limit OFFSET :offset")
+    suspend fun getByTypeBatch(action: Action, type: Type, limit: Int, offset: Int): List<Number>
 
     @Query("SELECT * FROM numbers")
     suspend fun getAllList(): List<Number>
@@ -33,15 +33,21 @@ interface NumberDao {
     @Query("DELETE FROM numbers WHERE id IN (:ids)")
     suspend fun deleteByIds(ids: List<Long>)
 
-    @Query("DELETE FROM numbers WHERE phone_number = :phoneNumber AND type = :type")
-    suspend fun deleteByPhoneNumber(phoneNumber: String, type: Type = Type.EXACT_COINCIDENCE)
+    @Query("UPDATE numbers SET description = :description WHERE id = :id")
+    suspend fun updateDescription(id: Long, description: String)
 
-    @Query("SELECT phone_number FROM numbers WHERE type = :type AND action = :action")
-    suspend fun getNumbersByTypeAndAction(type: Type, action: Action): List<String>
+    @Query("DELETE FROM numbers WHERE phone_number = :phoneNumber AND action = :action AND type = :type")
+    suspend fun deleteByPhoneNumber(phoneNumber: String, action: Action, type: Type = Type.EXACT_COINCIDENCE)
+
+    @Query("SELECT phone_number FROM numbers WHERE action = :action AND type = :type")
+    suspend fun getNumbersByType(action: Action, type: Type): List<String>
+
+    @Query("SELECT COUNT(*) FROM numbers WHERE action = :action")
+    fun getCount(action: Action): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM numbers WHERE action = :action")
     fun getCountByAction(action: Action): Flow<Int>
 
     @Query("SELECT phone_number FROM numbers WHERE action = :action")
-    fun getPhoneNumbersByAction(action: Action): Flow<List<String>>
+    fun getPhoneNumbers(action: Action): Flow<List<String>>
 }

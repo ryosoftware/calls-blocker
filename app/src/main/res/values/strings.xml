@@ -14,7 +14,7 @@
     <string name="notification_suggestion_title" />
     <string name="notification_suggestion_body">%1$s has called %2$s.</string>
     <string name="notification_suggestion_block">Block</string>
-    <string name="notification_suggestion_dismiss">I known this number</string>
+    <string name="notification_suggestion_dismiss">Don\'t ask again</string>
 
     <!-- Navigation -->
     <string name="nav_block_list">Numbers</string>
@@ -30,13 +30,16 @@
     <string name="add_number">Add number</string>
     <string name="delete">Delete</string>
     <string name="label_exact">Exact coincidence</string>
-    <string name="label_prefix">Number prefix</string>
+    <string name="label_prefix">Prefix</string>
     <string name="label_allowed">Allowed</string>
     <string name="label_blocked">Blocked</string>
-    <string name="delete_entries_title">Remove numbers?</string>
-    <string name="delete_entries_message">Remove %d numbers ?</string>
-    <string name="delete_entry_title">Remove number?</string>
-    <string name="delete_entry_message">Remove this number?</string>
+    <string name="delete_entries_title">Remove</string>
+    <string name="stop_blocking">Stop blocking</string>
+    <string name="stop_allowing">Stop allowing</string>
+    <string name="confirm_stop_blocking">Stop blocking?</string>
+    <string name="confirm_stop_allowing">Stop allowing?</string>
+    <string name="delete_numbers">Remove\n%1$s</string>
+    <string name="delete_numbers_and_x_more">Remove\n\n%1$s\n\nand %2$d more&#8230;</string>
 
     <!-- Add Number Dialog -->
     <string name="add_number_title">Add number</string>
@@ -50,14 +53,21 @@
     <string name="number_type_prefix">Prefix</string>
     <string name="action_label">Action</string>
     <string name="action_block">Block</string>
+    <string name="action_unblock">Unblock</string>
+
+    <!-- History Actions -->
     <string name="action_allow">Allow</string>
+    <string name="action_unallow">Unallow</string>
+    <string name="confirm_block_number">Block %1$s?</string>
+    <string name="confirm_allow_number">Allow %1$s?</string>
+    <string name="confirm_unblock_number">Unblock %1$s?</string>
+    <string name="confirm_unallow_number">Unallow %1$s?</string>
+    <string name="more_options">More options</string>
 
     <!-- History Screen -->
     <string name="history_empty">No logged calls</string>
-    <string name="delete_history_entry_title">Remove entry?</string>
     <string name="delete_history_entry_message">Remove this entry from the history?</string>
     <string name="delete_history_entries_title">Remove entries?</string>
-    <string name="delete_history_entries_message">Remove %d entries from the history?</string>
     <string name="also_unblock">Stop blocking this number</string>
     <string name="also_unallow">Stop allowing this number</string>
     <string name="delete_all_entries_for_number">Delete all %1$d entries for this number</string>
@@ -69,16 +79,15 @@
     <string name="history_header_month_with_year">%1$s in %2$s %3$d</string>
     <string name="history_export">Export as CSV</string>
     <string name="history_export_success">History exported successfully</string>
-    <string name="private_number">Private number</string>
+    <string name="hidden_number">Hidden number</string>
 
     <!-- Settings Screen -->
     <string name="default_country_title">Your country</string>
     <string name="default_country_description">Used when importing numbers that does not include a country code or when a call is received but the country code is missing and the system does not report the SIM card on which the call was received or the country of the SIM.</string>
     <string name="default_country_not_set">Not set</string>
 
-    <string name="blocking_rules_title">You phone, your rules!</string>
-    <string name="blocking_rules_description">Below you can configure general blocking rules. Please note that these rules do not apply to phone numbers or prefixes included in your allowlist (Numbers tab), which are never blocked.</string>
-
+    <string name="blocking_rules_title">Your phone, your rules!</string>
+    <string name="blocking_rules_description">Well no, we can only block incoming calls, but it\'s something&#8230;\n\nPlease note that THESE RULES DO NOT APPLY TO NUMBERS OR PREFIXES THAT YOU HAVE EXPRESSLY ACCEPTED (numbers tab), which are never blocked, even if \"block all incoming calls\" is active.</string>
     <string name="schedule_blocking_title">Schedule blocking</string>
     <string name="schedule_blocking_description">Blocks calls in the specified periods</string>
     <string name="schedule_blocking_add">Add</string>
@@ -91,25 +100,25 @@
     <string name="block_hidden_title">Block hidden numbers</string>
     <string name="block_hidden_description">Blocks calls from private or hidden numbers</string>
 
+    <string name="block_all_title">Block all</string>
+    <string name="block_all_description">Blocks all incoming calls</string>
+
     <string name="block_groups_title">Block groups</string>
     <string name="block_groups_description">Blocks calls from contacts that belong to selected groups</string>
-    <string name="selected_groups">Groups</string>
-    <string name="select_groups">Select groups</string>
     <string name="no_groups_warning">No groups selected.\nAll calls from contacts will be allowed.</string>
     <string name="group_contacts_count_zero">No contacts</string>
 
     <string name="block_international_title">Block international calls</string>
     <string name="block_international_description">Blocks calls from other countries</string>
     <string name="select_allowed_countries">Allowed countries</string>
-    <string name="select_countries">Select countries</string>
-    <string name="number_from_country_name_and_flag">%2$s %1$s</string>
-    <string name="no_allowed_countries_warning">All calls will be blocked if you don\'t add at least one country</string>
+    <string name="country_name_and_flag">%2$s %1$s</string>
+    <string name="no_allowed_countries_warning">We normalize all numbers to their international format before processing any rules, so we will block all calls if you do not allow at least one country.</string>
 
     <string name="block_not_called_title">Block not called before</string>
     <string name="block_not_called_description">Blocks calls from numbers that haven\'t been called before</string>
     <string name="not_called_window_label">Days to check</string>
 
-    <string name="block_rejected_title">Block if previously rejected</string>
+    <string name="block_rejected_title">Block rejected</string>
     <string name="block_rejected_description">Blocks calls from numbers that you have rejected before.\n\nPlease note that this refers to calls rejected from the phone app, not calls previously blocked by this app.</string>
     <string name="rejected_window_label">Days to check</string>
 
@@ -123,8 +132,8 @@
     <string name="skip_call_log_description">Prevents blocked calls from appearing in the Phone calls log</string>
 
     <string name="find_my_phone_background_permission_description">If this feature is not working properly, consider allowing the app to run in the background and to auto-start (these options are usually found within the \"Battery\" section).</string>
-    <string name="find_my_phone_activated_no_number">Find my phone</string>
-    <string name="find_my_phone_description">Make your phone ring, even if it\'s on silent, when a preconfigured number calls repeatedly.\n\nThis is not a call blocking feature, but it can block calls.\n\nIt works as follows: when you receive a call from one of the preconfigured phone numbers, the call will either ring normally or be blocked according to your configured rules. However, if the conditions defined below (number of calls and the time interval between them) are met, the call will be automatically rejected and your phone will ring loudly.</string>
+    <string name="find_my_phone_title">Find my phone</string>
+    <string name="find_my_phone_description">Make your phone ring, even if it\'s on silent, when a preconfigured number calls repeatedly.\n\nThis is not a call blocking feature, but it can block calls.\n\nIt works as follows: when you receive a call from one of the preconfigured phone numbers, the call will either ring normally or be blocked according to your configured rules. However, if the conditions defined below (number of calls and the time interval between them) are met, the call will be automatically rejected and your phone will ring loudly.\n\nA new call from an authorized number will cancel the function.</string>
     <string name="find_my_phone_enabled_label">Enable</string>
 
     <string name="permissions_title">Other permissions</string>
@@ -144,9 +153,6 @@
     <string name="app_version">%1$s (%2$s)</string>
 
     <!-- Permissions -->
-    <string name="permission_read_media_audio_required">Read media audio</string>
-    <string name="permission_read_media_audio_rationale_title">Media audio access</string>
-    <string name="permission_read_media_audio_rationale_message">We need your permission to read the audio file to play the \"find my phone\" ringtone.</string>
     <string name="permission_read_phone_state_required">Read Phone state</string>
     <string name="permission_read_phone_state_rationale_title">Read Phone state</string>
     <string name="permission_read_phone_state_rationale_message">We need your permission to read the phone status and the number from which calls are received.</string>
@@ -172,25 +178,30 @@
     <string name="find_my_phone_call_count_label">Calls required</string>
     <string name="find_my_phone_window_label">Time</string>
     <string name="find_my_phone_ringtone">Select a ringtone</string>
-    <string name="find_my_phone_media_audio_description">If the selected ringtone is not a system default one, you may need to grant read audio access.</string>
+    <string name="find_my_phone_activated_no_number">Find my phone</string>
     <string name="find_my_phone_activated_from">Find my phone activated from\n%1$s</string>
     <string name="find_my_phone_stop_sound">I found it!</string>
-    <string name="find_my_phone_notification_playing">Find my phone</string>
+    <string name="find_my_phone_test_button">Test</string>
+    <string name="find_my_phone_test_title">Find my phone</string>
+    <string name="find_my_phone_test_message">We are going to test \"Find My Phone\".\n\nClick \"Accept\" button then turn off the screen.\n\nThe test will start in 5 seconds&#8230;</string>
 
     <!-- Block reasons -->
     <string name="reason">%1$s</string>
     <string name="reason_whitelisted_number">Whitelisted number</string>
     <string name="reason_whitelisted_prefix">Whitelisted prefix</string>
+    <string name="reason_block_all">Block all</string>
     <string name="reason_hidden">Hidden number</string>
     <string name="reason_blacklisted_number">Blacklisted number</string>
     <string name="reason_blacklisted_prefix">Blacklisted prefix</string>
     <string name="reason_unknown_number">It\'s not a contact</string>
-    <string name="reason_group">Contact from a blocked group</string>
+    <string name="reason_group">Blocked group</string>
     <string name="reason_international">International call</string>
-    <string name="reason_not_called">Number not called before</string>
-    <string name="reason_rejected_before">Previously rejected</string>
+    <string name="reason_not_called">Not dialed before</string>
+    <string name="reason_rejected_before">Already rejected</string>
     <string name="reason_repeated_call">Repeated call</string>
-    <string name="reason_schedule">Schedule</string>
+    <string name="reason_schedule">Scheduler</string>
+    <string name="reason_find_my_phone">Find my phone</string>
+    <string name="reason_find_my_phone_cancelled">Cancel \"Find my phone\"</string>
     <string name="reason_unknown">Unknown</string>
 
     <!-- Schedule blocking -->
@@ -205,6 +216,7 @@
     <string name="test_screening_description">Check whether the current configuration would block a phone number.</string>
     <string name="test_screening_description_addon_scheduler">When checking schedule blocking rules, the call is assumed to be received at the current time.</string>
     <string name="test_screening_description_addon_permissions">Some of the enabled rules require permissions that have not been granted.</string>
+    <string name="test_screening_description_addon_find_my_phone">Since \"find my phone\" only blocks some calls from allowed numbers, we did not test it.</string>
     <string name="test_screening_button">Test</string>
     <string name="test_screening_result_blocked">Calls from number %1$s will be blocked (%2$s)</string>
     <string name="test_screening_result_blocked_find_by_phone">Calls from number %1$s will maybe be blocked (%2$s)</string>
@@ -279,11 +291,14 @@
     <string name="csv_column_reason">Reason</string>
 
     <!-- Misc -->
+    <string name="add_description">Add</string>
+    <string name="remove_element_description">Remove %1$s</string>
     <string name="error_title">Error</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="error_duplicate_exact">The exact number already exists</string>
     <string name="error_duplicate_prefix">The prefix already exists</string>
+    <string name="edit_description">Edit description</string>
     <string name="ok">OK</string>
     <string name="back">Back</string>
     <string name="yes">Yes</string>

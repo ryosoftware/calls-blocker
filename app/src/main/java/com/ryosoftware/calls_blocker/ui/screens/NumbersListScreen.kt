@@ -1,11 +1,9 @@
 package com.ryosoftware.calls_blocker.ui.screens
 
-import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -13,7 +11,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,18 +27,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
@@ -65,15 +62,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.db.Action
+import com.ryosoftware.calls_blocker.data.Country
 import com.ryosoftware.calls_blocker.data.findCountryByPhoneNumber
-import com.ryosoftware.calls_blocker.data.formatPhoneNumber
 import com.ryosoftware.calls_blocker.data.importexport.CommaSeparatedImporter
 import com.ryosoftware.calls_blocker.data.importexport.ImportOptions
 import com.ryosoftware.calls_blocker.data.importexport.ImportResult
@@ -82,7 +82,9 @@ import com.ryosoftware.calls_blocker.data.db.Number
 import com.ryosoftware.calls_blocker.data.db.Type
 import com.ryosoftware.calls_blocker.viewmodel.NumbersViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.material3.ExperimentalMaterial3Api
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NumbersListScreen(
     viewModel: NumbersViewModel = hiltViewModel(),
@@ -96,21 +98,21 @@ fun NumbersListScreen(
     val context = LocalContext.current
     val blockedNumbersCount by viewModel.blockedNumbersCount.collectAsState()
     val allowedNumbersCount by viewModel.allowedNumbersCount.collectAsState()
-    val manualBlocks by viewModel.manualBlocks.collectAsState()
-    val prefixBlocks by viewModel.prefixBlocks.collectAsState()
-    val allowedExact by viewModel.allowedExact.collectAsState()
-    val allowedPrefix by viewModel.allowedPrefix.collectAsState()
+    val manualBlocks by viewModel.incomingExactBlocks.collectAsState()
+    val prefixBlocks by viewModel.incomingPrefixBlocks.collectAsState()
+    val allowedExact by viewModel.incomingExactAllows.collectAsState()
+    val allowedPrefix by viewModel.incomingPrefixAllows.collectAsState()
     val addNumberError by viewModel.addNumberError.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
     var searchVisible by remember { mutableStateOf(true) }
     var searchQuery by remember { mutableStateOf("") }
-    var blockedExactExpanded by remember { mutableStateOf(true) }
-    var blockedPrefixExpanded by remember { mutableStateOf(true) }
-    var allowedExactExpanded by remember { mutableStateOf(true) }
-    var allowedPrefixExpanded by remember { mutableStateOf(true) }
     var selectedIds by remember { mutableStateOf(setOf<Long>()) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
-    var pendingDeleteEntry by remember { mutableStateOf<Number?>(null) }
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var pendingBottomSheetEntry by remember { mutableStateOf<Number?>(null) }
+    var showEditDescriptionDialog by remember { mutableStateOf(false) }
+    var pendingEditDescription by remember { mutableStateOf<Number?>(null) }
+    var pendingRemoveEntry by remember { mutableStateOf<Number?>(null) }
     var isImporting by remember { mutableStateOf(false) }
     var showImportOptionsDialog by remember { mutableStateOf(false) }
     var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
@@ -144,7 +146,8 @@ fun NumbersListScreen(
     }
 
     val allFiltered = remember(searchQuery, filteredManual, filteredPrefix, filteredAllowedExact, filteredAllowedPrefix) {
-        filteredManual + filteredPrefix + filteredAllowedExact + filteredAllowedPrefix
+        (filteredManual + filteredPrefix + filteredAllowedExact + filteredAllowedPrefix)
+            .sortedBy { it.phoneNumber }
     }
     val multiSelect = selectedIds.isNotEmpty()
     val allSelected = multiSelect && selectedIds.size == allFiltered.size
@@ -266,7 +269,7 @@ fun NumbersListScreen(
                             modifier = Modifier.padding(vertical = 32.dp)
                         )
                     }
-                } else if (searchVisible && searchQuery.isNotBlank() && filteredManual.isEmpty() && filteredPrefix.isEmpty() && filteredAllowedExact.isEmpty() && filteredAllowedPrefix.isEmpty()) {
+                } else if (searchVisible && searchQuery.isNotBlank() && allFiltered.isEmpty()) {
                     item {
                         Text(
                             text = stringResource(R.string.no_results),
@@ -276,168 +279,21 @@ fun NumbersListScreen(
                         )
                     }
                 } else {
-                    if (filteredManual.isNotEmpty()) {
-                        item {
-                            @SuppressLint("LocalContextResourcesRead")
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.clickable { blockedExactExpanded = !blockedExactExpanded }
-                            ) {
-                                Icon(
-                                    imageVector = if (blockedExactExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-
-                                Spacer(Modifier.width(4.dp))
-
-                                Text(
-                                    text = pluralStringResource(R.plurals.section_blocked_exact_numbers, filteredManual.size, filteredManual.size),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                )
+                    items(allFiltered, key = { it.id }) { number ->
+                        NumberItem(
+                            number = number,
+                            isSelected = number.id in selectedIds,
+                            multiSelect = multiSelect,
+                            getCountryName = viewModel::getCountryName,
+                            onLongClick = { toggleSelection(number.id) },
+                            onClick = {
+                                if (multiSelect) toggleSelection(number.id)
+                            },
+                            onMoreVert = {
+                                pendingBottomSheetEntry = number
+                                showBottomSheet = true
                             }
-                        }
-                        if (blockedExactExpanded) {
-                            items(filteredManual, key = { it.id }) { number ->
-                                NumberItem(
-                                    number = number,
-                                    viewModel = viewModel,
-                                    isSelected = number.id in selectedIds,
-                                    multiSelect = multiSelect,
-                                    onLongClick = { toggleSelection(number.id) },
-                                    onClick = {
-                                        if (multiSelect) toggleSelection(number.id)
-                                    },
-                                    onDelete = { pendingDeleteEntry = number }
-                                )
-                            }
-                        }
-
-                        item { Spacer(Modifier.height(16.dp)) }
-                    }
-
-                    if (filteredPrefix.isNotEmpty()) {
-                        item {
-                            @SuppressLint("LocalContextResourcesRead")
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.clickable { blockedPrefixExpanded = !blockedPrefixExpanded }
-                            ) {
-                                Icon(
-                                    imageVector = if (blockedPrefixExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-
-                                Spacer(Modifier.width(4.dp))
-
-                                Text(
-                                    text = pluralStringResource(R.plurals.section_blocked_prefixes, filteredPrefix.size, filteredPrefix.size),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                )
-                            }
-                        }
-                        if (blockedPrefixExpanded) {
-                            items(filteredPrefix, key = { it.id }) { number ->
-                                NumberItem(
-                                    number = number,
-                                    viewModel = viewModel,
-                                    isSelected = number.id in selectedIds,
-                                    multiSelect = multiSelect,
-                                    onLongClick = { toggleSelection(number.id) },
-                                    onClick = {
-                                        if (multiSelect) toggleSelection(number.id)
-                                    },
-                                    onDelete = { pendingDeleteEntry = number }
-                                )
-                            }
-                        }
-
-                        item { Spacer(Modifier.height(16.dp)) }
-                    }
-
-                    if (filteredAllowedExact.isNotEmpty()) {
-                        item {
-                            @SuppressLint("LocalContextResourcesRead")
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.clickable { allowedExactExpanded = !allowedExactExpanded }
-                            ) {
-                                Icon(
-                                    imageVector = if (allowedExactExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-
-                                Spacer(Modifier.width(4.dp))
-
-                                Text(
-                                    text = pluralStringResource(R.plurals.section_allowed_exact_numbers, filteredAllowedExact.size, filteredAllowedExact.size),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                )
-                            }
-                        }
-                        if (allowedExactExpanded) {
-                            items(filteredAllowedExact, key = { it.id }) { number ->
-                                NumberItem(
-                                    number = number,
-                                    viewModel = viewModel,
-                                    isSelected = number.id in selectedIds,
-                                    multiSelect = multiSelect,
-                                    onLongClick = { toggleSelection(number.id) },
-                                    onClick = {
-                                        if (multiSelect) toggleSelection(number.id)
-                                    },
-                                    onDelete = { pendingDeleteEntry = number }
-                                )
-                            }
-                        }
-
-                        item { Spacer(Modifier.height(16.dp)) }
-                    }
-
-                    if (filteredAllowedPrefix.isNotEmpty()) {
-                        item {
-                            @SuppressLint("LocalContextResourcesRead")
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.clickable { allowedPrefixExpanded = !allowedPrefixExpanded }
-                            ) {
-                                Icon(
-                                    imageVector = if (allowedPrefixExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-
-                                Spacer(Modifier.width(4.dp))
-
-                                Text(
-                                    text = pluralStringResource(R.plurals.section_allowed_prefixes, filteredAllowedPrefix.size, filteredAllowedPrefix.size),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                )
-                            }
-                        }
-                        if (allowedPrefixExpanded) {
-                            items(filteredAllowedPrefix, key = { it.id }) { number ->
-                                NumberItem(
-                                    number = number,
-                                    viewModel = viewModel,
-                                    isSelected = number.id in selectedIds,
-                                    multiSelect = multiSelect,
-                                    onLongClick = { toggleSelection(number.id) },
-                                    onClick = {
-                                        if (multiSelect) toggleSelection(number.id)
-                                    },
-                                    onDelete = { pendingDeleteEntry = number }
-                                )
-                            }
-                        }
-
-                        item { Spacer(Modifier.height(16.dp)) }
+                        )
                     }
                 }
             }
@@ -464,12 +320,22 @@ fun NumbersListScreen(
     }
 
     if (showDeleteConfirm) {
+        val selectedNumbers = remember(selectedIds, allFiltered) {
+            allFiltered.filter { it.id in selectedIds }
+        }
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
             title = { Text(stringResource(R.string.delete_entries_title)) },
             text = {
+                val displayNumbers = selectedNumbers.take(10)
+                val remaining = selectedNumbers.size - displayNumbers.size
+
                 Text(
-                    stringResource(R.string.delete_entries_message, selectedIds.size)
+                    stringResource(
+                        if (remaining > 0) R.string.delete_numbers_and_x_more else R.string.delete_numbers,
+                        displayNumbers.joinToString("\n") { PhoneUtils.formatPhoneNumber(it.phoneNumber) },
+                        remaining
+                    )
                 )
             },
             confirmButton = {
@@ -489,25 +355,146 @@ fun NumbersListScreen(
         )
     }
 
-    pendingDeleteEntry?.let { entry ->
+    pendingBottomSheetEntry?.let { entry ->
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showBottomSheet = false },
+                sheetState = rememberModalBottomSheetState()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = PhoneUtils.formatPhoneNumber(entry.phoneNumber),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 24.dp)
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showBottomSheet = false
+                                pendingEditDescription = entry
+                                showEditDescriptionDialog = true
+                            }
+                            .padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = null
+                        )
+
+                        Spacer(Modifier.width(16.dp))
+
+                        Text(
+                            text = stringResource(R.string.edit_description),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showBottomSheet = false
+                                pendingRemoveEntry = entry
+                            }
+                            .padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = null
+                        )
+
+                        Spacer(Modifier.width(16.dp))
+
+                        Text(
+                            text = stringResource(
+                                when (entry.action) {
+                                    Action.BLOCK -> R.string.stop_blocking
+                                    Action.ALLOW -> R.string.stop_allowing
+                                }
+                            ),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    pendingRemoveEntry?.let { entry ->
         AlertDialog(
-            onDismissRequest = { pendingDeleteEntry = null },
-            title = { Text(stringResource(R.string.delete_entry_title)) },
-            text = { Text(stringResource(R.string.delete_entry_message)) },
+            onDismissRequest = { pendingRemoveEntry = null },
+            title = { Text(PhoneUtils.formatPhoneNumber(entry.phoneNumber)) },
+            text = {
+                Text(
+                    when (entry.action) {
+                        Action.BLOCK -> stringResource(R.string.confirm_stop_blocking)
+                        Action.ALLOW -> stringResource(R.string.confirm_stop_allowing)
+                    }
+                )
+            },
             confirmButton = {
                 TextButton(onClick = {
-                    pendingDeleteEntry = null
+                    pendingRemoveEntry = null
                     viewModel.removeNumber(entry)
                 }) {
                     Text(stringResource(R.string.ok))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { pendingDeleteEntry = null }) {
+                TextButton(onClick = { pendingRemoveEntry = null }) {
                     Text(stringResource(R.string.cancel))
                 }
             }
         )
+    }
+
+    pendingEditDescription?.let { entry ->
+        if (showEditDescriptionDialog) {
+            var newDescription by remember(entry.id) { mutableStateOf(entry.description) }
+
+            AlertDialog(
+                onDismissRequest = {
+                    showEditDescriptionDialog = false
+                    pendingEditDescription = null
+                },
+                title = { Text(PhoneUtils.formatPhoneNumber(entry.phoneNumber)) },
+                text = {
+                    OutlinedTextField(
+                        value = newDescription,
+                        onValueChange = { newDescription = it },
+                        label = { Text(stringResource(R.string.description_label)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        viewModel.updateDescription(entry.copy(description = newDescription))
+                        showEditDescriptionDialog = false
+                        pendingEditDescription = null
+                    }) {
+                        Text(stringResource(R.string.save))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        showEditDescriptionDialog = false
+                        pendingEditDescription = null
+                    }) {
+                        Text(stringResource(R.string.cancel))
+                    }
+                }
+            )
+        }
     }
 
     if (isDeleting) {
@@ -546,7 +533,9 @@ fun NumbersListScreen(
                             checked = requirePossibleNumber,
                             onCheckedChange = null
                         )
+
                         Spacer(Modifier.width(8.dp))
+
                         Text(stringResource(R.string.force_possible_number))
                     }
 
@@ -560,7 +549,9 @@ fun NumbersListScreen(
                             checked = requireValidNumber,
                             onCheckedChange = null
                         )
+
                         Spacer(Modifier.width(8.dp))
+
                         Text(stringResource(R.string.force_valid_number))
                     }
                 }
@@ -623,8 +614,8 @@ fun NumbersListScreen(
                 viewModel.clearAddNumberError()
                 showAddDialog = false
             },
-            onConfirm = { number, description, type, action ->
-                if (viewModel.addNumber(number, description, type, action)) {
+            onConfirm = { number, description, action, type ->
+                if (viewModel.addNumber(number, description, action, type)) {
                     showAddDialog = false
                 }
             }
@@ -635,19 +626,17 @@ fun NumbersListScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun NumberItem(
-    viewModel: NumbersViewModel,
     number: Number,
     isSelected: Boolean,
     multiSelect: Boolean,
+    getCountryName: (Country) -> String,
     onLongClick: () -> Unit,
     onClick: () -> Unit,
-    onDelete: () -> Unit
+    onMoreVert: () -> Unit,
 ) {
     val countryInfo = remember(number.phoneNumber) {
         findCountryByPhoneNumber(number.phoneNumber)
     }
-
-    val isAllow = number.action == Action.ACTION_ALLOW
 
     Card(
         colors = if (isSelected) {
@@ -669,7 +658,7 @@ private fun NumberItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             if (multiSelect) {
                 Checkbox(
@@ -679,78 +668,64 @@ private fun NumberItem(
                 )
             }
 
-            val icon = when {
-                isAllow -> Icons.Default.CheckCircleOutline
-                else -> Icons.Default.Block
-            }
-
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
-            )
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 12.dp)
+                    .padding(start = if (multiSelect) 0.dp else 12.dp)
             ) {
                 Text(
-                    text = formatPhoneNumber(number.phoneNumber),
+                    text = PhoneUtils.formatPhoneNumber(number.phoneNumber),
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = colorResource(when (number.action) {
+                        Action.BLOCK -> R.color.status_inactive_text
+                        Action.ALLOW -> R.color.status_active_text
+                    })
                 )
 
                 if (countryInfo != null) {
                     val (country, _) = countryInfo
+
                     Spacer(Modifier.height(8.dp))
 
                     Text(
-                        text = stringResource(R.string.number_from_country_name_and_flag, viewModel.getCountryName(country), country.flag),
+                        text = stringResource(R.string.country_name_and_flag, getCountryName(country), country.flag),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+
+                Spacer(Modifier.height(8.dp))
+
+                Text(
+                    text = stringResource(when (number.type) {
+                        Type.EXACT_COINCIDENCE -> R.string.label_exact
+                        Type.PREFIX -> R.string.label_prefix
+                    }),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
                 if (number.description.isNotBlank()) {
                     Spacer(Modifier.height(8.dp))
 
                     Text(
                         text = number.description,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                Spacer(Modifier.height(8.dp))
-
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = when {
-                            isAllow -> stringResource(R.string.label_allowed)
-                            else -> stringResource(R.string.label_blocked)
-                        },
-                        style = MaterialTheme.typography.labelSmall,
-                        color = when {
-                            isAllow -> MaterialTheme.colorScheme.primary
-                            else -> MaterialTheme.colorScheme.error
-                        }
-                    )
-
-                    Text(
-                        text = when (number.type) {
-                            Type.EXACT_COINCIDENCE -> stringResource(R.string.label_exact)
-                            Type.PREFIX -> stringResource(R.string.label_prefix)
-                        },
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontStyle = FontStyle.Italic
+                        ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
+
             if (!multiSelect) {
-                IconButton(onClick = onDelete) {
+                IconButton(
+                    onClick = onMoreVert,
+                    modifier = Modifier.align(Alignment.Bottom)
+                ) {
                     Icon(
-                        Icons.Default.Delete,
-                        contentDescription = stringResource(R.string.delete),
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = stringResource(R.string.more_options),
                     )
                 }
             }

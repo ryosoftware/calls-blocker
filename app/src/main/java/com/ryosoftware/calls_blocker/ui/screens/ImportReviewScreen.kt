@@ -40,6 +40,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.db.Type
 import com.ryosoftware.calls_blocker.data.importexport.ImportEntry
@@ -232,7 +233,7 @@ private fun ImportEntryCard(entry: ImportEntry) {
 
             Column(modifier = Modifier.padding(start = 12.dp)) {
                 Text(
-                    text = entry.number ?: entry.rawInput,
+                    text = if (!entry.number.isNullOrEmpty()) PhoneUtils.formatPhoneNumber(entry.number) else entry.rawInput,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium
                 )
@@ -246,14 +247,14 @@ private fun ImportEntryCard(entry: ImportEntry) {
                                 ImportStatus.AlreadyBlocked -> stringResource(R.string.label_blocked)
                                 else -> stringResource(R.string.label_allowed)
                             },
-                            style = MaterialTheme.typography.labelSmall,
+                            style = MaterialTheme.typography.bodySmall,
                             color = color
                         )
                     }
 
                     Text(
                         text = typeLabel,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }

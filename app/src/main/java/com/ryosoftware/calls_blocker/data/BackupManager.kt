@@ -6,6 +6,7 @@ import com.ryosoftware.calls_blocker.BuildConfig
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.db.Action
 import com.ryosoftware.calls_blocker.data.db.BlockSuggestionDao
+import com.ryosoftware.calls_blocker.data.db.Direction
 import com.ryosoftware.calls_blocker.data.db.BlockSuggestion
 import com.ryosoftware.calls_blocker.data.db.Number
 import com.ryosoftware.calls_blocker.data.db.NumberDao
@@ -32,7 +33,6 @@ class BackupManager @Inject constructor(
     private val settingsManager: SettingsManager,
     @param:ApplicationContext private val context: Context
 ) {
-
     private val json = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
@@ -44,6 +44,7 @@ class BackupManager @Inject constructor(
             settings = BackupData.BackupSettings(
                 screeningDialogDismissed = settingsManager.screeningDialogDismissed,
                 defaultCountryIso = settingsManager.defaultCountryIso,
+                blockAll = settingsManager.blockAll,
                 blockUnknown = settingsManager.blockUnknown,
                 blockHidden = settingsManager.blockHidden,
                 blockGroups = settingsManager.blockGroups,
@@ -73,8 +74,8 @@ class BackupManager @Inject constructor(
                 BackupData.BackupNumber(
                     phoneNumber = number.phoneNumber,
                     description = number.description,
-                    type = number.type.code,
                     action = number.action.code,
+                    type = number.type.code,
                     createdAt = number.createdAt,
                 )
             },
@@ -82,6 +83,7 @@ class BackupManager @Inject constructor(
                 BackupData.BackupHistoryEntry(
                     phoneNumber = entry.phoneNumber,
                     timestamp = entry.timeStamp,
+                    direction = entry.direction.code,
                     reason = entry.reason.code,
                 )
             },
@@ -116,6 +118,7 @@ class BackupManager @Inject constructor(
 
         settingsManager.screeningDialogDismissed = settings.screeningDialogDismissed
         settingsManager.defaultCountryIso = settings.defaultCountryIso
+        settingsManager.blockAll = settings.blockAll
         settingsManager.blockUnknown = settings.blockUnknown
         settingsManager.blockHidden = settings.blockHidden
         settingsManager.blockGroups = settings.blockGroups
@@ -146,8 +149,8 @@ class BackupManager @Inject constructor(
             Number(
                 phoneNumber = numberEntry.phoneNumber,
                 description = numberEntry.description,
-                type = Type.fromCode(numberEntry.type),
                 action = Action.fromCode(numberEntry.action),
+                type = Type.fromCode(numberEntry.type),
                 createdAt = numberEntry.createdAt,
             )
         })
@@ -157,6 +160,7 @@ class BackupManager @Inject constructor(
             HistoryEntry(
                 phoneNumber = historyEntry.phoneNumber,
                 timeStamp = historyEntry.timestamp,
+                direction = Direction.fromCode(historyEntry.direction),
                 reason = Reason.fromCode(historyEntry.reason),
             )
         })
@@ -195,6 +199,7 @@ data class BackupData(
     data class BackupSettings(
         @SerialName("screening-dialog-dismissed") val screeningDialogDismissed: Boolean = false,
         @SerialName("default-country-iso") val defaultCountryIso: String = "",
+        @SerialName("block-all") val blockAll: Boolean = false,
         @SerialName("block-unknown") val blockUnknown: Boolean = false,
         @SerialName("block-hidden") val blockHidden: Boolean = false,
         @SerialName("block-groups") val blockGroups: Boolean = false,
@@ -225,8 +230,8 @@ data class BackupData(
     data class BackupNumber(
         @SerialName("phone-number") val phoneNumber: String,
         val description: String = "",
-        val type: Int,
-        val action: Int,
+        val action: Int = Action.BLOCK.code,
+        val type: Int = Type.EXACT_COINCIDENCE.code,
         @SerialName("created-at") val createdAt: Long,
     )
 
@@ -234,6 +239,7 @@ data class BackupData(
     data class BackupHistoryEntry(
         @SerialName("phone-number") val phoneNumber: String,
         val timestamp: Long,
+        val direction: Int = Direction.INCOMING.code,
         val reason: Int,
     )
 

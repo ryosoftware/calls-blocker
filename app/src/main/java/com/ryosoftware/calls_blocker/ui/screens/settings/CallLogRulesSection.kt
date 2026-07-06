@@ -56,7 +56,7 @@ fun CallLogRulesSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onBlockNotCalledChange(!blockNotCalled) },
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -124,7 +124,7 @@ fun CallLogRulesSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onBlockRejectedChange(!blockRejected) },
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -192,7 +192,7 @@ fun CallLogRulesSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onBlockRepeatedChange(!blockRepeated) },
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(

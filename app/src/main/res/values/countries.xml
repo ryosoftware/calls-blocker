@@ -13,6 +13,19 @@
     <string name="country_bermuda">Bermuda</string>
     <string name="country_cayman_islands">Cayman Islands</string>
     <string name="country_u_s_virgin_islands">U.S. Virgin Islands</string>
+    <string name="country_american_samoa">American Samoa</string>
+    <string name="country_antigua_and_barbuda">Antigua and Barbuda</string>
+    <string name="country_anguilla">Anguilla</string>
+    <string name="country_dominica">Dominica</string>
+    <string name="country_grenada">Grenada</string>
+    <string name="country_guam">Guam</string>
+    <string name="country_montserrat">Montserrat</string>
+    <string name="country_northern_mariana_islands">Northern Mariana Islands</string>
+    <string name="country_saint_kitts_and_nevis">Saint Kitts and Nevis</string>
+    <string name="country_saint_lucia">Saint Lucia</string>
+    <string name="country_sint_maarten">Sint Maarten</string>
+    <string name="country_saint_vincent_and_the_grenadines">Saint Vincent and the Grenadines</string>
+    <string name="country_turks_and_caicos_islands">Turks and Caicos Islands</string>
     <string name="country_russia">Russia</string>
     <string name="country_kazakhstan">Kazakhstan</string>
     <string name="country_greece">Greece</string>
@@ -105,6 +118,7 @@
     <string name="country_zambia">Zambia</string>
     <string name="country_madagascar">Madagascar</string>
     <string name="country_reunion">Réunion</string>
+    <string name="country_mayotte">Mayotte</string>
     <string name="country_zimbabwe">Zimbabwe</string>
     <string name="country_namibia">Namibia</string>
     <string name="country_malawi">Malawi</string>

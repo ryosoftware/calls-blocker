@@ -149,7 +149,7 @@ fun DebugLogScreen(
                         showStartLoggingDialog = true
                     }
                 },
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -164,7 +164,7 @@ fun DebugLogScreen(
                 @SuppressLint("LocalContextResourcesRead")
                 Text(
                     text = pluralStringResource(R.plurals.log_file_messages_count, linesCount, linesCount),
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

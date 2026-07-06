@@ -2,27 +2,30 @@ package com.ryosoftware.calls_blocker.ui.screens.settings
 
 import android.content.Context
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.db.ScheduleRule
@@ -52,20 +55,11 @@ fun ScheduleRulesSection(
 
             Spacer(Modifier.height(12.dp))
 
-            Button(
-                onClick = onAddRule,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.schedule_blocking_add))
-            }
-
-            Spacer(Modifier.height(8.dp))
-
             if (scheduleRules.isEmpty()) {
                 Text(
                     text = stringResource(R.string.schedule_blocking_no_rules),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colorResource(R.color.status_inactive_text)
                 )
             } else {
                 scheduleRules.forEach { rule ->
@@ -75,16 +69,54 @@ fun ScheduleRulesSection(
                     ) {
                         Text(
                             text = getScheduleRuleString(context, rule),
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier
                                 .weight(1f)
                                 .clickable { onEditRule(rule) }
                         )
 
-                        IconButton(onClick = { onRemoveRule(rule) }) {
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            modifier = Modifier.size(32.dp),
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                IconButton(
+                                    onClick = { onRemoveRule(rule) },
+                                    modifier = Modifier.size(20.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Close,
+                                        contentDescription = stringResource(R.string.delete),
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Surface(
+                    modifier = Modifier.size(32.dp),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.secondaryContainer
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        IconButton(
+                            onClick = onAddRule,
+                            modifier = Modifier.size(20.dp)
+                        ) {
                             Icon(
-                                Icons.Default.Close,
-                                contentDescription = stringResource(R.string.delete)
+                                Icons.Default.Add,
+                                contentDescription = stringResource(R.string.find_my_phone_add),
+                                modifier = Modifier.size(16.dp)
                             )
                         }
                     }

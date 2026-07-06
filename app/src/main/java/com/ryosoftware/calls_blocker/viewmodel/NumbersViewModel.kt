@@ -4,11 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ryosoftware.calls_blocker.data.Country
 import com.ryosoftware.calls_blocker.data.CountryNameProvider
+import com.ryosoftware.calls_blocker.data.db.Action
 import com.ryosoftware.calls_blocker.data.db.Number
+import com.ryosoftware.calls_blocker.data.db.Type
 import com.ryosoftware.calls_blocker.data.repository.NumberRepository
 import com.ryosoftware.calls_blocker.Logger
-import com.ryosoftware.calls_blocker.data.db.Action
-import com.ryosoftware.calls_blocker.data.db.Type
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,23 +24,22 @@ class NumbersViewModel @Inject constructor(
     private val countryNameProvider: CountryNameProvider,
     val logger: Logger,
 ) : ViewModel() {
-
     val blockedNumbersCount: StateFlow<Int> = repo.blockedNumbersCount
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     val allowedNumbersCount: StateFlow<Int> = repo.allowedNumbersCount
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    val prefixBlocks: StateFlow<List<Number>> = repo.prefixBlocks
+    val incomingExactBlocks: StateFlow<List<Number>> = repo.incomingExactBlocks
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val manualBlocks: StateFlow<List<Number>> = repo.manualBlocks
+    val incomingPrefixBlocks: StateFlow<List<Number>> = repo.incomingPrefixBlocks
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val allowedExact: StateFlow<List<Number>> = repo.manualAllows
+    val incomingExactAllows: StateFlow<List<Number>> = repo.incomingExactAllows
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val allowedPrefix: StateFlow<List<Number>> = repo.prefixAllows
+    val incomingPrefixAllows: StateFlow<List<Number>> = repo.incomingPrefixAllows
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _isDeleting = MutableStateFlow(false)
@@ -54,18 +53,23 @@ class NumbersViewModel @Inject constructor(
     private val _addNumberError = MutableStateFlow<AddNumberError?>(null)
     val addNumberError: StateFlow<AddNumberError?> = _addNumberError.asStateFlow()
 
-    fun addNumber(phoneNumber: String, description: String, type: Type, action: Action = Action.ACTION_BLOCK): Boolean {
-        if (type == Type.EXACT_COINCIDENCE && repo.isAddedExact(phoneNumber)) {
-            _addNumberError.value = AddNumberError.DuplicateExact
-            return false
-        }
-        if (type == Type.PREFIX && repo.isAddedPrefix(phoneNumber)) {
-            _addNumberError.value = AddNumberError.DuplicatePrefix
-            return false
+    fun addNumber(phoneNumber: String, description: String, action: Action, type: Type): Boolean {
+        if (type == Type.EXACT_COINCIDENCE) {
+            val isDuplicate = repo.isIncomingAddedExact(phoneNumber)
+            if (isDuplicate) {
+                _addNumberError.value = AddNumberError.DuplicateExact
+                return false
+            }
+        } else if (type == Type.PREFIX) {
+            val isDuplicate = repo.isIncomingAddedPrefix(phoneNumber)
+            if (isDuplicate) {
+                _addNumberError.value = AddNumberError.DuplicatePrefix
+                return false
+            }
         }
         _addNumberError.value = null
         viewModelScope.launch {
-            repo.add(phoneNumber, description, type, action)
+            repo.add(phoneNumber, description, action, type)
         }
         return true
     }
@@ -87,6 +91,12 @@ class NumbersViewModel @Inject constructor(
     fun removeNumber(number: Number) {
         viewModelScope.launch {
             repo.remove(number)
+        }
+    }
+
+    fun updateDescription(number: Number) {
+        viewModelScope.launch {
+            repo.updateDescription(number)
         }
     }
 

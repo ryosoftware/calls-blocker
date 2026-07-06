@@ -7,31 +7,17 @@ import android.provider.CallLog
 import android.provider.ContactsContract
 import android.telecom.Call
 import android.telephony.TelephonyManager
-import com.google.i18n.phonenumbers.NumberParseException
-import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.ryosoftware.calls_blocker.Main.Companion.hasReadCallLogPermission
 import com.ryosoftware.calls_blocker.Main.Companion.hasReadContactsPermission
 import com.ryosoftware.calls_blocker.Logger
-import com.ryosoftware.calls_blocker.NORMALIZED_PHONE_NUMBER_REF
 import com.ryosoftware.calls_blocker.PHONE_NUMBER_REF
+import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.data.SettingsManager
 import com.ryosoftware.calls_blocker.data.db.Reason
 import com.ryosoftware.calls_blocker.data.repository.NumberRepository
 import com.ryosoftware.calls_blocker.data.repository.ScheduleRuleRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
-
-data class NormalizeResult(
-    val normalizedPhoneNumber: String? = null,
-    val error: NormalizeError? = null
-)
-
-enum class NormalizeError(val description: String) {
-    PARSE_ERROR("parse error"),
-    NOT_POSSIBLE_NUMBER("not possible number"),
-    NOT_VALID_NUMBER("not valid number"),
-    FORMAT_ERROR("format error"),
-}
 
 class Logic @Inject constructor(
     @param:ApplicationContext private val context: Context,
@@ -44,41 +30,7 @@ class Logic @Inject constructor(
         private const val PRIVATE_NUMBER = "PRIVATE"
         private const val UNKNOWN_NUMBER = "UNKNOWN"
 
-        fun normalizeToE164OrNull(phoneNumber: String, networkCountryIso: String?, requirePossibleNumber: Boolean = false, requireValidNumber: Boolean = false, logger: Logger? = null): NormalizeResult {
-            val phoneUtil = PhoneNumberUtil.getInstance()
-
-            val parsedPhoneNumber = try {
-                phoneUtil.parse(phoneNumber, networkCountryIso)
-            } catch (exception: Exception) {
-                logger?.log("A exception has been triggered while trying to parse $PHONE_NUMBER_REF: ${exception.toString()}", phoneNumber = phoneNumber)
-
-                return NormalizeResult(null, NormalizeError.PARSE_ERROR)
-            }
-
-            if (requirePossibleNumber && (!phoneUtil.isPossibleNumber(parsedPhoneNumber))) {
-                logger?.log("$PHONE_NUMBER_REF is not possible", phoneNumber = phoneNumber)
-
-                return NormalizeResult(null, NormalizeError.NOT_POSSIBLE_NUMBER)
-            }
-
-            if (requireValidNumber && (! phoneUtil.isValidNumber(parsedPhoneNumber))) {
-                logger?.log("$PHONE_NUMBER_REF is not valid", phoneNumber = phoneNumber)
-
-                return NormalizeResult(null, NormalizeError.NOT_VALID_NUMBER)
-            }
-
-            val normalizedPhoneNumber = try {
-                phoneUtil.format(parsedPhoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164)
-            } catch (exception: Exception) {
-                logger?.log("A exception has been triggered while trying to format $PHONE_NUMBER_REF: ${exception.toString()}", phoneNumber = phoneNumber)
-
-                return NormalizeResult(null, NormalizeError.FORMAT_ERROR)
-            }
-
-            logger?.log("$PHONE_NUMBER_REF has been normalized to $NORMALIZED_PHONE_NUMBER_REF", phoneNumber = phoneNumber, normalizedPhoneNumber = normalizedPhoneNumber)
-
-            return NormalizeResult(normalizedPhoneNumber, null)
-        }
+        private const val NO_NUMBER = "+"
     }
 
     private fun normalizeToE164(phoneNumber: String?, subscriptionId: Int?): String {
@@ -89,19 +41,30 @@ class Logic @Inject constructor(
         return runCatching {
             logger.log("Received a call from $PHONE_NUMBER_REF and trying to normalize phone number", phoneNumber = phoneNumber)
 
-            val networkCountryIso = subscriptionId?.let {
-                val telephonyManager =
+            val possibleCountries = mutableSetOf<String?>()
+
+            subscriptionId
+                ?.let {
                     context.getSystemService(TelephonyManager::class.java)
                         .createForSubscriptionId(it)
+                        .networkCountryIso
+                }
+                ?.uppercase()
+                ?.ifEmpty { null }
+                ?.let(possibleCountries::add)
 
-                telephonyManager.networkCountryIso?.uppercase()
-            } ?: settingsManager.defaultCountryIso.ifEmpty { null }
+            possibleCountries.addAll(PhoneUtils.getNetworkCountriesIso(context).orEmpty())
 
-            logger.log("Call parameters: SubscriptionID=$subscriptionId, Network Country ISO=$networkCountryIso")
+            possibleCountries.add(settingsManager.defaultCountryIso.ifEmpty { null })
 
-            val normalizeResult = normalizeToE164OrNull(phoneNumber = phoneNumber, networkCountryIso = networkCountryIso, logger = logger)
+            val normalizeResult = possibleCountries
+                .asSequence()
+                .map { country ->
+                    PhoneUtils.normalizeToE164OrNull(phoneNumber = phoneNumber, networkCountryIso = country, logger = logger)
+                }
+                .firstOrNull { it.normalizedPhoneNumber != null }
 
-            return normalizeResult.normalizedPhoneNumber ?: phoneNumber
+            return normalizeResult?.normalizedPhoneNumber ?: phoneNumber
         }.getOrDefault(phoneNumber)
     }
 
@@ -110,13 +73,24 @@ class Logic @Inject constructor(
 
         requireNotNull(phoneNumber)
 
-        val normalizeResult = normalizeToE164OrNull(phoneNumber = phoneNumber, networkCountryIso = settingsManager.defaultCountryIso.ifEmpty { null }, logger = logger)
+        val possibleCountries = mutableSetOf<String?>()
 
-        return normalizeResult.normalizedPhoneNumber ?: phoneNumber
+        possibleCountries.addAll(PhoneUtils.getNetworkCountriesIso(context).orEmpty())
+
+        possibleCountries.add(settingsManager.defaultCountryIso.ifEmpty { null })
+
+        val normalizeResult = possibleCountries
+            .asSequence()
+            .map { country ->
+                PhoneUtils.normalizeToE164OrNull(phoneNumber = phoneNumber, networkCountryIso = country, logger = logger)
+            }
+            .firstOrNull { it.normalizedPhoneNumber != null }
+
+        return normalizeResult?.normalizedPhoneNumber ?: phoneNumber
     }
 
     private fun isHiddenNumber(phoneNumber: String?): Boolean =
-        phoneNumber.isNullOrBlank() || phoneNumber == PRIVATE_NUMBER || phoneNumber == UNKNOWN_NUMBER
+        phoneNumber.isNullOrBlank() || phoneNumber == PRIVATE_NUMBER || phoneNumber == UNKNOWN_NUMBER || phoneNumber == NO_NUMBER
 
     private fun isUnknownNumber(normalizedPhoneNumber: String): Boolean {
         if (!context.hasReadContactsPermission()) return false
@@ -276,13 +250,8 @@ class Logic @Inject constructor(
         return isInCallsLog(normalizedPhoneNumber, selection, selectionArgs, false)
     }
 
-    private fun _test(phoneNumber: String?, subscriptionId: Int?): Pair<String?, Reason> {
-        val isHiddenNumber = isHiddenNumber(phoneNumber)
-
-        val normalizedPhoneNumber = when {
-            isHiddenNumber -> ""
-            else -> normalizeToE164(phoneNumber, subscriptionId)
-        }
+    private fun _test(normalizedPhoneNumber: String?, phoneNumber: String?, testingPurposes: Boolean): Reason {
+        val isHiddenNumber = isHiddenNumber(normalizedPhoneNumber)
 
         // First we check if phone is hidden
 
@@ -293,58 +262,69 @@ class Logic @Inject constructor(
             val blockUnknown = settingsManager.blockUnknown
 
             if (blockHidden || blockUnknown) {
-                return normalizedPhoneNumber to Reason.REASON_HIDDEN_NUMBER
+                return Reason.HIDDEN_NUMBER
             }
 
-            return normalizedPhoneNumber to Reason.REASON_NONE
+            return Reason.NONE
         }
 
+        requireNotNull(normalizedPhoneNumber)
         requireNotNull(phoneNumber)
 
         // "Find my phone" has higher priority (even more than white listed)
 
-        val findMyPhoneEnabled = settingsManager.findMyPhoneEnabled
-        if (findMyPhoneEnabled) {
-            val trustedNumbers = settingsManager.findMyPhonePhoneNumbers.split(",")
-                .map { it.trim() }
-                .filter { it.isNotEmpty() }
-            if (normalizedPhoneNumber in trustedNumbers) {
-                val windowMinutes = settingsManager.findMyPhoneWindowMinutes
-                val recentCalls = getRecentCallsCount(normalizedPhoneNumber, phoneNumber,windowMinutes) + 1
-                if (recentCalls >= settingsManager.findMyPhoneCallCount) {
-                    return normalizedPhoneNumber to Reason.REASON_FIND_MY_PHONE
+        if (!testingPurposes) {
+            val findMyPhoneEnabled = settingsManager.findMyPhoneEnabled
+            if (findMyPhoneEnabled) {
+                val trustedNumbers = settingsManager.findMyPhonePhoneNumbers.split(",")
+                    .map { it.trim() }
+                    .filter { it.isNotEmpty() }
+                if (normalizedPhoneNumber in trustedNumbers) {
+                    if (FindMyPhonePlayer.isRunning) {
+                        return Reason.FIND_MY_PHONE_CANCELLED
+                    }
+                    val windowMinutes = settingsManager.findMyPhoneWindowMinutes
+                    val recentCalls = getRecentCallsCount(normalizedPhoneNumber, phoneNumber, windowMinutes) + 1
+                    if (recentCalls >= settingsManager.findMyPhoneCallCount) {
+                        return Reason.FIND_MY_PHONE
+                    }
                 }
             }
         }
 
         // After check "find my phone", we check if phone number is whitelisted
 
-        if (numberRepository.isAllowedExact(normalizedPhoneNumber)) {
-            return normalizedPhoneNumber to Reason.REASON_WHITELISTED_NUMBER
+        if (numberRepository.isIncomingAllowedExact(normalizedPhoneNumber)) {
+            return Reason.WHITELISTED_NUMBER
         }
 
-        if (numberRepository.isAllowedByPrefix(normalizedPhoneNumber)) {
-            return normalizedPhoneNumber to Reason.REASON_WHITELISTED_PREFIX
+        if (numberRepository.isIncomingAllowedByPrefix(normalizedPhoneNumber)) {
+            return Reason.WHITELISTED_PREFIX
+        }
+
+        // Check if block all is enabled
+
+        val blockAll = settingsManager.blockAll
+        if (blockAll) {
+            return Reason.BLOCK_ALL
         }
 
         // Block blacklisted numbers
 
-        val blockExactNumber = numberRepository.isBlockedExact(normalizedPhoneNumber)
+        val blockExactNumber = numberRepository.isIncomingBlockedExact(normalizedPhoneNumber)
         if (blockExactNumber) {
-            return normalizedPhoneNumber to Reason.REASON_BLACKLISTED_NUMBER
+            return Reason.BLACKLISTED_NUMBER
         }
 
-        // Block numbers by prefix
-
-        val blockPrefixNumber = numberRepository.isBlockedByPrefix(normalizedPhoneNumber)
+        val blockPrefixNumber = numberRepository.isIncomingBlockedByPrefix(normalizedPhoneNumber)
         if (blockPrefixNumber) {
-            return normalizedPhoneNumber to Reason.REASON_BLACKLISTED_PREFIX
+            return Reason.BLACKLISTED_PREFIX
         }
 
         // Block calls during scheduled periods
 
         if (scheduleRuleRepository.isInScheduleBlock()) {
-            return normalizedPhoneNumber to Reason.REASON_SCHEDULE
+            return Reason.SCHEDULE
         }
 
         // Block Unknown numbers (numbers that are not in contacts)
@@ -354,7 +334,7 @@ class Logic @Inject constructor(
             val isUnknownNumber = isUnknownNumber(normalizedPhoneNumber)
 
             if (isUnknownNumber) {
-                return normalizedPhoneNumber to Reason.REASON_UNKNOWN_NUMBER
+                return Reason.NOT_A_CONTACT
             }
         }
 
@@ -365,7 +345,7 @@ class Logic @Inject constructor(
             val isFromBlockedGroup = isFromBlockedGroup(normalizedPhoneNumber)
 
             if (isFromBlockedGroup) {
-                return normalizedPhoneNumber to Reason.REASON_GROUP
+                return Reason.MEMBER_OF_BLOCKED_GROUP_OF_CONTACTS
             }
         }
 
@@ -382,7 +362,7 @@ class Logic @Inject constructor(
                     }
 
                 if (isBlockedByInternationalRule) {
-                    return normalizedPhoneNumber to Reason.REASON_INTERNATIONAL_NUMBER
+                    return Reason.INTERNATIONAL_NUMBER
                 }
             }
         }
@@ -395,7 +375,7 @@ class Logic @Inject constructor(
             val hasCalledBefore = hasOutgoingCallToNumber(normalizedPhoneNumber, phoneNumber, windowDays)
 
             if (!hasCalledBefore) {
-                return normalizedPhoneNumber to Reason.REASON_NOT_CALLED
+                return Reason.NOT_CALLED
             }
         }
 
@@ -407,7 +387,7 @@ class Logic @Inject constructor(
             val hasRejected = hasRejectedCallBefore(normalizedPhoneNumber, phoneNumber, windowDays)
 
             if (hasRejected) {
-                return normalizedPhoneNumber to Reason.REASON_REJECTED_BEFORE
+                return Reason.REJECTED_BEFORE
             }
         }
 
@@ -419,19 +399,34 @@ class Logic @Inject constructor(
             val recentCalls = getRecentCallsCount(normalizedPhoneNumber, phoneNumber, windowMinutes) + 1
 
             if (recentCalls >= settingsManager.repeatedCallCount) {
-                return normalizedPhoneNumber to Reason.REASON_REPEATED_CALL
+                return Reason.REPEATED_CALL
             }
         }
 
         // Call is not blocked
 
-        return normalizedPhoneNumber to Reason.REASON_NONE
+        return Reason.NONE
     }
 
-     fun test(phoneNumber: String?, subscriptionId: Int? = null): Pair<String?, Reason> {
+    fun normalizePhoneNumber(phoneNumber: String?, subscriptionId: Int? = null): String? {
+        val isHiddenNumber = isHiddenNumber(phoneNumber)
+
+        val normalizedPhoneNumber = when {
+            isHiddenNumber -> ""
+            else -> normalizeToE164(phoneNumber, subscriptionId)
+        }
+
+        return normalizedPhoneNumber
+    }
+
+    fun normalizePhoneNumber(callDetails: Call.Details): String? =
+        normalizePhoneNumber(callDetails.handle?.schemeSpecificPart ?: "", callDetails.accountHandle?.id?.toIntOrNull())
+
+    fun test(phoneNumber: String?, subscriptionId: Int? = null, testingPurposes: Boolean = false): Pair<String?, Reason> {
          val startTime = SystemClock.elapsedRealtime()
 
-         val (normalizedPhoneNumber, reason) = _test(phoneNumber, subscriptionId)
+         val normalizedPhoneNumber = normalizePhoneNumber(phoneNumber, subscriptionId)
+         val reason = _test(normalizedPhoneNumber, phoneNumber, testingPurposes)
 
          val processTime = SystemClock.elapsedRealtime() - startTime
          logger.log("Call filtering process finished in ${processTime}ms; post call screening worker will be initialized")
@@ -440,5 +435,5 @@ class Logic @Inject constructor(
      }
 
     fun test(callDetails: Call.Details): Pair<String?, Reason> =
-        test(callDetails.handle?.schemeSpecificPart ?: "", callDetails.accountHandle?.id?.toIntOrNull())
+        test(callDetails.handle?.schemeSpecificPart ?: "", callDetails.accountHandle?.id?.toIntOrNull(), false)
 }

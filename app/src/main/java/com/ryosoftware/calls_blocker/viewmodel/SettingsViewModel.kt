@@ -5,6 +5,9 @@ import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.ryosoftware.calls_blocker.data.BackupManager
 import com.ryosoftware.calls_blocker.data.ContactGroup
 import com.ryosoftware.calls_blocker.data.Country
@@ -15,6 +18,11 @@ import com.ryosoftware.calls_blocker.data.db.ScheduleRule
 import com.ryosoftware.calls_blocker.data.repository.ScheduleRuleRepository
 import com.ryosoftware.calls_blocker.service.callsblocker.Logic
 import com.ryosoftware.calls_blocker.data.db.Reason
+import com.ryosoftware.calls_blocker.service.callsblocker.FindMyPhonePlayer
+import com.ryosoftware.calls_blocker.service.callsblocker.PostServiceWorker
+import com.ryosoftware.calls_blocker.service.callsblocker.REASON_PARAM
+import com.ryosoftware.calls_blocker.service.callsblocker.TESTING_PURPOSES_PARAM
+import com.ryosoftware.calls_blocker.service.callsblocker.TIME_PARAM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -26,6 +34,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 sealed interface BackupEvent {
@@ -60,9 +69,13 @@ class SettingsViewModel @Inject constructor(
     @Inject
     lateinit var callScreeningLogic: Logic
 
+    @Inject
+    lateinit var findMyPhonePlayer: FindMyPhonePlayer
+
     var isLoggingToFile by settingsManager::isLoggingToFile
     var blockUnknown by settingsManager::blockUnknown
     var blockHidden by settingsManager::blockHidden
+    var blockAll by settingsManager::blockAll
     var blockInternational by settingsManager::blockInternational
     var allowedCountryIsos by settingsManager::allowedCountryIsos
     var contactsPermissionRequested by settingsManager::contactsPermissionRequested
@@ -149,14 +162,29 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun getPhoneNumberBlockReason(phoneNumber: String): Reason? {
-        val (normalizedPhoneNumber, reason) = callScreeningLogic.test(phoneNumber)
+        val (normalizedPhoneNumber, reason) = callScreeningLogic.test(phoneNumber = phoneNumber, testingPurposes = true)
 
         val isAllowed = (reason in listOf(
-            Reason.REASON_NONE,
-            Reason.REASON_WHITELISTED_NUMBER,
-            Reason.REASON_WHITELISTED_PREFIX
+            Reason.NONE,
+            Reason.WHITELISTED_NUMBER,
+            Reason.WHITELISTED_PREFIX
         ))
 
         return if (isAllowed) null else reason
+    }
+
+    fun testFindMyPhone() {
+        val workerData = workDataOf(
+            REASON_PARAM to Reason.FIND_MY_PHONE.code,
+            TIME_PARAM to System.currentTimeMillis(),
+            TESTING_PURPOSES_PARAM to true
+        )
+
+        val request = OneTimeWorkRequestBuilder<PostServiceWorker>()
+            .setInputData(workerData)
+            .setInitialDelay(5, TimeUnit.SECONDS)
+            .build()
+
+        WorkManager.getInstance(context).enqueue(request)
     }
 }

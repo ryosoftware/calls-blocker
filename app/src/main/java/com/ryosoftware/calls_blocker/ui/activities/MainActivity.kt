@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -53,6 +54,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.CountryNameProvider
 import com.ryosoftware.calls_blocker.data.SettingsManager
@@ -84,6 +86,17 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        if (settingsManager.defaultCountryIso.isEmpty()) {
+            val iso = PhoneUtils.getNetworkCountriesIso(this)
+                ?.firstOrNull()
+                ?.takeIf { it.isNotBlank() }
+                ?: resources.configuration.locales[0].country
+            if (iso != null) {
+                settingsManager.defaultCountryIso = iso
+            }
+        }
+
         setContent {
             CallsBlockerTheme {
                 CallsBlockerApp(settingsManager, countryNameProvider)
@@ -166,7 +179,7 @@ fun CallsBlockerApp(
                 Screen.History.route
             }
 
-            else -> settingsManager.lastActiveTab.ifEmpty { Screen.BlockList.route }
+            else -> settingsManager.lastActiveTab.ifEmpty { Screen.Settings.route }
         }
     }
 
@@ -432,6 +445,10 @@ fun CallsBlockerApp(
                     onShareReady = { onShareLog = it }
                 )
             }
+        }
+
+        BackHandler(enabled = currentScreen != null) {
+            (context as? Activity)?.finish()
         }
     }
 }
