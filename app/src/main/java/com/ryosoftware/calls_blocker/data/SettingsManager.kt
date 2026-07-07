@@ -43,6 +43,24 @@ class SettingsManager(private val context: Context) {
 
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
+    fun exportPrefs(): Map<String, Any?> = prefs.all
+
+    fun importPrefs(settings: Map<String, Any?>) {
+        prefs.edit {
+            for ((key, value) in settings) {
+                when (value) {
+                    is Boolean -> putBoolean(key, value)
+                    is Int -> putInt(key, value)
+                    is String -> putString(key, value)
+                    is Long -> putLong(key, value)
+                    is Float -> putFloat(key, value)
+                    else -> {} // ignore nulls or unsupported types
+                }
+            }
+            apply()
+        }
+    }
+
     private class BooleanDelegate(
         private val prefs: SharedPreferences,
         private val key: String,

@@ -2,8 +2,6 @@ package com.ryosoftware.calls_blocker.data
 
 import android.content.Context
 import android.net.Uri
-import com.ryosoftware.calls_blocker.BuildConfig
-import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.db.Action
 import com.ryosoftware.calls_blocker.data.db.BlockSuggestionDao
 import com.ryosoftware.calls_blocker.data.db.Direction
@@ -20,6 +18,12 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.longOrNull
+import kotlinx.serialization.json.floatOrNull
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -40,36 +44,19 @@ class BackupManager @Inject constructor(
     }
 
     suspend fun backup(uri: Uri): Result<Unit> = runCatching {
+        val settingsMap = settingsManager.exportPrefs().mapNotNull { (key, value) ->
+            val element = when (value) {
+                is Boolean -> JsonPrimitive(value)
+                is Int -> JsonPrimitive(value)
+                is Long -> JsonPrimitive(value)
+                is Float -> JsonPrimitive(value)
+                is String -> JsonPrimitive(value)
+                else -> return@mapNotNull null
+            }
+            key to element
+        }.toMap()
         val backupData = BackupData(
-            settings = BackupData.BackupSettings(
-                screeningDialogDismissed = settingsManager.screeningDialogDismissed,
-                defaultCountryIso = settingsManager.defaultCountryIso,
-                blockAll = settingsManager.blockAll,
-                blockUnknown = settingsManager.blockUnknown,
-                blockHidden = settingsManager.blockHidden,
-                blockGroups = settingsManager.blockGroups,
-                blockedGroupIds = settingsManager.blockedGroupIds,
-                blockInternational = settingsManager.blockInternational,
-                allowedCountryIsos = settingsManager.allowedCountryIsos,
-                blockNotCalled = settingsManager.blockNotCalled,
-                notCalledWindowDays = settingsManager.notCalledWindowDays,
-                blockRejected = settingsManager.blockRejected,
-                rejectedWindowDays = settingsManager.rejectedWindowDays,
-                blockRepeated = settingsManager.blockRepeated,
-                repeatedCallCount = settingsManager.repeatedCallCount,
-                repeatedCallWindowMinutes = settingsManager.repeatedCallWindowMinutes,
-                skipCallLog = settingsManager.skipCallLog,
-                findMyPhoneEnabled = settingsManager.findMyPhoneEnabled,
-                findMyPhonePhoneNumbers = settingsManager.findMyPhonePhoneNumbers,
-                findMyPhoneCallCount = settingsManager.findMyPhoneCallCount,
-                findMyPhoneWindowMinutes = settingsManager.findMyPhoneWindowMinutes,
-                findMyPhoneRingtoneUri = settingsManager.findMyPhoneRingtoneUri,
-                contactsPermissionRequested = settingsManager.contactsPermissionRequested,
-                callsLogPermissionRequested = settingsManager.callsLogPermissionRequested,
-                notificationsPermissionRequested = settingsManager.notificationsPermissionRequested,
-                isLoggingToFile = settingsManager.isLoggingToFile,
-                lastActiveTab = settingsManager.lastActiveTab,
-            ),
+            settings = settingsMap,
             numbers = numberDao.getAllList().map { number ->
                 BackupData.BackupNumber(
                     phoneNumber = number.phoneNumber,
@@ -114,35 +101,21 @@ class BackupManager @Inject constructor(
         } ?: throw IOException("Cannot open input stream")
 
         val backupData = json.decodeFromString<BackupData>(jsonString)
-        val settings = backupData.settings
 
-        settingsManager.screeningDialogDismissed = settings.screeningDialogDismissed
-        settingsManager.defaultCountryIso = settings.defaultCountryIso
-        settingsManager.blockAll = settings.blockAll
-        settingsManager.blockUnknown = settings.blockUnknown
-        settingsManager.blockHidden = settings.blockHidden
-        settingsManager.blockGroups = settings.blockGroups
-        settingsManager.blockedGroupIds = settings.blockedGroupIds
-        settingsManager.blockInternational = settings.blockInternational
-        settingsManager.allowedCountryIsos = settings.allowedCountryIsos
-        settingsManager.blockNotCalled = settings.blockNotCalled
-        settingsManager.notCalledWindowDays = settings.notCalledWindowDays ?: context.resources.getInteger(R.integer.not_called_window_days_default)
-        settingsManager.blockRejected = settings.blockRejected
-        settingsManager.rejectedWindowDays = settings.rejectedWindowDays ?: context.resources.getInteger(R.integer.rejected_window_days_default)
-        settingsManager.blockRepeated = settings.blockRepeated
-        settingsManager.repeatedCallCount = settings.repeatedCallCount ?: context.resources.getInteger(R.integer.repeated_call_count_default)
-        settingsManager.repeatedCallWindowMinutes = settings.repeatedCallWindowMinutes ?: context.resources.getInteger(R.integer.repeated_call_window_minutes_default)
-        settingsManager.skipCallLog = settings.skipCallLog
-        settingsManager.findMyPhoneEnabled = settings.findMyPhoneEnabled
-        settingsManager.findMyPhonePhoneNumbers = settings.findMyPhonePhoneNumbers
-        settingsManager.findMyPhoneCallCount = settings.findMyPhoneCallCount ?: context.resources.getInteger(R.integer.find_my_phone_call_count_default)
-        settingsManager.findMyPhoneWindowMinutes = settings.findMyPhoneWindowMinutes ?: context.resources.getInteger(R.integer.find_my_phone_window_minutes_default)
-        settingsManager.findMyPhoneRingtoneUri = settings.findMyPhoneRingtoneUri
-        settingsManager.isLoggingToFile = settings.isLoggingToFile ?: BuildConfig.DEBUG
-        if (settings.contactsPermissionRequested) settingsManager.contactsPermissionRequested = true
-        if (settings.callsLogPermissionRequested) settingsManager.callsLogPermissionRequested = true
-        if (settings.notificationsPermissionRequested) settingsManager.notificationsPermissionRequested = true
-        settingsManager.lastActiveTab = settings.lastActiveTab
+        val restoredPrefs = mutableMapOf<String, Any?>()
+        for ((key, element) in backupData.settings) {
+            if (element !is JsonPrimitive) continue
+            val bool = element.booleanOrNull
+            if (bool != null) { restoredPrefs[key] = bool; continue }
+            val int = element.intOrNull
+            if (int != null) { restoredPrefs[key] = int; continue }
+            val long = element.longOrNull
+            if (long != null) { restoredPrefs[key] = long; continue }
+            val float = element.floatOrNull
+            if (float != null) { restoredPrefs[key] = float; continue }
+            if (element.isString) restoredPrefs[key] = element.content
+        }
+        settingsManager.importPrefs(restoredPrefs)
 
         numberDao.clearAll()
         numberDao.insertAll(backupData.numbers.map { numberEntry ->
@@ -187,7 +160,7 @@ class BackupManager @Inject constructor(
 
 @Serializable
 data class BackupData(
-    val settings: BackupData.BackupSettings = BackupData.BackupSettings(),
+    val settings: Map<String, JsonElement> = emptyMap(),
     val numbers: List<BackupData.BackupNumber> = emptyList(),
     val history: List<BackupData.BackupHistoryEntry> = emptyList(),
     @SerialName("dismissed-block-suggestions")
@@ -195,37 +168,6 @@ data class BackupData(
     @SerialName("schedule-rules")
     val scheduleRules: List<BackupData.BackupScheduleRule> = emptyList(),
 ) {
-    @Serializable
-    data class BackupSettings(
-        @SerialName("screening-dialog-dismissed") val screeningDialogDismissed: Boolean = false,
-        @SerialName("default-country-iso") val defaultCountryIso: String = "",
-        @SerialName("block-all") val blockAll: Boolean = false,
-        @SerialName("block-unknown") val blockUnknown: Boolean = false,
-        @SerialName("block-hidden") val blockHidden: Boolean = false,
-        @SerialName("block-groups") val blockGroups: Boolean = false,
-        @SerialName("blocked-group-ids") val blockedGroupIds: String = "",
-        @SerialName("block-international") val blockInternational: Boolean = false,
-        @SerialName("allowed-country-isos") val allowedCountryIsos: String = "",
-        @SerialName("block-not-called") val blockNotCalled: Boolean = false,
-        @SerialName("block-not-called-window-days") val notCalledWindowDays: Int? = null,
-        @SerialName("block-rejected") val blockRejected: Boolean = false,
-        @SerialName("block-rejected-window-days") val rejectedWindowDays: Int? = null,
-        @SerialName("block-repeated") val blockRepeated: Boolean = false,
-        @SerialName("block-repeated-count") val repeatedCallCount: Int? = null,
-        @SerialName("block-repeated-window-minutes") val repeatedCallWindowMinutes: Int? = null,
-        @SerialName("skip-call-log") val skipCallLog: Boolean = false,
-        @SerialName("find-my-phone-enabled") val findMyPhoneEnabled: Boolean = false,
-        @SerialName("find-my-phone-numbers") val findMyPhonePhoneNumbers: String = "",
-        @SerialName("find-my-phone-call-count") val findMyPhoneCallCount: Int? = null,
-        @SerialName("find-my-phone-window-minutes") val findMyPhoneWindowMinutes: Int? = null,
-        @SerialName("find-my-phone-ringtone-uri") val findMyPhoneRingtoneUri: String = "",
-        @SerialName("contacts-permission-requested") val contactsPermissionRequested: Boolean = false,
-        @SerialName("calls-log-permission-requested") val callsLogPermissionRequested: Boolean = false,
-        @SerialName("notifications-permission-requested") val notificationsPermissionRequested: Boolean = false,
-        @SerialName("is-logging-to-file") val isLoggingToFile: Boolean? = null,
-        @SerialName("last-active-tab") val lastActiveTab: String = "",
-    )
-
     @Serializable
     data class BackupNumber(
         @SerialName("phone-number") val phoneNumber: String,
