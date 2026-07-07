@@ -13,6 +13,7 @@ import com.ryosoftware.calls_blocker.data.repository.NumberRepository
 import com.ryosoftware.calls_blocker.data.repository.ScheduleRuleRepository
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractAllowRule
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractBlockRule
+import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractPriorityBlockRule
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.allow.AllowExactNumberRule
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.allow.AllowPrefixNumberRule
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockAllRule
@@ -40,7 +41,8 @@ class Logic @Inject constructor(
     private val settingsManager: SettingsManager,
     private val findMyPhoneRule: BlockByFindMyPhoneRule,
     private val allowRules: Set<@JvmSuppressWildcards AbstractAllowRule>,
-    private val blockRules: Set<@JvmSuppressWildcards AbstractBlockRule>,
+    private val priorityBlockRules: Set<@JvmSuppressWildcards AbstractPriorityBlockRule>,
+    private val otherBlockRules: Set<@JvmSuppressWildcards AbstractBlockRule>,
 
     private val logger: Logger,
 ) {
@@ -145,13 +147,22 @@ class Logic @Inject constructor(
         // We evaluate allow rules
 
         val allowReason = allowRules.evaluateFirst(normalizedPhoneNumber, phoneNumber, ::normalizeToE164, ::isHiddenNumber)
+
         if (allowReason != Reason.NONE) {
             return allowReason
         }
 
+        // We evaulate priority block rules first
+
+        val blockReason = priorityBlockRules.evaluateFirst(normalizedPhoneNumber, phoneNumber, ::normalizeToE164, ::isHiddenNumber)
+        
+        if (blockReason != Reason.NONE) {
+            return blockReason
+        }
+
         // We evaulate block rules
 
-        return blockRules.evaluateFirst(normalizedPhoneNumber, phoneNumber, ::normalizeToE164, ::isHiddenNumber)
+        return otherBlockRules.evaluateFirst(normalizedPhoneNumber, phoneNumber, ::normalizeToE164, ::isHiddenNumber)
     }
 
     private fun normalizePhoneNumber(phoneNumber: String?, subscriptionId: Int? = null): String? {

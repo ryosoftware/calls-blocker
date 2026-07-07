@@ -8,3 +8,4 @@ interface AbstractRule {
 
 interface AbstractAllowRule : AbstractRule
 interface AbstractBlockRule : AbstractRule
+interface AbstractPriorityBlockRule : AbstractRule

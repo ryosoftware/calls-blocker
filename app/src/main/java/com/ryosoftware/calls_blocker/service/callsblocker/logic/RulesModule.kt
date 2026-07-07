@@ -43,13 +43,13 @@ abstract class RuleModule {
     @IntoSet
     abstract fun bindBlockExactNumberRule(
         rule: BlockExactNumberRule
-    ): AbstractBlockRule
+    ): AbstractPriorityBlockRule
 
     @Binds
     @IntoSet
     abstract fun bindBlockPrefixNumberRule(
         rule: BlockPrefixNumberRule
-    ): AbstractBlockRule
+    ): AbstractPriorityBlockRule
 
     @Binds
     @IntoSet
