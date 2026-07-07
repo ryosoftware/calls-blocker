@@ -302,4 +302,6 @@
     <string name="back">Back</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="call">Call</string>
+    <string name="copy">Copy</string>
 </resources>

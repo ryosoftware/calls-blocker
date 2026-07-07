@@ -305,5 +305,6 @@
     <string name="back">Atrás</string>
     <string name="yes">Sí</string>
     <string name="no">No</string>
-
+    <string name="call">Llamar</string>
+    <string name="copy">Copiar</string>
 </resources>

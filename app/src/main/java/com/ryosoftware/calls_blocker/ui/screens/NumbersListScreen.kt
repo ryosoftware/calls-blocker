@@ -28,17 +28,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
@@ -62,12 +63,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import android.content.Intent
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.activity.compose.BackHandler
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.ryosoftware.calls_blocker.PhoneUtils
@@ -84,6 +89,7 @@ import com.ryosoftware.calls_blocker.data.db.Type
 import com.ryosoftware.calls_blocker.viewmodel.NumbersViewModel
 import kotlinx.coroutines.launch
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -108,8 +114,7 @@ fun NumbersListScreen(
     var searchQuery by remember { mutableStateOf("") }
     var selectedIds by remember { mutableStateOf(setOf<Long>()) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
-    var showBottomSheet by remember { mutableStateOf(false) }
-    var pendingBottomSheetEntry by remember { mutableStateOf<Number?>(null) }
+    var expandedCardId by remember { mutableStateOf<Long?>(null) }
     var showEditDescriptionDialog by remember { mutableStateOf(false) }
     var pendingEditDescription by remember { mutableStateOf<Number?>(null) }
     var pendingRemoveEntry by remember { mutableStateOf<Number?>(null) }
@@ -154,6 +159,10 @@ fun NumbersListScreen(
 
     fun toggleSelection(id: Long) {
         selectedIds = if (id in selectedIds) selectedIds - id else selectedIds + id
+    }
+
+    BackHandler(enabled = expandedCardId != null) {
+        expandedCardId = null
     }
 
     LaunchedEffect(selectedIds, allFiltered.size) {
@@ -284,14 +293,22 @@ fun NumbersListScreen(
                             number = number,
                             isSelected = number.id in selectedIds,
                             multiSelect = multiSelect,
+                            expanded = expandedCardId == number.id,
                             getCountryName = viewModel::getCountryName,
                             onLongClick = { toggleSelection(number.id) },
                             onClick = {
-                                if (multiSelect) toggleSelection(number.id)
+                                if (multiSelect) {
+                                    toggleSelection(number.id)
+                                } else {
+                                    expandedCardId = if (expandedCardId == number.id) null else number.id
+                                }
                             },
-                            onMoreVert = {
-                                pendingBottomSheetEntry = number
-                                showBottomSheet = true
+                            onEditDescription = {
+                                pendingEditDescription = number
+                                showEditDescriptionDialog = true
+                            },
+                            onRemove = {
+                                pendingRemoveEntry = number
                             }
                         )
                     }
@@ -353,80 +370,6 @@ fun NumbersListScreen(
                 }
             }
         )
-    }
-
-    pendingBottomSheetEntry?.let { entry ->
-        if (showBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = { showBottomSheet = false },
-                sheetState = rememberModalBottomSheetState()
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = PhoneUtils.formatPhoneNumber(entry.phoneNumber),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 24.dp)
-                    )
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                showBottomSheet = false
-                                pendingEditDescription = entry
-                                showEditDescriptionDialog = true
-                            }
-                            .padding(vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.Edit,
-                            contentDescription = null
-                        )
-
-                        Spacer(Modifier.width(16.dp))
-
-                        Text(
-                            text = stringResource(R.string.edit_description),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                showBottomSheet = false
-                                pendingRemoveEntry = entry
-                            }
-                            .padding(vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.Delete,
-                            contentDescription = null
-                        )
-
-                        Spacer(Modifier.width(16.dp))
-
-                        Text(
-                            text = stringResource(
-                                when (entry.action) {
-                                    Action.BLOCK -> R.string.stop_blocking
-                                    Action.ALLOW -> R.string.stop_allowing
-                                }
-                            ),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-                }
-            }
-        }
     }
 
     pendingRemoveEntry?.let { entry ->
@@ -629,10 +572,12 @@ private fun NumberItem(
     number: Number,
     isSelected: Boolean,
     multiSelect: Boolean,
+    expanded: Boolean,
     getCountryName: (Country) -> String,
     onLongClick: () -> Unit,
     onClick: () -> Unit,
-    onMoreVert: () -> Unit,
+    onEditDescription: () -> Unit,
+    onRemove: () -> Unit,
 ) {
     val countryInfo = remember(number.phoneNumber) {
         findCountryByPhoneNumber(number.phoneNumber)
@@ -654,79 +599,129 @@ private fun NumberItem(
                 onLongClick = onLongClick
             )
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            if (multiSelect) {
-                Checkbox(
-                    checked = isSelected,
-                    onCheckedChange = { onLongClick() },
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-            }
-
-            Column(
+        Column {
+            Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(start = if (multiSelect) 0.dp else 12.dp)
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalAlignment = Alignment.Top
             ) {
-                Text(
-                    text = PhoneUtils.formatPhoneNumber(number.phoneNumber),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
-                    color = colorResource(when (number.action) {
-                        Action.BLOCK -> R.color.status_inactive_text
-                        Action.ALLOW -> R.color.status_active_text
-                    })
-                )
-
-                if (countryInfo != null) {
-                    val (country, _) = countryInfo
-
-                    Spacer(Modifier.height(8.dp))
-
-                    Text(
-                        text = stringResource(R.string.country_name_and_flag, getCountryName(country), country.flag),
-                        style = MaterialTheme.typography.bodySmall,
+                if (multiSelect) {
+                    Checkbox(
+                        checked = isSelected,
+                        onCheckedChange = { onLongClick() },
+                        modifier = Modifier.padding(end = 8.dp)
                     )
                 }
 
-                Spacer(Modifier.height(8.dp))
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = if (multiSelect) 0.dp else 12.dp)
+                ) {
+                    Text(
+                        text = PhoneUtils.formatPhoneNumber(number.phoneNumber),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium,
+                        color = colorResource(when (number.action) {
+                            Action.BLOCK -> R.color.status_inactive_text
+                            Action.ALLOW -> R.color.status_active_text
+                        })
+                    )
 
-                Text(
-                    text = stringResource(when (number.type) {
-                        Type.EXACT_COINCIDENCE -> R.string.label_exact
-                        Type.PREFIX -> R.string.label_prefix
-                    }),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                    if (countryInfo != null) {
+                        val (country, _) = countryInfo
 
-                if (number.description.isNotBlank()) {
+                        Spacer(Modifier.height(8.dp))
+
+                        Text(
+                            text = stringResource(R.string.country_name_and_flag, getCountryName(country), country.flag),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+
                     Spacer(Modifier.height(8.dp))
 
                     Text(
-                        text = number.description,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontStyle = FontStyle.Italic
-                        ),
+                        text = stringResource(when (number.type) {
+                            Type.EXACT_COINCIDENCE -> R.string.label_exact
+                            Type.PREFIX -> R.string.label_prefix
+                        }),
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+
+                    if (number.description.isNotBlank()) {
+                        Spacer(Modifier.height(8.dp))
+
+                        Text(
+                            text = number.description,
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontStyle = FontStyle.Italic
+                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
 
-            if (!multiSelect) {
-                IconButton(
-                    onClick = onMoreVert,
-                    modifier = Modifier.align(Alignment.Bottom)
+            if (!multiSelect && expanded) {
+                HorizontalDivider()
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = stringResource(R.string.more_options),
-                    )
+                    if (number.type == Type.EXACT_COINCIDENCE) {
+                        val callContext = LocalContext.current
+                        IconButton(onClick = {
+                            val intent = Intent(Intent.ACTION_DIAL).apply {
+                                data = "tel:${number.phoneNumber}".toUri()
+                            }
+                            callContext.startActivity(intent)
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Phone,
+                                contentDescription = stringResource(R.string.call),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+
+                    val clipboardManager = LocalClipboardManager.current
+                    IconButton(onClick = {
+                        clipboardManager.setText(AnnotatedString(number.phoneNumber))
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.ContentCopy,
+                            contentDescription = stringResource(R.string.copy),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    IconButton(onClick = onEditDescription) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.edit_description),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    IconButton(onClick = onRemove) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = stringResource(
+                                when (number.action) {
+                                    Action.BLOCK -> R.string.stop_blocking
+                                    Action.ALLOW -> R.string.stop_allowing
+                                }
+                            ),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
         }
