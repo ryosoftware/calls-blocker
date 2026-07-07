@@ -20,6 +20,7 @@
     <string name="nav_block_list">Numbers</string>
     <string name="nav_history">History</string>
     <string name="nav_settings">Settings</string>
+    <string name="nav_call_blocking_rules">Call blocking</string>
 
     <!-- Numbers List Screen -->
     <string name="numbers_list_empty">No numbers</string>
@@ -86,8 +87,11 @@
     <string name="default_country_description">Used when importing numbers that does not include a country code or when a call is received but the country code is missing and the system does not report the SIM card on which the call was received or the country of the SIM.</string>
     <string name="default_country_not_set">Not set</string>
 
+    <string name="incoming_call_blocking_title">Incoming call blocking</string>
+    <string name="incoming_call_blocking_description">Configure which incoming calls to block, by schedule, groups, countries, and more.</string>
     <string name="blocking_rules_title">Your phone, your rules!</string>
-    <string name="blocking_rules_description">Well no, we can only block incoming calls, but it\'s something&#8230;\n\nPlease note that THESE RULES DO NOT APPLY TO NUMBERS OR PREFIXES THAT YOU HAVE EXPRESSLY ACCEPTED (numbers tab), which are never blocked, even if \"block all incoming calls\" is active.</string>
+    <string name="blocking_rules_description">These rules only apply to numbers or prefixes that you have not explicitly accepted, which are never blocked, even if the \"block all incoming calls\" option is active.</string>
+
     <string name="schedule_blocking_title">Schedule blocking</string>
     <string name="schedule_blocking_description">Blocks calls in the specified periods</string>
     <string name="schedule_blocking_add">Add</string>

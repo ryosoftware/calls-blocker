@@ -20,6 +20,7 @@
     <string name="nav_block_list">Números</string>
     <string name="nav_history">Historial</string>
     <string name="nav_settings">Ajustes</string>
+    <string name="nav_call_blocking_rules">Bloqueo de llamadas</string>
 
     <!-- Numbers List Screen -->
     <string name="numbers_list_empty">No hay números</string>
@@ -87,8 +88,10 @@
     <string name="default_country_description">Usado al importar números sin código de país o cuando se recibe una llamada que no include el prefijo de país y el sistema no reporta la SIM en la que se ha recibido la llamada o no es posible inferir el país de la misma.</string>
     <string name="default_country_not_set">No establecido</string>
 
+    <string name="incoming_call_blocking_title">Bloqueo de llamadas entrantes</string>
+    <string name="incoming_call_blocking_description">Configura qué llamadas entrantes bloquear, por horario, grupos, países y más.</string>
     <string name="blocking_rules_title">Tu teléfono, tus reglas</string>
-    <string name="blocking_rules_description">Bueno no, sólo podemos bloquear llamadas entrantes, pero ya es algo&#8230;\n\nTen en cuenta que ESTAS REGLAS NO SE APLICAN A LOS NÚMEROS O PREFIJOS QUE HAYAS ACEPTADO EXPRESAMENTE (pestaña de números), que nunca se bloquean, ni siquiera si la opción \"bloquear todas las llamadas entrantes\" está activa.</string>
+    <string name="blocking_rules_description">Estas reglas solo aplican a números o prefijos que no hayas aceptado explícitamente, que nunca se bloquean, ni siquiera si la opción \"bloquear todas las llamadas\" está activa.</string>
 
     <string name="schedule_blocking_title">Bloqueo por horario</string>
     <string name="schedule_blocking_description">Se bloquearán las llamadas en los periodos indicados</string>

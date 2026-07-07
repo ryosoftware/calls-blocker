@@ -20,4 +20,5 @@ sealed class Screen(
     object DebugLog : Screen("debug_log", R.string.log_to_file, Icons.Default.Settings)
     object ImportReview : Screen("import_review", R.string.import_preview_title, Icons.Default.FileUpload)
     object FindMyPhone : Screen("find_my_phone", R.string.find_my_phone_activated_no_number, Icons.Default.Alarm)
+    object CallBlockingRules : Screen("call_blocking_rules", R.string.nav_call_blocking_rules, Icons.Default.Settings)
 }

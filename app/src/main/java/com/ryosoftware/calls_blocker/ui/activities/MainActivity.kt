@@ -63,6 +63,7 @@ import com.ryosoftware.calls_blocker.ui.screens.DebugLogScreen
 import com.ryosoftware.calls_blocker.ui.screens.HistoryScreen
 import com.ryosoftware.calls_blocker.ui.screens.ImportReviewScreen
 import com.ryosoftware.calls_blocker.ui.screens.NumbersListScreen
+import com.ryosoftware.calls_blocker.ui.screens.CallBlockingRulesScreen
 import com.ryosoftware.calls_blocker.ui.screens.SettingsScreen
 import com.ryosoftware.calls_blocker.ui.theme.CallsBlockerTheme
 import com.ryosoftware.calls_blocker.viewmodel.HistoryViewModel
@@ -125,6 +126,10 @@ fun CallsBlockerApp(
         ?.destination
         ?.hierarchy
         ?.any { it.route == Screen.FindMyPhone.route } == true
+    val isCallBlockingRulesScreen = navBackStackEntry
+        ?.destination
+        ?.hierarchy
+        ?.any { it.route == Screen.CallBlockingRules.route } == true
 
     val bottomNavItems = listOf(
         Screen.BlockList,
@@ -193,7 +198,7 @@ fun CallsBlockerApp(
     LaunchedEffect(navBackStackEntry) {
         val route = navBackStackEntry?.destination?.route
 
-        if (route == Screen.DebugLog.route || route == Screen.ImportReview.route) {
+        if (route == Screen.DebugLog.route || route == Screen.ImportReview.route || route == Screen.CallBlockingRules.route) {
             delay(300.milliseconds)
             showBottomBar = false
         } else {
@@ -271,6 +276,22 @@ fun CallsBlockerApp(
                                 Icon(
                                     Icons.Filled.Save,
                                     contentDescription = stringResource(R.string.save_log)
+                                )
+                            }
+                        },
+                        scrollBehavior = scrollBehavior,
+                        colors = appBarColors
+                    )
+                } else if (isCallBlockingRulesScreen) {
+                    TopAppBar(
+                        title = {
+                            Text(stringResource(R.string.nav_call_blocking_rules))
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = { navController.popBackStack() }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = stringResource(R.string.back)
                                 )
                             }
                         },
@@ -418,8 +439,14 @@ fun CallsBlockerApp(
                 SettingsScreen(
                     onNavigateToDebugLog = {
                         navController.navigate(Screen.DebugLog.route)
+                    },
+                    onNavigateToCallBlockingRules = {
+                        navController.navigate(Screen.CallBlockingRules.route)
                     }
                 )
+            }
+            composable(Screen.CallBlockingRules.route) {
+                CallBlockingRulesScreen()
             }
             composable(Screen.ImportReview.route) {
                 importResult?.let { result ->

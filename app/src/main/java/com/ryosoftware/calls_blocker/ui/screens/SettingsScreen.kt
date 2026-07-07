@@ -38,7 +38,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -64,15 +63,10 @@ import com.ryosoftware.calls_blocker.Main.Companion.hasReadPhoneStatePermission
 import com.ryosoftware.calls_blocker.Main.Companion.isIgnoringBatteryOptimizations
 import com.ryosoftware.calls_blocker.Main.Companion.requestIgnoreBatteryOptimizationsPermission
 import com.ryosoftware.calls_blocker.R
-import com.ryosoftware.calls_blocker.data.ContactGroup
 import com.ryosoftware.calls_blocker.data.countries
 import com.ryosoftware.calls_blocker.data.db.Reason
-import com.ryosoftware.calls_blocker.data.db.ScheduleRule
-import com.ryosoftware.calls_blocker.ui.screens.settings.BlockingRulesSection
-import com.ryosoftware.calls_blocker.ui.screens.settings.CallLogRulesSection
 import com.ryosoftware.calls_blocker.ui.screens.settings.CallScreeningStatusCard
 import com.ryosoftware.calls_blocker.ui.screens.settings.FindMyPhoneSection
-import com.ryosoftware.calls_blocker.ui.screens.settings.ScheduleRulesSection
 import com.ryosoftware.calls_blocker.viewmodel.BackupEvent
 import com.ryosoftware.calls_blocker.viewmodel.HistoryViewModel
 import com.ryosoftware.calls_blocker.viewmodel.SettingsViewModel
@@ -84,31 +78,16 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
-    onNavigateToDebugLog: () -> Unit = {}
+    onNavigateToDebugLog: () -> Unit = {},
+    onNavigateToCallBlockingRules: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var blockAll by remember { mutableStateOf(viewModel.blockAll) }
-    var blockHidden by remember { mutableStateOf(viewModel.blockHidden) }
-    var blockUnknown by remember { mutableStateOf(viewModel.blockUnknown) }
-    var blockInternational by remember { mutableStateOf(viewModel.blockInternational) }
-    var allowedCountryIsos by remember { mutableStateOf(viewModel.allowedCountryIsos) }
     var skipCallLog by remember { mutableStateOf(viewModel.skipCallLog) }
     var defaultCountryIso by remember { mutableStateOf(viewModel.defaultCountryIso) }
     val screeningEnabled by viewModel.isScreeningEnabled.collectAsState()
-    var showCountryDialog by remember { mutableStateOf(false) }
     var showDefaultCountryDialog by remember { mutableStateOf(false) }
-    var blockGroups by remember { mutableStateOf(viewModel.blockGroups) }
-    var blockedGroupIds by remember { mutableStateOf(viewModel.blockedGroupIds) }
-    var showGroupDialog by remember { mutableStateOf(false) }
     var isLoggingToFile by remember { mutableStateOf(viewModel.isLoggingToFile) }
-    var blockRepeated by remember { mutableStateOf(viewModel.blockRepeated) }
-    var repeatedCallCount by remember { mutableIntStateOf(viewModel.repeatedCallCount) }
-    var repeatedCallWindowMinutes by remember { mutableIntStateOf(viewModel.repeatedCallWindowMinutes) }
-    var blockNotCalled by remember { mutableStateOf(viewModel.blockNotCalled) }
-    var notCalledWindowDays by remember { mutableIntStateOf(viewModel.notCalledWindowDays) }
-    var blockRejected by remember { mutableStateOf(viewModel.blockRejected) }
-    var rejectedWindowDays by remember { mutableIntStateOf(viewModel.rejectedWindowDays) }
     var findMyPhoneEnabled by remember { mutableStateOf(viewModel.findMyPhoneEnabled) }
     var findMyPhonePhoneNumbers by remember { mutableStateOf(viewModel.findMyPhonePhoneNumbers) }
     var findMyPhoneCallCount by remember { mutableIntStateOf(viewModel.findMyPhoneCallCount) }
@@ -122,21 +101,13 @@ fun SettingsScreen(
     var showPostNotificationsRationale by remember { mutableStateOf(false) }
     var hasRequestedPhoneState by remember { mutableStateOf(false) }
     var showReadPhoneStateRationale by remember { mutableStateOf(false) }
-    var pendingUnknownToggle by remember { mutableStateOf<Boolean?>(null) }
     var permissionCheckTrigger by remember { mutableIntStateOf(0) }
-    var pendingGroupsToggle by remember { mutableStateOf<Boolean?>(null) }
-    var pendingBlockRepeatedToggle by remember { mutableStateOf<Boolean?>(null) }
-    var pendingBlockNotCalledToggle by remember { mutableStateOf<Boolean?>(null) }
-    var pendingBlockRejectedToggle by remember { mutableStateOf<Boolean?>(null) }
     var pendingFindMyPhoneToggle by remember { mutableStateOf<Boolean?>(null) }
     var errorDialogMessage by remember { mutableStateOf<String?>(null) }
     var showRestoreConfirmDialog by remember { mutableStateOf(false) }
     var pendingRestoreUri by remember { mutableStateOf<Uri?>(null) }
     var showTestScreeningDialog by remember { mutableStateOf(false) }
     var testScreeningResult by remember { mutableStateOf<Pair<String, Reason?>?>(null) }
-    var showScheduleRuleDialog by remember { mutableStateOf(false) }
-    var editingScheduleRule by remember { mutableStateOf<ScheduleRule?>(null) }
-    val scheduleRules by viewModel.scheduleRules.collectAsState()
 
     // Listen for blockAll changes from Quick Settings Tile
     DisposableEffect(Unit) {
@@ -144,7 +115,6 @@ fun SettingsScreen(
             override fun onReceive(context: Context, intent: Intent) {
                 if (intent.action == BlockAllTileService.ACTION_BLOCK_ALL_CHANGED) {
                     val newValue = intent.getBooleanExtra(BlockAllTileService.EXTRA_VALUE, false)
-                    blockAll = newValue
                     viewModel.blockAll = newValue
                 }
             }
@@ -161,13 +131,6 @@ fun SettingsScreen(
         onDispose {
             context.unregisterReceiver(receiver)
         }
-    }
-
-    val contactGroups by produceState(
-        initialValue = emptyList<ContactGroup>(),
-        key1 = permissionCheckTrigger,
-    ) {
-        value = viewModel.getContactGroups()
     }
 
     val roleLauncher = rememberLauncherForActivityResult(
@@ -194,18 +157,6 @@ fun SettingsScreen(
     val contactsPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
-        if (granted) {
-            if (pendingUnknownToggle != null) {
-                blockUnknown = pendingUnknownToggle!!
-                viewModel.blockUnknown = pendingUnknownToggle!!
-            }
-            if (pendingGroupsToggle != null) {
-                blockGroups = pendingGroupsToggle!!
-                viewModel.blockGroups = pendingGroupsToggle!!
-            }
-        }
-        pendingUnknownToggle = null
-        pendingGroupsToggle = null
         permissionCheckTrigger++
     }
 
@@ -216,27 +167,10 @@ fun SettingsScreen(
     val callLogPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
-        if (granted) {
-            if (pendingBlockRepeatedToggle != null) {
-                blockRepeated = pendingBlockRepeatedToggle!!
-                viewModel.blockRepeated = pendingBlockRepeatedToggle!!
-            }
-            if (pendingBlockNotCalledToggle != null) {
-                blockNotCalled = pendingBlockNotCalledToggle!!
-                viewModel.blockNotCalled = pendingBlockNotCalledToggle!!
-            }
-            if (pendingBlockRejectedToggle != null) {
-                blockRejected = pendingBlockRejectedToggle!!
-                viewModel.blockRejected = pendingBlockRejectedToggle!!
-            }
-            if (pendingFindMyPhoneToggle != null) {
-                findMyPhoneEnabled = pendingFindMyPhoneToggle!!
-                viewModel.findMyPhoneEnabled = pendingFindMyPhoneToggle!!
-            }
+        if (granted && pendingFindMyPhoneToggle != null) {
+            findMyPhoneEnabled = pendingFindMyPhoneToggle!!
+            viewModel.findMyPhoneEnabled = pendingFindMyPhoneToggle!!
         }
-        pendingBlockRepeatedToggle = null
-        pendingBlockNotCalledToggle = null
-        pendingBlockRejectedToggle = null
         pendingFindMyPhoneToggle = null
         permissionCheckTrigger++
     }
@@ -281,19 +215,6 @@ fun SettingsScreen(
                 }
                 is BackupEvent.RestoreSuccess -> {
                     defaultCountryIso = viewModel.defaultCountryIso
-                    blockUnknown = viewModel.blockUnknown
-                    blockHidden = viewModel.blockHidden
-                    blockGroups = viewModel.blockGroups
-                    blockedGroupIds = viewModel.blockedGroupIds
-                    blockInternational = viewModel.blockInternational
-                    allowedCountryIsos = viewModel.allowedCountryIsos
-                    blockNotCalled = viewModel.blockNotCalled
-                    notCalledWindowDays = viewModel.notCalledWindowDays
-                    blockRejected = viewModel.blockRejected
-                    rejectedWindowDays = viewModel.rejectedWindowDays
-                    blockRepeated = viewModel.blockRepeated
-                    repeatedCallCount = viewModel.repeatedCallCount
-                    repeatedCallWindowMinutes = viewModel.repeatedCallWindowMinutes
                     skipCallLog = viewModel.skipCallLog
                     findMyPhoneEnabled = viewModel.findMyPhoneEnabled
                     findMyPhonePhoneNumbers = viewModel.findMyPhonePhoneNumbers
@@ -318,35 +239,7 @@ fun SettingsScreen(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 permissionCheckTrigger++
-                val contactsGranted = context.hasReadContactsPermission()
-                if (contactsGranted) {
-                    if (pendingUnknownToggle != null) {
-                        blockUnknown = pendingUnknownToggle!!
-                        viewModel.blockUnknown = pendingUnknownToggle!!
-                        pendingUnknownToggle = null
-                    }
-                    if (pendingGroupsToggle != null) {
-                        blockGroups = pendingGroupsToggle!!
-                        viewModel.blockGroups = pendingGroupsToggle!!
-                        pendingGroupsToggle = null
-                    }
-                }
                 val callLogGranted = context.hasReadCallLogPermission()
-                if (callLogGranted && pendingBlockRepeatedToggle != null) {
-                    blockRepeated = pendingBlockRepeatedToggle!!
-                    viewModel.blockRepeated = pendingBlockRepeatedToggle!!
-                    pendingBlockRepeatedToggle = null
-                }
-                if (callLogGranted && pendingBlockNotCalledToggle != null) {
-                    blockNotCalled = pendingBlockNotCalledToggle!!
-                    viewModel.blockNotCalled = pendingBlockNotCalledToggle!!
-                    pendingBlockNotCalledToggle = null
-                }
-                if (callLogGranted && pendingBlockRejectedToggle != null) {
-                    blockRejected = pendingBlockRejectedToggle!!
-                    viewModel.blockRejected = pendingBlockRejectedToggle!!
-                    pendingBlockRejectedToggle = null
-                }
                 if (callLogGranted && pendingFindMyPhoneToggle != null) {
                     findMyPhoneEnabled = pendingFindMyPhoneToggle!!
                     viewModel.findMyPhoneEnabled = pendingFindMyPhoneToggle!!
@@ -432,137 +325,24 @@ fun SettingsScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        Card(modifier = Modifier.fillMaxWidth()) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onNavigateToCallBlockingRules() }
+        ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = stringResource(R.string.blocking_rules_title),
+                    text = stringResource(R.string.incoming_call_blocking_title),
                     style = MaterialTheme.typography.bodyLarge
                 )
 
                 Text(
-                    text = stringResource(R.string.blocking_rules_description),
+                    text = stringResource(R.string.incoming_call_blocking_description),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
-
-        Spacer(Modifier.height(12.dp))
-
-        ScheduleRulesSection(
-            scheduleRules = scheduleRules,
-            onAddRule = { editingScheduleRule = null; showScheduleRuleDialog = true },
-            onEditRule = { editingScheduleRule = it; showScheduleRuleDialog = true },
-            onRemoveRule = viewModel::removeScheduleRule,
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        BlockingRulesSection(
-            blockAll = blockAll,
-            onBlockAllChange = {
-                blockAll = it
-                viewModel.blockAll = it
-            },
-            blockUnknown = blockUnknown,
-            onBlockUnknownChange = { enabled ->
-                if (enabled && !contactsPermissionGranted) {
-                    pendingUnknownToggle = true
-                    showReadContactsPermissionRationale = true
-                } else {
-                    pendingUnknownToggle = null
-                    blockUnknown = enabled
-                    viewModel.blockUnknown = enabled
-                }
-            },
-            blockHidden = blockHidden,
-            onBlockHiddenChange = {
-                blockHidden = it
-                viewModel.blockHidden = it
-            },
-            blockGroups = blockGroups,
-            onBlockGroupsChange = { enabled ->
-                if (enabled && !contactsPermissionGranted) {
-                    pendingGroupsToggle = true
-                    showReadContactsPermissionRationale = true
-                } else {
-                    pendingGroupsToggle = null
-                    blockGroups = enabled
-                    viewModel.blockGroups = enabled
-                }
-            },
-            blockedGroupIds = blockedGroupIds,
-            onBlockedGroupIdsChange = { blockedGroupIds = it; viewModel.blockedGroupIds = it },
-            blockInternational = blockInternational,
-            onBlockInternationalChange = { enabled ->
-                blockInternational = enabled
-                viewModel.blockInternational = enabled
-                if (enabled && allowedCountryIsos.isEmpty() && defaultCountryIso.isNotEmpty()) {
-                    allowedCountryIsos = defaultCountryIso
-                    viewModel.allowedCountryIsos = defaultCountryIso
-                }
-            },
-            allowedCountryIsos = allowedCountryIsos,
-            onAllowedCountryIsosChange = { allowedCountryIsos = it; viewModel.allowedCountryIsos = it },
-            contactGroups = contactGroups,
-            contactsPermissionGranted = contactsPermissionGranted,
-            onRequestContactsPermission = { showReadContactsPermissionRationale = true },
-            getCountryName = viewModel::getCountryName,
-            onShowGroupDialog = { showGroupDialog = true },
-            onShowCountryDialog = { showCountryDialog = true },
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        CallLogRulesSection(
-            blockNotCalled = blockNotCalled,
-            onBlockNotCalledChange = { enabled ->
-                if (enabled && !callLogPermissionGranted) {
-                    pendingBlockNotCalledToggle = true
-                    showReadCallLogRationale = true
-                } else {
-                    pendingBlockNotCalledToggle = null
-                    blockNotCalled = enabled
-                    viewModel.blockNotCalled = enabled
-                }
-            },
-            notCalledWindowDays = notCalledWindowDays,
-            onNotCalledWindowDaysChange = { notCalledWindowDays = it },
-            onNotCalledWindowDaysChangeFinished = { viewModel.notCalledWindowDays = notCalledWindowDays },
-            blockRejected = blockRejected,
-            onBlockRejectedChange = { enabled ->
-                if (enabled && !callLogPermissionGranted) {
-                    pendingBlockRejectedToggle = true
-                    showReadCallLogRationale = true
-                } else {
-                    pendingBlockRejectedToggle = null
-                    blockRejected = enabled
-                    viewModel.blockRejected = enabled
-                }
-            },
-            rejectedWindowDays = rejectedWindowDays,
-            onRejectedWindowDaysChange = { rejectedWindowDays = it },
-            onRejectedWindowDaysChangeFinished = { viewModel.rejectedWindowDays = rejectedWindowDays },
-            blockRepeated = blockRepeated,
-            onBlockRepeatedChange = { enabled ->
-                if (enabled && !callLogPermissionGranted) {
-                    pendingBlockRepeatedToggle = true
-                    showReadCallLogRationale = true
-                } else {
-                    pendingBlockRepeatedToggle = null
-                    blockRepeated = enabled
-                    viewModel.blockRepeated = enabled
-                }
-            },
-            repeatedCallCount = repeatedCallCount,
-            onRepeatedCallCountChange = { repeatedCallCount = it },
-            onRepeatedCallCountChangeFinished = { viewModel.repeatedCallCount = repeatedCallCount },
-            repeatedCallWindowMinutes = repeatedCallWindowMinutes,
-            onRepeatedCallWindowMinutesChange = { repeatedCallWindowMinutes = it },
-            onRepeatedCallWindowMinutesChangeFinished = { viewModel.repeatedCallWindowMinutes = repeatedCallWindowMinutes },
-            callLogPermissionGranted = callLogPermissionGranted,
-            onRequestCallLogPermission = { showReadCallLogRationale = true },
-        )
 
         Spacer(Modifier.height(12.dp))
 
@@ -576,10 +356,10 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.bodyLarge
                 )
 
-                val needsContactsPermission = (blockUnknown || blockGroups) && !contactsPermissionGranted
-                val needsCallLogPermission = (blockNotCalled || blockRejected || blockRepeated) && !callLogPermissionGranted
+                val needsContactsPermission = (viewModel.blockUnknown || viewModel.blockGroups) && !contactsPermissionGranted
+                val needsCallLogPermission = (viewModel.blockNotCalled || viewModel.blockRejected || viewModel.blockRepeated) && !callLogPermissionGranted
                 val lines = mutableListOf(stringResource(R.string.test_screening_description))
-                if (!scheduleRules.isEmpty()) lines.add(stringResource(R.string.test_screening_description_addon_scheduler))
+                if (!viewModel.scheduleRules.value.isEmpty()) lines.add(stringResource(R.string.test_screening_description_addon_scheduler))
                 if (needsContactsPermission || needsCallLogPermission) lines.add(stringResource(R.string.test_screening_description_addon_permissions))
                 if (findMyPhoneEnabled) lines.add(stringResource(R.string.test_screening_description_addon_find_my_phone))
 
@@ -842,32 +622,12 @@ fun SettingsScreen(
             )
         }
 
-        if (showScheduleRuleDialog) {
-            ScheduleRuleDialog(
-                initialRule = editingScheduleRule,
-                onDismiss = {
-                    showScheduleRuleDialog = false
-                    editingScheduleRule = null
-                },
-                onConfirm = { rule ->
-                    if (editingScheduleRule != null) {
-                        viewModel.updateScheduleRule(rule)
-                    } else {
-                        viewModel.addScheduleRule(rule)
-                    }
-                    showScheduleRuleDialog = false
-                    editingScheduleRule = null
-                }
-            )
-        }
     }
 
     if (showReadContactsPermissionRationale) {
         AlertDialog(
             onDismissRequest = {
                 showReadContactsPermissionRationale = false
-                pendingUnknownToggle = null
-                pendingGroupsToggle = null
             },
             title = { Text(stringResource(R.string.permission_read_contacts_rationale_title)) },
             text = { Text(stringResource(R.string.permission_read_contacts_rationale_message)) },
@@ -893,8 +653,6 @@ fun SettingsScreen(
             dismissButton = {
                 TextButton(onClick = {
                     showReadContactsPermissionRationale = false
-                    pendingUnknownToggle = null
-                    pendingGroupsToggle = null
                 }) {
                     Text(stringResource(R.string.cancel))
                 }
@@ -906,9 +664,6 @@ fun SettingsScreen(
         AlertDialog(
             onDismissRequest = {
                 showReadCallLogRationale = false
-                pendingBlockRepeatedToggle = null
-                pendingBlockNotCalledToggle = null
-                pendingBlockRejectedToggle = null
                 pendingFindMyPhoneToggle = null
             },
             title = { Text(stringResource(R.string.permission_call_log_rationale_title)) },
@@ -936,9 +691,7 @@ fun SettingsScreen(
             dismissButton = {
                 TextButton(onClick = {
                     showReadCallLogRationale = false
-                    pendingBlockRepeatedToggle = null
-                    pendingBlockNotCalledToggle = null
-                    pendingBlockRejectedToggle = null
+                    pendingFindMyPhoneToggle = null
                 }) {
                     Text(stringResource(R.string.cancel))
                 }
@@ -1011,26 +764,6 @@ fun SettingsScreen(
         )
     }
 
-    if (showCountryDialog) {
-        CountryPickerDialog(
-            title = stringResource(R.string.select_allowed_countries),
-            getCountryName = viewModel::getCountryName,
-            mode = CountryPickerMode.Multi(
-                selectedIsos = allowedCountryIsos.split(",")
-                    .map { it.trim() }
-                    .filter { it.isNotEmpty() }
-                    .toSet(),
-                onSave = { isos ->
-                    allowedCountryIsos = isos.joinToString(",")
-                    viewModel.allowedCountryIsos = allowedCountryIsos
-                    showCountryDialog = false
-                },
-                lockedIsos = if (defaultCountryIso.isNotEmpty()) setOf(defaultCountryIso) else emptySet()
-            ),
-            onDismiss = { showCountryDialog = false },
-        )
-    }
-
     if (showDefaultCountryDialog) {
         CountryPickerDialog(
             title = stringResource(R.string.default_country_title),
@@ -1039,31 +772,10 @@ fun SettingsScreen(
                 onSelect = { country ->
                     defaultCountryIso = country.iso
                     viewModel.defaultCountryIso = country.iso
-                    if (country.iso.isNotEmpty() && blockInternational && allowedCountryIsos.isEmpty()) {
-                        allowedCountryIsos = country.iso
-                        viewModel.allowedCountryIsos = country.iso
-                    }
                     showDefaultCountryDialog = false
                 }
             ),
             onDismiss = { showDefaultCountryDialog = false },
-        )
-    }
-
-    if (showGroupDialog) {
-        GroupSelectionDialog(
-            groups = contactGroups,
-            selectedIds = blockedGroupIds.split(",")
-                .map { it.trim() }
-                .filter { it.isNotEmpty() }
-                .mapNotNull { it.toLongOrNull() }
-                .toSet(),
-            onSave = { ids ->
-                blockedGroupIds = ids.joinToString(",")
-                viewModel.blockedGroupIds = blockedGroupIds
-                showGroupDialog = false
-            },
-            onDismiss = { showGroupDialog = false },
         )
     }
 
