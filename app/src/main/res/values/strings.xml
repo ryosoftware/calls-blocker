@@ -89,6 +89,8 @@
 
     <string name="incoming_call_blocking_title">Incoming call blocking</string>
     <string name="incoming_call_blocking_description">Configure which incoming calls to block, by schedule, groups, countries, and more.</string>
+    <string name="incoming_call_bloquing_button">Configure</string>
+
     <string name="blocking_rules_title">Your phone, your rules!</string>
     <string name="blocking_rules_description">These rules only apply to numbers or prefixes that you have not explicitly accepted, which are never blocked, even if the \"block all incoming calls\" option is active.</string>
 

@@ -89,7 +89,9 @@
     <string name="default_country_not_set">No establecido</string>
 
     <string name="incoming_call_blocking_title">Bloqueo de llamadas entrantes</string>
-    <string name="incoming_call_blocking_description">Configura qué llamadas entrantes bloquear, por horario, grupos, países y más.</string>
+    <string name="incoming_call_blocking_description">Configura qué llamadas entrantes bloquear: por horario, grupos, países y más.</string>
+    <string name="incoming_call_bloquing_button">Configurar</string>
+
     <string name="blocking_rules_title">Tu teléfono, tus reglas</string>
     <string name="blocking_rules_description">Estas reglas solo aplican a números o prefijos que no hayas aceptado explícitamente, que nunca se bloquean, ni siquiera si la opción \"bloquear todas las llamadas\" está activa.</string>
 

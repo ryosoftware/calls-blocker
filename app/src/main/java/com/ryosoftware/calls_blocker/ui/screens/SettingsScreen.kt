@@ -55,6 +55,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ryosoftware.calls_blocker.BuildConfig
 import com.ryosoftware.calls_blocker.Main.Companion.hasPostNotificationsPermission
 import com.ryosoftware.calls_blocker.Main.Companion.hasReadCallLogPermission
@@ -108,6 +109,7 @@ fun SettingsScreen(
     var pendingRestoreUri by remember { mutableStateOf<Uri?>(null) }
     var showTestScreeningDialog by remember { mutableStateOf(false) }
     var testScreeningResult by remember { mutableStateOf<Pair<String, Reason?>?>(null) }
+    val scheduleRules by viewModel.scheduleRules.collectAsStateWithLifecycle()
 
     // Listen for blockAll changes from Quick Settings Tile
     DisposableEffect(Unit) {
@@ -328,7 +330,6 @@ fun SettingsScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onNavigateToCallBlockingRules() }
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
@@ -341,25 +342,29 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-            }
-        }
 
-        Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(12.dp))
 
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+                Button(
+                    onClick = { onNavigateToCallBlockingRules() },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.incoming_call_bloquing_button))
+                }
+
+                Spacer(Modifier.height(12.dp))
+
                 Text(
                     text = stringResource(R.string.test_screening_title),
                     style = MaterialTheme.typography.bodyLarge
                 )
 
+                Spacer(Modifier.height(12.dp))
+
                 val needsContactsPermission = (viewModel.blockUnknown || viewModel.blockGroups) && !contactsPermissionGranted
                 val needsCallLogPermission = (viewModel.blockNotCalled || viewModel.blockRejected || viewModel.blockRepeated) && !callLogPermissionGranted
                 val lines = mutableListOf(stringResource(R.string.test_screening_description))
-                if (!viewModel.scheduleRules.value.isEmpty()) lines.add(stringResource(R.string.test_screening_description_addon_scheduler))
+                if (scheduleRules.isNotEmpty()) lines.add(stringResource(R.string.test_screening_description_addon_scheduler))
                 if (needsContactsPermission || needsCallLogPermission) lines.add(stringResource(R.string.test_screening_description_addon_permissions))
                 if (findMyPhoneEnabled) lines.add(stringResource(R.string.test_screening_description_addon_find_my_phone))
 
