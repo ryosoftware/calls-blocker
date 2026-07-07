@@ -99,6 +99,8 @@
 
     <string name="block_hidden_title">Block hidden numbers</string>
     <string name="block_hidden_description">Blocks calls from private or hidden numbers</string>
+    <string name="unblock_hidden_title">Unblock hidden numbers</string>
+    <string name="unblock_hidden_description">Calls from hidden numbers will no longer be blocked</string>
 
     <string name="block_all_title">Block all</string>
     <string name="block_all_description">Blocks all incoming calls</string>

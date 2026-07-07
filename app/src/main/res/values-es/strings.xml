@@ -101,6 +101,8 @@
 
     <string name="block_hidden_title">Bloquear números ocultos</string>
     <string name="block_hidden_description">Se bloquearán las llamadas de números privados u ocultos</string>
+    <string name="unblock_hidden_title">Desbloquear números ocultos</string>
+    <string name="unblock_hidden_description">Las llamadas desde números ocultos ya no serán bloqueadas</string>
 
     <string name="block_all_title">Bloquear todas</string>
     <string name="block_all_description">Bloquea todas las llamadas entrantes</string>

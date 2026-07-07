@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.Country
 import com.ryosoftware.calls_blocker.data.CountryNameProvider
+import com.ryosoftware.calls_blocker.data.SettingsManager
 import com.ryosoftware.calls_blocker.data.db.Reason
 import com.ryosoftware.calls_blocker.data.db.Action
 import com.ryosoftware.calls_blocker.data.db.Type
@@ -36,6 +37,7 @@ class HistoryViewModel @Inject constructor(
     numberDao: NumberDao,
     private val numberRepository: NumberRepository,
     private val countryNameProvider: CountryNameProvider,
+    private val settingsManager: SettingsManager,
 ) : ViewModel() {
     companion object {
         fun getReasonString(context: Context, reason: Reason): String =
@@ -58,6 +60,8 @@ class HistoryViewModel @Inject constructor(
                 Reason.FIND_MY_PHONE_CANCELLED -> context.getString(R.string.reason_find_my_phone_cancelled)
             }
     }
+
+    var blockHidden by settingsManager::blockHidden
 
     val history: StateFlow<List<HistoryEntry>> = repo.allEntries
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())

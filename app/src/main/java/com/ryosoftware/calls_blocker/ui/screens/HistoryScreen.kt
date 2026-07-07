@@ -133,6 +133,9 @@ fun HistoryScreen(
     var searchQuery by remember { mutableStateOf("") }
     var searchVisible by remember { mutableStateOf(true) }
     var expandedEntryId by remember { mutableStateOf<Long?>(null) }
+    var blockHidden by remember { mutableStateOf(viewModel.blockHidden) }
+    var showBlockHiddenConfirm by remember { mutableStateOf(false) }
+    var showUnblockHiddenConfirm by remember { mutableStateOf(false) }
 
     BackHandler(enabled = expandedEntryId != null) {
         expandedEntryId = null
@@ -302,6 +305,9 @@ fun HistoryScreen(
                                 isSelected = item.entry.id in selectedIds,
                                 multiSelect = multiSelect,
                                 expanded = expandedEntryId == item.entry.id,
+                                blockHidden = blockHidden,
+                                onBlockHidden = { showBlockHiddenConfirm = true },
+                                onUnblockHidden = { showUnblockHiddenConfirm = true },
                                 onLongClick = { toggleSelection(item.entry.id) },
                                 onClick = {
                                     if (multiSelect) {
@@ -495,6 +501,50 @@ fun HistoryScreen(
             }
         )
     }
+
+    if (showBlockHiddenConfirm) {
+        AlertDialog(
+            onDismissRequest = { showBlockHiddenConfirm = false },
+            title = { Text(stringResource(R.string.block_hidden_title)) },
+            text = { Text(stringResource(R.string.block_hidden_description)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.blockHidden = true
+                    blockHidden = true
+                    showBlockHiddenConfirm = false
+                }) {
+                    Text(stringResource(R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showBlockHiddenConfirm = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    if (showUnblockHiddenConfirm) {
+        AlertDialog(
+            onDismissRequest = { showUnblockHiddenConfirm = false },
+            title = { Text(stringResource(R.string.unblock_hidden_title)) },
+            text = { Text(stringResource(R.string.unblock_hidden_description)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.blockHidden = false
+                    blockHidden = false
+                    showUnblockHiddenConfirm = false
+                }) {
+                    Text(stringResource(R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showUnblockHiddenConfirm = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -508,6 +558,9 @@ private fun HistoryItem(
     isSelected: Boolean,
     multiSelect: Boolean,
     expanded: Boolean,
+    blockHidden: Boolean,
+    onBlockHidden: () -> Unit,
+    onUnblockHidden: () -> Unit,
     onLongClick: () -> Unit,
     onClick: () -> Unit,
     onBlock: () -> Unit,
@@ -743,6 +796,27 @@ private fun HistoryItem(
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
+                        }
+                    }
+
+                    if (entry.phoneNumber.isEmpty() && !blockHidden) {
+                        IconButton(onClick = onBlockHidden) {
+                            Icon(
+                                imageVector = Icons.Default.Block,
+                                contentDescription = stringResource(R.string.block_hidden_title),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+
+                    if (entry.phoneNumber.isEmpty() && blockHidden) {
+                        IconButton(onClick = onUnblockHidden) {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircleOutline,
+                                contentDescription = stringResource(R.string.action_unblock),
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
                         }
                     }
 
