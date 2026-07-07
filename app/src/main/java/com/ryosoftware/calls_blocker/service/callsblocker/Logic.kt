@@ -155,7 +155,7 @@ class Logic @Inject constructor(
         // We evaulate priority block rules first
 
         val blockReason = priorityBlockRules.evaluateFirst(normalizedPhoneNumber, phoneNumber, ::normalizeToE164, ::isHiddenNumber)
-        
+
         if (blockReason != Reason.NONE) {
             return blockReason
         }

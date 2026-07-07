@@ -1,5 +1,8 @@
 package com.ryosoftware.calls_blocker.ui.screens
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -11,9 +14,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -63,6 +68,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import android.content.Intent
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -77,6 +84,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
+import com.ryosoftware.calls_blocker.ui.rememberContactInfo
 import com.ryosoftware.calls_blocker.data.db.Action
 import com.ryosoftware.calls_blocker.data.Country
 import com.ryosoftware.calls_blocker.data.findCountryByPhoneNumber
@@ -99,9 +107,9 @@ fun NumbersListScreen(
     onMultiSelect: (Int, Boolean, () -> Unit, () -> Unit, () -> Unit) -> Unit = { _, _, _, _, _ -> },
     onImportReady: (ImportResult) -> Unit = {},
 ) {
+    val context = LocalContext.current
     val logger = viewModel.logger
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
     val blockedNumbersCount by viewModel.blockedNumbersCount.collectAsState()
     val allowedNumbersCount by viewModel.allowedNumbersCount.collectAsState()
     val manualBlocks by viewModel.incomingExactBlocks.collectAsState()
@@ -290,6 +298,7 @@ fun NumbersListScreen(
                 } else {
                     items(allFiltered, key = { it.id }) { number ->
                         NumberItem(
+                            context = LocalContext.current,
                             number = number,
                             isSelected = number.id in selectedIds,
                             multiSelect = multiSelect,
@@ -569,6 +578,7 @@ fun NumbersListScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun NumberItem(
+    context: Context,
     number: Number,
     isSelected: Boolean,
     multiSelect: Boolean,
@@ -582,6 +592,8 @@ private fun NumberItem(
     val countryInfo = remember(number.phoneNumber) {
         findCountryByPhoneNumber(number.phoneNumber)
     }
+
+    val contactInfo = rememberContactInfo(number.phoneNumber, context)
 
     Card(
         colors = if (isSelected) {
@@ -640,6 +652,17 @@ private fun NumberItem(
                         )
                     }
 
+                    if (!contactInfo.name.isNullOrBlank()) {
+                        Spacer(Modifier.height(8.dp))
+
+                        Text(
+                            text = contactInfo.name,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
                     Spacer(Modifier.height(8.dp))
 
                     Text(
@@ -662,6 +685,18 @@ private fun NumberItem(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
+                }
+
+                contactInfo.photo?.let {
+                    Image(
+                        bitmap = it.asImageBitmap(),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(40.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
                 }
             }
 
@@ -691,9 +726,11 @@ private fun NumberItem(
                         }
                     }
 
-                    val clipboardManager = LocalClipboardManager.current
                     IconButton(onClick = {
-                        clipboardManager.setText(AnnotatedString(number.phoneNumber))
+                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        clipboard.setPrimaryClip(
+                            ClipData.newPlainText("phone", number.phoneNumber)
+                        )
                     }) {
                         Icon(
                             imageVector = Icons.Default.ContentCopy,

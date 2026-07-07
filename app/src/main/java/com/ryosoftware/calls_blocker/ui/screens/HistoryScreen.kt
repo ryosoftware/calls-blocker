@@ -1,11 +1,15 @@
 package com.ryosoftware.calls_blocker.ui.screens
 
 import android.annotation.SuppressLint
-import android.net.Uri
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,7 +38,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,11 +55,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import android.content.Intent
 import androidx.activity.compose.BackHandler
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringArrayResource
@@ -66,6 +69,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
+import com.ryosoftware.calls_blocker.ui.rememberContactInfo
 import com.ryosoftware.calls_blocker.data.db.Direction
 import com.ryosoftware.calls_blocker.data.findCountryByPhoneNumber
 import com.ryosoftware.calls_blocker.data.db.HistoryEntry
@@ -79,6 +83,7 @@ import java.time.temporal.TemporalAdjusters
 import java.time.temporal.WeekFields
 import java.util.Date
 import java.util.Locale
+import androidx.core.net.toUri
 
 private sealed interface HistoryHeader {
     data object Today : HistoryHeader
@@ -115,7 +120,6 @@ fun HistoryScreen(
     viewModel: HistoryViewModel = hiltViewModel(),
     onMultiSelect: (count: Int, allSelected: Boolean, onClose: () -> Unit, onSelectAll: () -> Unit, onDelete: () -> Unit) -> Unit
 ) {
-    val context = LocalContext.current
     @SuppressLint("LocalContextResourcesRead")
     val monthNames = stringArrayResource(R.array.month_names)
     val history by viewModel.history.collectAsState()
@@ -290,6 +294,7 @@ fun HistoryScreen(
                                 }
                             }
                             is HistoryListItem.Entry -> HistoryItem(
+                                context = LocalContext.current,
                                 entry = item.entry,
                                 viewModel = viewModel,
                                 isBlocked = item.entry.phoneNumber in blockedPhoneNumbers,
@@ -438,7 +443,6 @@ fun HistoryScreen(
                         entry.phoneNumber in blockedPhoneNumbers -> stringResource(R.string.also_unblock)
                         entry.phoneNumber in allowedPhoneNumbers -> stringResource(R.string.also_unallow)
                         else -> null
-
                     }
                     if (checkboxText != null) {
                         Spacer(Modifier.height(8.dp))
@@ -496,6 +500,7 @@ fun HistoryScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun HistoryItem(
+    context: Context,
     entry: HistoryEntry,
     viewModel: HistoryViewModel,
     isBlocked: Boolean,
@@ -511,7 +516,6 @@ private fun HistoryItem(
     onUnallow: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val context = LocalContext.current
     val dateFormat = remember {
         DateFormat.getDateTimeInstance(
             DateFormat.MEDIUM,
@@ -522,6 +526,8 @@ private fun HistoryItem(
     val countryInfo = remember(entry.phoneNumber) {
         findCountryByPhoneNumber(entry.phoneNumber)
     }
+
+    val contactInfo = rememberContactInfo(entry.phoneNumber, context)
 
     Card(
         colors = if (isSelected) {
@@ -622,21 +628,44 @@ private fun HistoryItem(
                         )
                     }
 
-                    Spacer(Modifier.height(8.dp))
+                    if (!contactInfo.name.isNullOrBlank()) {
+                        Spacer(Modifier.height(8.dp))
+
+                        Text(
+                            text = contactInfo.name,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
 
                     if (entry.reason != Reason.NONE) {
+                        Spacer(Modifier.height(8.dp))
+
                         Text(
                             text = stringResource(R.string.reason, HistoryViewModel.getReasonString(context, entry.reason)),
                             style = MaterialTheme.typography.bodySmall
                         )
-
-                        Spacer(Modifier.height(8.dp))
                     }
+
+                    Spacer(Modifier.height(8.dp))
 
                     Text(
                         text = dateFormat.format(Date(entry.timeStamp)),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                contactInfo.photo?.let {
+                    Image(
+                        bitmap = it.asImageBitmap(),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(40.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
                     )
                 }
             }
@@ -652,12 +681,11 @@ private fun HistoryItem(
                     horizontalArrangement = Arrangement.End
                 ) {
                     if (entry.phoneNumber.isNotEmpty()) {
-                        val callContext = LocalContext.current
                         IconButton(onClick = {
                             val intent = Intent(Intent.ACTION_DIAL).apply {
-                                data = Uri.parse("tel:${entry.phoneNumber}")
+                                data = "tel:${entry.phoneNumber}".toUri()
                             }
-                            callContext.startActivity(intent)
+                            context.startActivity(intent)
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Phone,
@@ -666,9 +694,11 @@ private fun HistoryItem(
                             )
                         }
 
-                        val clipboardManager = LocalClipboardManager.current
                         IconButton(onClick = {
-                            clipboardManager.setText(AnnotatedString(entry.phoneNumber))
+                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            clipboard.setPrimaryClip(
+                                ClipData.newPlainText("phone", entry.phoneNumber)
+                            )
                         }) {
                             Icon(
                                 imageVector = Icons.Default.ContentCopy,
@@ -728,3 +758,4 @@ private fun HistoryItem(
         }
     }
 }
+
