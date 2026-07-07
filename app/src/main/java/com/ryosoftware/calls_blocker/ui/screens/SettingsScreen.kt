@@ -382,13 +382,9 @@ fun SettingsScreen(
                 ) {
                     Text(stringResource(R.string.test_screening_button))
                 }
-            }
-        }
 
-        Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(12.dp))
 
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp)) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -421,7 +417,7 @@ fun SettingsScreen(
             }
         }
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(12.dp))
 
         FindMyPhoneSection(
             findMyPhoneEnabled = findMyPhoneEnabled,
