@@ -1,6 +1,7 @@
 package com.ryosoftware.calls_blocker.ui.screens
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -23,9 +24,10 @@ import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.material3.AlertDialog
@@ -37,10 +39,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -51,7 +52,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import android.content.Intent
+import androidx.activity.compose.BackHandler
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringArrayResource
@@ -123,6 +128,11 @@ fun HistoryScreen(
     var pendingAction by remember { mutableStateOf<Pair<String, String>?>(null) }
     var searchQuery by remember { mutableStateOf("") }
     var searchVisible by remember { mutableStateOf(true) }
+    var expandedEntryId by remember { mutableStateOf<Long?>(null) }
+
+    BackHandler(enabled = expandedEntryId != null) {
+        expandedEntryId = null
+    }
 
     val today = remember { LocalDate.now() }
     var collapsedHeaders by remember { mutableStateOf(setOf<HistoryHeader>()) }
@@ -286,9 +296,14 @@ fun HistoryScreen(
                                 isAllowed = item.entry.phoneNumber in allowedPhoneNumbers,
                                 isSelected = item.entry.id in selectedIds,
                                 multiSelect = multiSelect,
+                                expanded = expandedEntryId == item.entry.id,
                                 onLongClick = { toggleSelection(item.entry.id) },
                                 onClick = {
-                                    if (multiSelect) toggleSelection(item.entry.id)
+                                    if (multiSelect) {
+                                        toggleSelection(item.entry.id)
+                                    } else {
+                                        expandedEntryId = if (expandedEntryId == item.entry.id) null else item.entry.id
+                                    }
                                 },
                                 onBlock = { pendingAction = item.entry.phoneNumber to "block" },
                                 onUnblock = { pendingAction = item.entry.phoneNumber to "unblock" },
@@ -478,7 +493,7 @@ fun HistoryScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun HistoryItem(
     entry: HistoryEntry,
@@ -487,6 +502,7 @@ private fun HistoryItem(
     isAllowed: Boolean,
     isSelected: Boolean,
     multiSelect: Boolean,
+    expanded: Boolean,
     onLongClick: () -> Unit,
     onClick: () -> Unit,
     onBlock: () -> Unit,
@@ -507,8 +523,6 @@ private fun HistoryItem(
         findCountryByPhoneNumber(entry.phoneNumber)
     }
 
-    var showBottomSheet by remember { mutableStateOf(false) }
-
     Card(
         colors = if (isSelected) {
             CardDefaults.cardColors(
@@ -526,57 +540,28 @@ private fun HistoryItem(
                 onLongClick = onLongClick
             )
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            if (multiSelect) {
-                Checkbox(
-                    checked = isSelected,
-                    onCheckedChange = { onLongClick() },
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-            }
-
-            Icon(
-                imageVector = when (entry.direction) {
-                    Direction.INCOMING -> Icons.AutoMirrored.Filled.CallReceived
-                    Direction.OUTGOING -> Icons.AutoMirrored.Filled.CallMade
-                },
-                contentDescription = null,
-                tint = when (entry.reason) {
-                    Reason.BLOCK_ALL,
-                    Reason.HIDDEN_NUMBER,
-                    Reason.BLACKLISTED_NUMBER,
-                    Reason.BLACKLISTED_PREFIX,
-                    Reason.NOT_A_CONTACT,
-                    Reason.MEMBER_OF_BLOCKED_GROUP_OF_CONTACTS,
-                    Reason.INTERNATIONAL_NUMBER,
-                    Reason.NOT_CALLED,
-                    Reason.REJECTED_BEFORE,
-                    Reason.REPEATED_CALL,
-                    Reason.SCHEDULE,
-                    Reason.FIND_MY_PHONE,
-                    Reason.FIND_MY_PHONE_CANCELLED -> colorResource(R.color.status_inactive_text)
-                    Reason.WHITELISTED_NUMBER,
-                    Reason.WHITELISTED_PREFIX -> colorResource(R.color.status_active_text)
-                    Reason.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
-                },
-                modifier = Modifier.size(24.dp)
-            )
-
-            Column(
+        Column {
+            Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 12.dp)
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalAlignment = Alignment.Top
             ) {
-                Text(
-                    text = entry.phoneNumber.takeIf { it.isNotEmpty() }?.let { PhoneUtils.formatPhoneNumber(it) } ?: stringResource(R.string.hidden_number),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
-                    color = when (entry.reason) {
+                if (multiSelect) {
+                    Checkbox(
+                        checked = isSelected,
+                        onCheckedChange = { onLongClick() },
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                }
+
+                Icon(
+                    imageVector = when (entry.direction) {
+                        Direction.INCOMING -> Icons.AutoMirrored.Filled.CallReceived
+                        Direction.OUTGOING -> Icons.AutoMirrored.Filled.CallMade
+                    },
+                    contentDescription = null,
+                    tint = when (entry.reason) {
                         Reason.BLOCK_ALL,
                         Reason.HIDDEN_NUMBER,
                         Reason.BLACKLISTED_NUMBER,
@@ -593,178 +578,149 @@ private fun HistoryItem(
                         Reason.WHITELISTED_NUMBER,
                         Reason.WHITELISTED_PREFIX -> colorResource(R.color.status_active_text)
                         Reason.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
-                    }
+                    },
+                    modifier = Modifier.size(24.dp)
                 )
 
-                if (countryInfo != null) {
-                    val (country, _) = countryInfo
-
-                    Spacer(Modifier.height(8.dp))
-
-                    Text(
-                        text = stringResource(R.string.country_name_and_flag, viewModel.getCountryName(country), country.flag),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-
-                Spacer(Modifier.height(8.dp))
-
-                if (entry.reason != Reason.NONE) {
-                    Text(
-                        text = stringResource(R.string.reason, HistoryViewModel.getReasonString(context, entry.reason)),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-
-                    Spacer(Modifier.height(8.dp))
-                }
-
-                Text(
-                    text = dateFormat.format(Date(entry.timeStamp)),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            if (!multiSelect) {
-                IconButton(
-                    onClick = { showBottomSheet = true },
-                    modifier = Modifier.align(Alignment.Bottom)
-                ) {
-                    Icon(
-                        Icons.Default.MoreVert,
-                        contentDescription = stringResource(R.string.more_options),
-                    )
-                }
-            }
-        }
-
-        if (showBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = { showBottomSheet = false },
-                sheetState = rememberModalBottomSheetState()
-            ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                        .weight(1f)
+                        .padding(horizontal = 12.dp)
                 ) {
                     Text(
-                        text = PhoneUtils.formatPhoneNumber(entry.phoneNumber),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 24.dp)
+                        text = entry.phoneNumber.takeIf { it.isNotEmpty() }?.let { PhoneUtils.formatPhoneNumber(it) } ?: stringResource(R.string.hidden_number),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium,
+                        color = when (entry.reason) {
+                            Reason.BLOCK_ALL,
+                            Reason.HIDDEN_NUMBER,
+                            Reason.BLACKLISTED_NUMBER,
+                            Reason.BLACKLISTED_PREFIX,
+                            Reason.NOT_A_CONTACT,
+                            Reason.MEMBER_OF_BLOCKED_GROUP_OF_CONTACTS,
+                            Reason.INTERNATIONAL_NUMBER,
+                            Reason.NOT_CALLED,
+                            Reason.REJECTED_BEFORE,
+                            Reason.REPEATED_CALL,
+                            Reason.SCHEDULE,
+                            Reason.FIND_MY_PHONE,
+                            Reason.FIND_MY_PHONE_CANCELLED -> colorResource(R.color.status_inactive_text)
+                            Reason.WHITELISTED_NUMBER,
+                            Reason.WHITELISTED_PREFIX -> colorResource(R.color.status_active_text)
+                            Reason.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
+                        }
                     )
 
+                    if (countryInfo != null) {
+                        val (country, _) = countryInfo
+
+                        Spacer(Modifier.height(8.dp))
+
+                        Text(
+                            text = stringResource(R.string.country_name_and_flag, viewModel.getCountryName(country), country.flag),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+
+                    if (entry.reason != Reason.NONE) {
+                        Text(
+                            text = stringResource(R.string.reason, HistoryViewModel.getReasonString(context, entry.reason)),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+
+                        Spacer(Modifier.height(8.dp))
+                    }
+
+                    Text(
+                        text = dateFormat.format(Date(entry.timeStamp)),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            if (!multiSelect && expanded) {
+                HorizontalDivider()
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End
+                ) {
                     if (entry.phoneNumber.isNotEmpty()) {
+                        val callContext = LocalContext.current
+                        IconButton(onClick = {
+                            val intent = Intent(Intent.ACTION_DIAL).apply {
+                                data = Uri.parse("tel:${entry.phoneNumber}")
+                            }
+                            callContext.startActivity(intent)
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Phone,
+                                contentDescription = stringResource(R.string.call),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+
+                        val clipboardManager = LocalClipboardManager.current
+                        IconButton(onClick = {
+                            clipboardManager.setText(AnnotatedString(entry.phoneNumber))
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.ContentCopy,
+                                contentDescription = stringResource(R.string.copy),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+
                         if (isBlocked) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        showBottomSheet = false
-                                        onUnblock()
-                                    }
-                                    .padding(vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                            IconButton(onClick = onUnblock) {
                                 Icon(
-                                    Icons.Default.Block,
-                                    contentDescription = null,
-                                )
-                                Spacer(Modifier.width(16.dp))
-                                Text(
-                                    text = stringResource(R.string.action_unblock),
-                                    style = MaterialTheme.typography.bodyLarge
+                                    imageVector = Icons.Default.Block,
+                                    contentDescription = stringResource(R.string.action_unblock),
+                                    modifier = Modifier.size(20.dp)
                                 )
                             }
                         } else if (!isAllowed) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        showBottomSheet = false
-                                        onBlock()
-                                    }
-                                    .padding(vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                            IconButton(onClick = onBlock) {
                                 Icon(
-                                    Icons.Default.Block,
-                                    contentDescription = null,
-                                )
-                                Spacer(Modifier.width(16.dp))
-                                Text(
-                                    text = stringResource(R.string.action_block),
-                                    style = MaterialTheme.typography.bodyLarge
+                                    imageVector = Icons.Default.Block,
+                                    contentDescription = stringResource(R.string.action_block),
+                                    modifier = Modifier.size(20.dp)
                                 )
                             }
                         }
 
                         if (isAllowed) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        showBottomSheet = false
-                                        onUnallow()
-                                    }
-                                    .padding(vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                            IconButton(onClick = onUnallow) {
                                 Icon(
-                                    Icons.Default.CheckCircleOutline,
-                                    contentDescription = null,
+                                    imageVector = Icons.Default.CheckCircleOutline,
+                                    contentDescription = stringResource(R.string.action_unallow),
+                                    modifier = Modifier.size(20.dp),
                                     tint = MaterialTheme.colorScheme.error
                                 )
-                                Spacer(Modifier.width(16.dp))
-                                Text(
-                                    text = stringResource(R.string.action_unallow),
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
                             }
-                        } else if (! isBlocked) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        showBottomSheet = false
-                                        onAllow()
-                                    }
-                                    .padding(vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                        } else if (!isBlocked) {
+                            IconButton(onClick = onAllow) {
                                 Icon(
-                                    Icons.Default.CheckCircleOutline,
-                                    contentDescription = null,
+                                    imageVector = Icons.Default.CheckCircleOutline,
+                                    contentDescription = stringResource(R.string.action_allow),
+                                    modifier = Modifier.size(20.dp),
                                     tint = MaterialTheme.colorScheme.primary
-                                )
-                                Spacer(Modifier.width(16.dp))
-                                Text(
-                                    text = stringResource(R.string.action_allow),
-                                    style = MaterialTheme.typography.bodyLarge
                                 )
                             }
                         }
                     }
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                showBottomSheet = false
-                                onDelete()
-                            }
-                            .padding(vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    IconButton(onClick = onDelete) {
                         Icon(
-                            Icons.Default.Delete,
-                            contentDescription = null
-                        )
-                        Spacer(Modifier.width(16.dp))
-                        Text(
-                            text = stringResource(R.string.delete),
-                            style = MaterialTheme.typography.bodyLarge
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = stringResource(R.string.delete),
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }
