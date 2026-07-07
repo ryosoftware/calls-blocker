@@ -78,6 +78,8 @@ import com.ryosoftware.calls_blocker.viewmodel.HistoryViewModel
 import com.ryosoftware.calls_blocker.viewmodel.SettingsViewModel
 import com.ryosoftware.calls_blocker.service.BlockAllTileService
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun SettingsScreen(
@@ -788,7 +790,10 @@ fun SettingsScreen(
             }
 
             OutlinedButton(
-                onClick = { exportLauncher.launch("calls_blocker_backup.json") },
+                onClick = {
+                    val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd--HH-mm-ss"))
+                    exportLauncher.launch("calls_blocker_backup-$timestamp.json")
+                },
                 modifier = Modifier.weight(1f)
             ) {
                 Text(stringResource(R.string.backup_export))
