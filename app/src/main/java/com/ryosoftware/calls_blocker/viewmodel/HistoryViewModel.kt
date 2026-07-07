@@ -14,7 +14,6 @@ import com.ryosoftware.calls_blocker.data.db.NumberDao
 import com.ryosoftware.calls_blocker.data.db.HistoryEntry
 import com.ryosoftware.calls_blocker.data.repository.HistoryRepository
 import com.ryosoftware.calls_blocker.data.repository.NumberRepository
-import com.ryosoftware.calls_blocker.service.callsblocker.Logic
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,8 +58,6 @@ class HistoryViewModel @Inject constructor(
                 Reason.FIND_MY_PHONE_CANCELLED -> context.getString(R.string.reason_find_my_phone_cancelled)
             }
     }
-    @Inject
-    lateinit var callScreeningLogic: Logic
 
     val history: StateFlow<List<HistoryEntry>> = repo.allEntries
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -79,37 +76,31 @@ class HistoryViewModel @Inject constructor(
     fun removeEntries(ids: List<Long>) {
         viewModelScope.launch {
             _isDeleting.value = true
-            repo.removeEntries(ids)
-            _isDeleting.value = false
+            try {
+                repo.removeEntries(ids)
+            } finally {
+                _isDeleting.value = false
+            }
         }
     }
 
     fun removeEntry(entry: HistoryEntry, deleteAllFromNumber: Boolean, alsoRemoveFromNumbers: Boolean) {
         viewModelScope.launch {
             _isDeleting.value = true
+            try {
+                if (deleteAllFromNumber) {
+                    repo.removeByPhoneNumber(entry.phoneNumber)
+                }
+                else {
+                    repo.remove(entry)
+                }
 
-            if (deleteAllFromNumber) {
-                repo.removeByPhoneNumber(entry.phoneNumber)
+                if (alsoRemoveFromNumbers) {
+                    numberRepository.removeByPhoneNumber(entry.phoneNumber)
+                }
+            } finally {
+                _isDeleting.value = false
             }
-            else {
-                repo.remove(entry)
-            }
-
-            if (alsoRemoveFromNumbers) {
-                numberRepository.removeByPhoneNumber(entry.phoneNumber)
-            }
-
-            _isDeleting.value = false
-        }
-    }
-
-    fun clearAll() {
-        viewModelScope.launch {
-            _isDeleting.value = true
-
-            repo.clearAll()
-
-            _isDeleting.value = false
         }
     }
 
@@ -152,7 +143,8 @@ class HistoryViewModel @Inject constructor(
                     for (entry in entries) {
                         val date = dateFormat.format(Date(entry.timeStamp))
                         val reason = getReasonString(context, entry.reason)
-                        writer.write("\"${entry.phoneNumber}\",$date,$reason\n")
+                        val escapedPhone = entry.phoneNumber.replace("\"", "\"\"")
+                        writer.write("\"$escapedPhone\",$date,$reason\n")
                     }
                 }
             }

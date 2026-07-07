@@ -26,7 +26,6 @@ class Main : Application(), Configuration.Provider {
         const val SUGGESTION_CHANNEL_ID = "block-suggestions"
 
         const val FIND_MY_PHONE_CHANNEL_ID = "find-my-phone"
-        fun from(context: Context): Main = context.applicationContext as Main
 
         fun Context.safeStartActivity(intent: Intent) =
             try {
@@ -47,30 +46,9 @@ class Main : Application(), Configuration.Provider {
         fun Context.hasReadPhoneStatePermission(): Boolean =
             ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
 
-        fun Context.hasReadMediaAudioPermission(): Boolean =
-            Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-                    ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED
-
         fun Context.hasPostNotificationsPermission(): Boolean =
             Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
                     ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-
-        fun Context.canDrawOverlays(): Boolean = Settings.canDrawOverlays(this)
-
-        fun Context.requestCanDrawOverlays() {
-            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:${packageName}".toUri())
-            safeStartActivity(intent)
-        }
-
-        fun Context.canBypassDoNotDisturb(): Boolean {
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            return notificationManager.isNotificationPolicyAccessGranted
-        }
-
-        fun Context.requestBypassDoNotDisturb() {
-            val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
-            safeStartActivity(intent)
-        }
 
         fun Context.requestIgnoreBatteryOptimizationsPermission() {
             @SuppressLint("BatteryLife")

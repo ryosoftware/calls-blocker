@@ -6,11 +6,31 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,7 +58,6 @@ fun DebugLogScreen(
     var isLoggingEnabled by remember { mutableStateOf(viewModel.isLoggingToFile) }
     var logContents by remember { mutableStateOf("") }
     var showStartLoggingDialog by remember { mutableStateOf(false) }
-    var showStopLoggingDialog by remember { mutableStateOf(false) }
     var canShare by remember { mutableStateOf(false) }
     var showObfuscationDialog by remember { mutableStateOf(false) }
     var pendingObfuscateCallback by remember { mutableStateOf<((Boolean) -> Unit)?>(null) }
@@ -211,29 +230,6 @@ fun DebugLogScreen(
             dismissButton = {
                 TextButton(onClick = { showStartLoggingDialog = false }) {
                     Text(stringResource(R.string.no))
-                }
-            }
-        )
-    }
-
-    if (showStopLoggingDialog) {
-        AlertDialog(
-            onDismissRequest = { showStopLoggingDialog = false },
-            title = { Text(stringResource(R.string.logging_dialog_title)) },
-            text = { Text(stringResource(R.string.stop_logging_dialog_body)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    logger.getLogFile().delete()
-                    isLoggingEnabled = false
-                    viewModel.isLoggingToFile = false
-                    showStopLoggingDialog = false
-                }) {
-                    Text(stringResource(R.string.ok))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showStopLoggingDialog = false }) {
-                    Text(stringResource(R.string.cancel))
                 }
             }
         )

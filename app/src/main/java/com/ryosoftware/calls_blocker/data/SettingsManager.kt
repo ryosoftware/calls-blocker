@@ -96,19 +96,6 @@ class SettingsManager(private val context: Context) {
         return phoneCodesForIso(isos)
     }
 
-    fun getAllowedCountries(): List<Country> {
-        val isos = allowedCountryIsos.split(",")
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
-            .toSet()
-        return countries.filter { it.iso in isos }
-    }
-
-    fun getAllCountries(): List<Country> = countries
-
-    fun getCountryByIso(iso: String): Country? =
-        countries.firstOrNull { it.iso == iso }
-
     fun isScreeningActive(): Boolean {
         val roleManager = context.applicationContext.getSystemService(Context.ROLE_SERVICE) as? RoleManager ?: return false
         return roleManager.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)

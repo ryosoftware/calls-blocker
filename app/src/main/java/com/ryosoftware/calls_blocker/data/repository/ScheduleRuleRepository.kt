@@ -21,7 +21,6 @@ class ScheduleRuleRepository(private val dao: ScheduleRuleDao) {
             dao.getAll().collect { _rules.value = it }
         }
     }
-
     suspend fun add(rule: ScheduleRule) = dao.insert(rule)
 
     suspend fun update(rule: ScheduleRule) = dao.update(rule)

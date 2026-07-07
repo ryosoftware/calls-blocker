@@ -28,8 +28,6 @@ data class ImportResult(
     val alreadyAddedEntries: List<ImportEntry> get() = alreadyBlockedEntries + alreadyAllowedEntries
     val errorEntries: List<ImportEntry> get() = entries.filter { it.status == ImportStatus.Error }
     val newEntriesCount: Int get() = newEntries.size
-    val alreadyBlockedCount: Int get() = alreadyBlockedEntries.size
-    val alreadyAllowedCount: Int get() = alreadyAllowedEntries.size
     val alreadyAddedCount: Int get() = alreadyAddedEntries.size
     val errorCount: Int get() = errorEntries.size
 }

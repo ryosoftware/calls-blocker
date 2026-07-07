@@ -83,8 +83,11 @@ class NumbersViewModel @Inject constructor(
     fun removeEntries(ids: List<Long>) {
         viewModelScope.launch {
             _isDeleting.value = true
-            repo.removeEntries(ids)
-            _isDeleting.value = false
+            try {
+                repo.removeEntries(ids)
+            } finally {
+                _isDeleting.value = false
+            }
         }
     }
 

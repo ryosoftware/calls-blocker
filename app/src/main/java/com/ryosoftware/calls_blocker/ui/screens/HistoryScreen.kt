@@ -116,9 +116,6 @@ fun HistoryScreen(
     val history by viewModel.history.collectAsState()
     val blockedPhoneNumbers by viewModel.blockedPhoneNumbers.collectAsState()
     val allowedPhoneNumbers by viewModel.allowedPhoneNumbers.collectAsState()
-    val knownNumbers = remember(blockedPhoneNumbers, allowedPhoneNumbers) {
-        blockedPhoneNumbers + allowedPhoneNumbers
-    }
     val isDeleting by viewModel.isDeleting.collectAsState()
     var entryToDelete by remember { mutableStateOf<HistoryEntry?>(null) }
     var selectedIds by remember { mutableStateOf(setOf<Long>()) }

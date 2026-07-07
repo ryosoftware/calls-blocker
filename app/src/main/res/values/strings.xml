@@ -274,7 +274,6 @@
     <string name="log_file_has_been_saved">Log file has been saved</string>
     <string name="logging_dialog_title">Logging</string>
     <string name="start_logging_dialog_body">Do you want to delete the current log file and start a new one?</string>
-    <string name="stop_logging_dialog_body">Do you want to stop saving debug logs and delete the current log file?</string>
     <string name="saving_log_title">Saving</string>
     <string name="saving_log_message">Saving log file&#8230;</string>
     <string name="obfuscate_phone_numbers_title">Privacy</string>

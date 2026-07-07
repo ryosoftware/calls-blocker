@@ -53,6 +53,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -89,7 +90,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 fun NumbersListScreen(
     viewModel: NumbersViewModel = hiltViewModel(),
     defaultCountryIso: String = "",
-    onAddNumber: () -> Unit = {},
     onMultiSelect: (Int, Boolean, () -> Unit, () -> Unit, () -> Unit) -> Unit = { _, _, _, _, _ -> },
     onImportReady: (ImportResult) -> Unit = {},
 ) {
@@ -116,7 +116,7 @@ fun NumbersListScreen(
     var isImporting by remember { mutableStateOf(false) }
     var showImportOptionsDialog by remember { mutableStateOf(false) }
     var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
-    var pendingImportCount by remember { mutableStateOf(0) }
+    var pendingImportCount by remember { mutableIntStateOf(0) }
     var requirePossibleNumber by remember { mutableStateOf(true) }
     var requireValidNumber by remember { mutableStateOf(true) }
     var fabExpanded by remember { mutableStateOf(false) }

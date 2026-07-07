@@ -1,6 +1,5 @@
 package com.ryosoftware.calls_blocker.ui.activities
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
@@ -25,6 +24,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -33,7 +33,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -53,7 +52,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.compose.material3.AlertDialog
 import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.CountryNameProvider
@@ -203,33 +202,43 @@ fun CallsBlockerApp(
     }
 
     if (showScreeningDialog) {
-        @SuppressLint("LocalContextGetResourceValueCall")
-        (DisposableEffect(Unit) {
-            val dialog = MaterialAlertDialogBuilder(context)
-                .setTitle(R.string.screening_dialog_title)
-                .setMessage(
-                    context.getString(
+        AlertDialog(
+            onDismissRequest = { showScreeningDialog = false },
+            title = { Text(stringResource(R.string.screening_dialog_title)) },
+            text = {
+                Text(
+                    stringResource(
                         R.string.screening_dialog_message,
-                        context.getString(R.string.app_name)
+                        stringResource(R.string.app_name)
                     )
                 )
-                .setPositiveButton(R.string.screening_dialog_allow) { _, _ ->
+            },
+            confirmButton = {
+                TextButton(onClick = {
                     settingsManager.createRequestRoleIntent()?.let {
                         roleLauncher.launch(it)
                     }
+                }) {
+                    Text(stringResource(R.string.screening_dialog_allow))
                 }
-                .setNegativeButton(R.string.screening_dialog_later) { _, _ ->
+            },
+            dismissButton = {
+                TextButton(onClick = {
                     settingsManager.screeningDialogDismissed = true
                     showScreeningDialog = false
+                }) {
+                    Text(stringResource(R.string.screening_dialog_later))
                 }
-                .setOnDismissListener { showScreeningDialog = false }
-                .show()
-
-            onDispose {
-                if (dialog.isShowing) dialog.dismiss()
             }
-        })
+        )
     }
+
+    val appBarColors = TopAppBarDefaults.topAppBarColors(
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+    )
 
     Scaffold(
         modifier = Modifier
@@ -266,12 +275,7 @@ fun CallsBlockerApp(
                             }
                         },
                         scrollBehavior = scrollBehavior,
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
+                        colors = appBarColors
                     )
                 } else if (isImportReviewScreen) {
                     TopAppBar(
@@ -279,12 +283,7 @@ fun CallsBlockerApp(
                             Text(stringResource(R.string.import_preview_title))
                         },
                         scrollBehavior = scrollBehavior,
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
+                        colors = appBarColors
                     )
                 } else {
                     TopAppBar(
@@ -343,12 +342,7 @@ fun CallsBlockerApp(
                             }
                         },
                         scrollBehavior = scrollBehavior,
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
+                        colors = appBarColors
                     )
                 }
             }

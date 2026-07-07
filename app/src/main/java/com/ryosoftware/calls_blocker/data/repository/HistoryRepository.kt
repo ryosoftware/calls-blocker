@@ -16,8 +16,4 @@ class HistoryRepository(private val dao: HistoryDao) {
     }
 
     suspend fun removeByPhoneNumber(phoneNumber: String) = dao.deleteByPhoneNumber(phoneNumber)
-
-    suspend fun countByPhoneNumber(phoneNumber: String): Int = dao.countByPhoneNumber(phoneNumber)
-
-    suspend fun clearAll() = dao.clearAll()
 }

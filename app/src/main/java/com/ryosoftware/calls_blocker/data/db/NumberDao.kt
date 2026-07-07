@@ -9,9 +9,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NumberDao {
-    @Query("SELECT * FROM numbers ORDER BY created_at DESC")
-    fun getAll(): Flow<List<Number>>
-
     @Query("SELECT * FROM numbers WHERE action = :action AND type = :type ORDER BY phone_number ASC LIMIT :limit OFFSET :offset")
     suspend fun getByTypeBatch(action: Action, type: Type, limit: Int, offset: Int): List<Number>
 
@@ -41,9 +38,6 @@ interface NumberDao {
 
     @Query("SELECT phone_number FROM numbers WHERE action = :action AND type = :type")
     suspend fun getNumbersByType(action: Action, type: Type): List<String>
-
-    @Query("SELECT COUNT(*) FROM numbers WHERE action = :action")
-    fun getCount(action: Action): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM numbers WHERE action = :action")
     fun getCountByAction(action: Action): Flow<Int>

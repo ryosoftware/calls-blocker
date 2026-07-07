@@ -29,9 +29,6 @@ interface HistoryDao {
     @Query("DELETE FROM history WHERE phone_number = :phoneNumber")
     suspend fun deleteByPhoneNumber(phoneNumber: String)
 
-    @Query("SELECT COUNT(*) FROM history WHERE phone_number = :phoneNumber")
-    suspend fun countByPhoneNumber(phoneNumber: String): Int
-
     @Query("DELETE FROM history")
     suspend fun clearAll()
 }

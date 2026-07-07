@@ -53,7 +53,6 @@ fun BlockingRulesSection(
     onBlockInternationalChange: (Boolean) -> Unit,
     allowedCountryIsos: String,
     onAllowedCountryIsosChange: (String) -> Unit,
-    defaultCountryIso: String,
     contactGroups: List<ContactGroup>,
     contactsPermissionGranted: Boolean,
     onRequestContactsPermission: () -> Unit,

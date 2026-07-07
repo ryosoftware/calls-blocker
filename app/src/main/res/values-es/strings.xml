@@ -279,7 +279,6 @@
     <string name="start_logging_dialog_body">¿Quieres eliminar el archivo actual y empezar uno nuevo?</string>
     <string name="saving_log_title">Guardando</string>
     <string name="saving_log_message">Guardando archivo de registro&#8230;</string>
-    <string name="stop_logging_dialog_body">¿Quieres dejar de guardar registros de depuración y eliminar el archivo actual?</string>
     <string name="obfuscate_phone_numbers_title">Privacidad</string>
     <string name="obfuscate_phone_numbers_message">¿Quieres ofuscar los números de teléfono?</string>
     <string name="no_log_data">No hay datos</string>

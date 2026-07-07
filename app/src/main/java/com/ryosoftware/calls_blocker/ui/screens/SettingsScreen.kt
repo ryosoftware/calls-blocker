@@ -44,6 +44,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -75,8 +76,8 @@ import com.ryosoftware.calls_blocker.ui.screens.settings.ScheduleRulesSection
 import com.ryosoftware.calls_blocker.viewmodel.BackupEvent
 import com.ryosoftware.calls_blocker.viewmodel.HistoryViewModel
 import com.ryosoftware.calls_blocker.viewmodel.SettingsViewModel
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ryosoftware.calls_blocker.service.BlockAllTileService
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
@@ -84,6 +85,7 @@ fun SettingsScreen(
     onNavigateToDebugLog: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var blockAll by remember { mutableStateOf(viewModel.blockAll) }
     var blockHidden by remember { mutableStateOf(viewModel.blockHidden) }
     var blockUnknown by remember { mutableStateOf(viewModel.blockUnknown) }
@@ -238,14 +240,6 @@ fun SettingsScreen(
     }
 
     val phoneStatePermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted) {
-            permissionCheckTrigger++
-        }
-    }
-
-    val mediaAudioPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
@@ -508,7 +502,6 @@ fun SettingsScreen(
             },
             allowedCountryIsos = allowedCountryIsos,
             onAllowedCountryIsosChange = { allowedCountryIsos = it; viewModel.allowedCountryIsos = it },
-            defaultCountryIso = defaultCountryIso,
             contactGroups = contactGroups,
             contactsPermissionGranted = contactsPermissionGranted,
             onRequestContactsPermission = { showReadContactsPermissionRationale = true },
@@ -813,9 +806,11 @@ fun SettingsScreen(
                 confirmButtonText = stringResource(R.string.test_screening_button),
                 onDismiss = { showTestScreeningDialog = false },
                 onConfirm = { number, _, _, _ ->
-                    val reason = viewModel.getPhoneNumberBlockReason(number)
-                    testScreeningResult = number to reason
-                    showTestScreeningDialog = false
+                    scope.launch {
+                        val reason = viewModel.getPhoneNumberBlockReason(number)
+                        testScreeningResult = number to reason
+                        showTestScreeningDialog = false
+                    }
                 }
             )
         }
@@ -1095,14 +1090,15 @@ fun SettingsScreen(
     }
 
     errorDialogMessage?.let { message ->
-        DisposableEffect(message) {
-            val dialog = MaterialAlertDialogBuilder(context)
-                .setTitle(R.string.error_title)
-                .setMessage(message)
-                .setPositiveButton(R.string.ok) { _, _ -> errorDialogMessage = null }
-                .setOnDismissListener { errorDialogMessage = null }
-                .show()
-            onDispose { if (dialog.isShowing) dialog.dismiss() }
-        }
+        AlertDialog(
+            onDismissRequest = { errorDialogMessage = null },
+            title = { Text(stringResource(R.string.error_title)) },
+            text = { Text(message) },
+            confirmButton = {
+                TextButton(onClick = { errorDialogMessage = null }) {
+                    Text(stringResource(R.string.ok))
+                }
+            }
+        )
     }
 }

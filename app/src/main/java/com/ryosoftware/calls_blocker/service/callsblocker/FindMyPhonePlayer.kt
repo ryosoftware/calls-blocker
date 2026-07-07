@@ -45,7 +45,7 @@ class FindMyPhonePlayer @Inject constructor(
         var isRunning = false
             private set
 
-        fun stop(context: Context) {
+        fun stop() {
             isRunning = false
         }
     }
@@ -110,6 +110,7 @@ class FindMyPhonePlayer @Inject constructor(
             isRunning = false
         }
     }
+
     private fun launchFindMyPhoneActivity(phoneNumber: String) {
         val activityIntent = Intent(context, FindMyPhoneActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -117,6 +118,18 @@ class FindMyPhonePlayer @Inject constructor(
         }
         context.safeStartActivity(activityIntent)
     }
+
+    private fun getVibrator(): Vibrator =
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                val vibratorManager = context.getSystemService(VibratorManager::class.java)
+                vibratorManager.defaultVibrator
+            }
+            else -> {
+                @Suppress("DEPRECATION")
+                context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            }
+        }
 
     private fun playbackStart() {
         val playableRingtone = listOfNotNull(
@@ -144,21 +157,14 @@ class FindMyPhonePlayer @Inject constructor(
             return
         }
 
-        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vibratorManager = context.getSystemService(VibratorManager::class.java)
-            vibratorManager.defaultVibrator
-        } else {
-            @Suppress("DEPRECATION")
-            context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        }
-        if (vibrator.hasVibrator()) {
-            val vibrationPattern = longArrayOf(
-                0,
-                800, 200,
-                800, 1000
+        getVibrator()
+            .takeIf { it.hasVibrator() }
+            ?.vibrate(
+                VibrationEffect.createWaveform(
+                    longArrayOf(0, 800, 200, 800, 1000),
+                    0
+                )
             )
-            vibrator.vibrate(VibrationEffect.createWaveform(vibrationPattern, 0))
-        }
 
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
@@ -190,13 +196,6 @@ class FindMyPhonePlayer @Inject constructor(
             )
         }
 
-        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vibratorManager = context.getSystemService(VibratorManager::class.java)
-            vibratorManager.defaultVibrator
-        } else {
-            @Suppress("DEPRECATION")
-            context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        }
-        vibrator.cancel()
+        getVibrator().takeIf { it.hasVibrator() }?.cancel()
     }
 }

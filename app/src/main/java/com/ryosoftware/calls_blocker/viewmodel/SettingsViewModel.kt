@@ -18,7 +18,6 @@ import com.ryosoftware.calls_blocker.data.db.ScheduleRule
 import com.ryosoftware.calls_blocker.data.repository.ScheduleRuleRepository
 import com.ryosoftware.calls_blocker.service.callsblocker.Logic
 import com.ryosoftware.calls_blocker.data.db.Reason
-import com.ryosoftware.calls_blocker.service.callsblocker.FindMyPhonePlayer
 import com.ryosoftware.calls_blocker.service.callsblocker.PostServiceWorker
 import com.ryosoftware.calls_blocker.service.callsblocker.REASON_PARAM
 import com.ryosoftware.calls_blocker.service.callsblocker.TESTING_PURPOSES_PARAM
@@ -69,9 +68,6 @@ class SettingsViewModel @Inject constructor(
     @Inject
     lateinit var callScreeningLogic: Logic
 
-    @Inject
-    lateinit var findMyPhonePlayer: FindMyPhonePlayer
-
     var isLoggingToFile by settingsManager::isLoggingToFile
     var blockUnknown by settingsManager::blockUnknown
     var blockHidden by settingsManager::blockHidden
@@ -83,17 +79,6 @@ class SettingsViewModel @Inject constructor(
     var notificationsPermissionRequested by settingsManager::notificationsPermissionRequested
     var skipCallLog by settingsManager::skipCallLog
     var defaultCountryIso by settingsManager::defaultCountryIso
-
-    fun ensureDefaultCountryInAllowed() {
-        val iso = settingsManager.defaultCountryIso
-        if (iso.isNotEmpty()) {
-            val allowed = settingsManager.allowedCountryIsos
-            val isos = allowed.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
-            if (iso !in isos) {
-                settingsManager.allowedCountryIsos = if (allowed.isEmpty()) iso else "$allowed,$iso"
-            }
-        }
-    }
 
     fun checkScreeningStatus() {
         viewModelScope.launch {
@@ -128,8 +113,6 @@ class SettingsViewModel @Inject constructor(
 
     fun getContactGroups(): List<ContactGroup> = fetchContactGroups(context, context.contentResolver)
 
-    fun getGroupName(group: ContactGroup): String = group.title
-
     fun getCountryName(country: Country): String =
         countryNameProvider.get(country)
 
@@ -161,8 +144,8 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch { scheduleRuleRepository.remove(rule) }
     }
 
-    fun getPhoneNumberBlockReason(phoneNumber: String): Reason? {
-        val (normalizedPhoneNumber, reason) = callScreeningLogic.test(phoneNumber = phoneNumber, testingPurposes = true)
+    suspend fun getPhoneNumberBlockReason(phoneNumber: String): Reason? {
+        val (normalizedPhoneNumber, reason) = callScreeningLogic.isCallBlocked(phoneNumber = phoneNumber, testingPurposes = true)
 
         val isAllowed = (reason in listOf(
             Reason.NONE,

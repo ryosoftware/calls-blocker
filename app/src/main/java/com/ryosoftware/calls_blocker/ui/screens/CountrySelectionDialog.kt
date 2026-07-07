@@ -231,7 +231,6 @@ private fun MultiSelectRow(
     getCountryName: (Country) -> String,
     onClick: () -> Unit,
 ) {
-    val alpha = if (!enabled) 0.38f else 1f
     Row(
         modifier = Modifier
             .fillMaxWidth()

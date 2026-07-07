@@ -107,7 +107,7 @@ fun FindMyPhoneScreen() {
 
         Button(
             onClick = {
-                FindMyPhonePlayer.stop(context)
+                FindMyPhonePlayer.stop()
 
                 (context as? Activity)?.finish()
             },
