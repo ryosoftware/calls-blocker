@@ -676,7 +676,7 @@ fun SettingsScreen(
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         text = stringResource(R.string.permissions_title),
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.bodyLarge
                     )
 
                     Text(
@@ -718,12 +718,12 @@ fun SettingsScreen(
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = stringResource(R.string.debug_information),
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.bodyLarge
                 )
 
                 Text(
                     text = if (isLoggingToFile) stringResource(R.string.debug_information_enabled) else stringResource(R.string.debug_information_disabled),
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.bodySmall,
                     color = if (isLoggingToFile) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -744,7 +744,7 @@ fun SettingsScreen(
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = stringResource(R.string.about_title),
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.bodyLarge
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -773,7 +773,8 @@ fun SettingsScreen(
 
         Text(
             text = stringResource(R.string.backup_title),
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(Modifier.height(8.dp))

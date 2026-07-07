@@ -290,7 +290,7 @@ fun HistoryScreen(
                                     Spacer(Modifier.width(4.dp))
                                     Text(
                                         text = text,
-                                        style = MaterialTheme.typography.titleSmall,
+                                        style = MaterialTheme.typography.bodySmall,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.primary,
                                     )

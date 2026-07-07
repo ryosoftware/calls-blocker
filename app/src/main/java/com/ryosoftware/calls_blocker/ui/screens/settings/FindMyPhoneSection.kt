@@ -117,7 +117,7 @@ fun FindMyPhoneSection(
     ) {
         Text(
             text = stringResource(R.string.find_my_phone_title),
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.bodyLarge
         )
 
         Text(
@@ -153,7 +153,7 @@ fun FindMyPhoneSection(
 
             Text(
                 text = stringResource(R.string.find_my_phone_trusted_numbers),
-                style = MaterialTheme.typography.titleSmall
+                style = MaterialTheme.typography.bodySmall
             )
 
             Spacer(Modifier.height(8.dp))
