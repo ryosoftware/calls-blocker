@@ -78,11 +78,13 @@ import com.ryosoftware.calls_blocker.data.db.Type
 import com.ryosoftware.calls_blocker.viewmodel.NumbersViewModel
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.net.toUri
+import com.ryosoftware.calls_blocker.data.SettingsManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NumbersListScreen(
     viewModel: NumbersViewModel = hiltViewModel(),
+    settingsManager: SettingsManager,
     defaultCountryIso: String = "",
     onMultiSelect: (Int, Boolean, () -> Unit, () -> Unit, () -> Unit) -> Unit = { _, _, _, _, _ -> },
 ) {
@@ -138,6 +140,13 @@ fun NumbersListScreen(
 
     fun toggleSelection(id: Long) {
         selectedIds = if (id in selectedIds) selectedIds - id else selectedIds + id
+    }
+
+    val findMyPhoneNumbers = remember(settingsManager.findMyPhonePhoneNumbers) {
+        settingsManager.findMyPhonePhoneNumbers
+            .split(",")
+            .map { it.trim() }
+            .toSet()
     }
 
     BackHandler(enabled = expandedCardId != null) {
@@ -218,6 +227,7 @@ fun NumbersListScreen(
                         NumberItem(
                             context = LocalContext.current,
                             number = number,
+                            isFindMyPhoneNumber = number.phoneNumber in findMyPhoneNumbers,
                             isSelected = number.id in selectedIds,
                             multiSelect = multiSelect,
                             expanded = expandedCardId == number.id,
@@ -391,6 +401,7 @@ fun NumbersListScreen(
 private fun NumberItem(
     context: Context,
     number: Number,
+    isFindMyPhoneNumber: Boolean,
     isSelected: Boolean,
     multiSelect: Boolean,
     expanded: Boolean,
@@ -484,6 +495,16 @@ private fun NumberItem(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+
+                    if (isFindMyPhoneNumber) {
+                        Spacer(Modifier.height(8.dp))
+
+                        Text(
+                            text = context.getString(R.string.find_my_phone_contact),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
 
                     if (number.description.isNotBlank()) {
                         Spacer(Modifier.height(8.dp))

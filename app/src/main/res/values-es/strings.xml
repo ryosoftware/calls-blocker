@@ -193,6 +193,7 @@
     <string name="find_my_phone_test_button">Probar</string>
     <string name="find_my_phone_test_title">Buscar mi teléfono</string>
     <string name="find_my_phone_test_message">Vamos a probar la funcionalidad de \"Buscar mi teléfono\".\n\nHaz clic en \"Aceptar\" y apaga la pantalla.\n\nEl test empezará en 5 segundos&#8230;</string>
+    <string name="find_my_phone_contact">Contacto de \"buscar mi teléfono\"</string>
 
     <!-- Block reasons -->
     <string name="reason">%1$s</string>

@@ -9,6 +9,7 @@ import com.ryosoftware.calls_blocker.data.db.Number
 import com.ryosoftware.calls_blocker.data.db.Type
 import com.ryosoftware.calls_blocker.data.repository.NumberRepository
 import com.ryosoftware.calls_blocker.Logger
+import com.ryosoftware.calls_blocker.data.SettingsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

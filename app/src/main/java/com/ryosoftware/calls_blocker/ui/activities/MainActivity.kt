@@ -431,7 +431,8 @@ fun CallsBlockerApp(
                         selectionOnClose = onClose
                         selectionOnSelectAll = onSelectAll
                         selectionOnDelete = onDelete
-                    }
+                    },
+                    settingsManager = settingsManager
                 )
             }
             composable(Screen.History.route) {

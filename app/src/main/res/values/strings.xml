@@ -191,6 +191,7 @@
     <string name="find_my_phone_test_button">Test</string>
     <string name="find_my_phone_test_title">Find my phone</string>
     <string name="find_my_phone_test_message">We are going to test \"Find My Phone\".\n\nClick \"Accept\" button then turn off the screen.\n\nThe test will start in 5 seconds&#8230;</string>
+    <string name="find_my_phone_contact">\"Find my phone\" contact</string>
 
     <!-- Block reasons -->
     <string name="reason">%1$s</string>
