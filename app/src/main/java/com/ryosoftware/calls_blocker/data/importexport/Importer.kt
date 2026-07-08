@@ -2,6 +2,7 @@ package com.ryosoftware.calls_blocker.data.importexport
 
 import android.content.Context
 import android.net.Uri
+import com.ryosoftware.calls_blocker.data.db.Number
 import com.ryosoftware.calls_blocker.data.db.Type
 
 enum class ImportStatus {
@@ -15,6 +16,7 @@ data class ImportEntry(
     val rawInput: String,
     val number: String? = null,
     val type: Type = Type.EXACT_COINCIDENCE,
+    val description: String? = null,
     val status: ImportStatus = ImportStatus.New,
     val reason: String = ""
 )
@@ -38,7 +40,10 @@ data class ImportOptions(
 )
 
 interface Importer {
-    suspend fun countEntries(context: Context, uri: Uri): Int
+    suspend fun countEntries(
+        context: Context,
+        uri: Uri
+    ): Int
 
     suspend fun import(
         context: Context,
@@ -46,4 +51,10 @@ interface Importer {
         defaultCountryIso: String,
         options: ImportOptions = ImportOptions(),
     ): ImportResult
+
+    suspend fun export(
+        context: Context,
+        uri: Uri,
+        numbers: List<Number>,
+    ): Boolean
 }

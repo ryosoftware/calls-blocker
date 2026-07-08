@@ -148,6 +148,14 @@ fun SettingsScreen(
         }
     }
 
+    val exportNumbersLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/plain")
+    ) { uri ->
+        if (uri != null) {
+            viewModel.exportBlockedNumbers(uri)
+        }
+    }
+
     val importLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
@@ -215,6 +223,9 @@ fun SettingsScreen(
             when (event) {
                 is BackupEvent.Success -> {
                     Toast.makeText(context, R.string.backup_success, Toast.LENGTH_SHORT).show()
+                }
+                is BackupEvent.ExportSuccess -> {
+                    Toast.makeText(context, R.string.backup_export_numbers_success, Toast.LENGTH_SHORT).show()
                 }
                 is BackupEvent.RestoreSuccess -> {
                     defaultCountryIso = viewModel.defaultCountryIso
@@ -584,6 +595,18 @@ fun SettingsScreen(
             ) {
                 Text(stringResource(R.string.backup_export))
             }
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        OutlinedButton(
+            onClick = {
+                val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd--HH-mm-ss"))
+                exportNumbersLauncher.launch("blocked_numbers_$timestamp.txt")
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(stringResource(R.string.backup_export_numbers))
         }
 
         if (showTestScreeningDialog) {

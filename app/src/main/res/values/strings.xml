@@ -255,6 +255,8 @@
     <string name="backup_restore_success">Restore completed successfully</string>
     <string name="backup_restore_confirm_title">Restore backup</string>
     <string name="backup_restore_confirm_message">Current data will be replaced by the backup.\n\nSettings, numbers, history and dismissed suggestions will be lost.\n\nAre you sure you want to continue?</string>
+    <string name="backup_export_numbers">Export blocked numbers</string>
+    <string name="backup_export_numbers_success">Blocked numbers exported successfully</string>
 
     <!-- Import -->
     <string name="import_title">Import</string>

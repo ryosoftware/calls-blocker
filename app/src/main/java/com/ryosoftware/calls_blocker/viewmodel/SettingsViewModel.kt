@@ -13,7 +13,9 @@ import com.ryosoftware.calls_blocker.data.ContactGroup
 import com.ryosoftware.calls_blocker.data.Country
 import com.ryosoftware.calls_blocker.data.CountryNameProvider
 import com.ryosoftware.calls_blocker.data.SettingsManager
+import com.ryosoftware.calls_blocker.data.db.NumberDao
 import com.ryosoftware.calls_blocker.data.fetchContactGroups
+import com.ryosoftware.calls_blocker.data.importexport.CommaSeparatedImporter
 import com.ryosoftware.calls_blocker.data.db.ScheduleRule
 import com.ryosoftware.calls_blocker.data.repository.ScheduleRuleRepository
 import com.ryosoftware.calls_blocker.service.callsblocker.Logic
@@ -38,6 +40,7 @@ import javax.inject.Inject
 
 sealed interface BackupEvent {
     data object Success : BackupEvent
+    data object ExportSuccess : BackupEvent
     data object RestoreSuccess : BackupEvent
     data class Error(val message: String) : BackupEvent
 }
@@ -49,6 +52,8 @@ class SettingsViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val countryNameProvider: CountryNameProvider,
     private val scheduleRuleRepository: ScheduleRuleRepository,
+    private val numberDao: NumberDao,
+    private val logger: com.ryosoftware.calls_blocker.Logger,
 ) : ViewModel() {
 
     companion object {
@@ -155,6 +160,14 @@ class SettingsViewModel @Inject constructor(
         ))
 
         return if (isAllowed) null else reason
+    }
+
+    fun exportBlockedNumbers(uri: Uri) {
+        viewModelScope.launch {
+            val numbers = numberDao.getAllList()
+            CommaSeparatedImporter(logger).export(context, uri, numbers)
+            _backupEvent.emit(BackupEvent.ExportSuccess)
+        }
     }
 
     fun testFindMyPhone() {

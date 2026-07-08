@@ -257,6 +257,8 @@
     <string name="backup_restore_success">Restauración completada</string>
     <string name="backup_restore_confirm_title">Restaurar copia de seguridad</string>
     <string name="backup_restore_confirm_message">Los datos actuales serán reemplazados por los de la copia de seguridad.\n\nLos ajustes, números, historial y sugerencias descartadas se perderán.\n\n¿Estás seguro de que quieres continuar?</string>
+    <string name="backup_export_numbers">Exportar números bloqueados</string>
+    <string name="backup_export_numbers_success">Números bloqueados exportados correctamente</string>
 
     <!-- Import -->
     <string name="import_title">Importar</string>

@@ -7,15 +7,52 @@ import com.ryosoftware.calls_blocker.NormalizeError
 import com.ryosoftware.calls_blocker.PHONE_NUMBER_REF
 import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
+import com.ryosoftware.calls_blocker.data.db.Action
+import com.ryosoftware.calls_blocker.data.db.Number
 import com.ryosoftware.calls_blocker.data.db.Type
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class CommaSeparatedImporter(private val logger: Logger) : Importer {
-    override suspend fun countEntries(context: Context, uri: Uri): Int = withContext(Dispatchers.IO) {
+    private fun String.splitEntries(): List<String> {
+        val result = mutableListOf<String>()
+        val current = StringBuilder()
+        var inQuotes = false
+
+        var i = 0
+        while (i < length) {
+            when {
+                this[i] == '"' && inQuotes && i + 1 < length && this[i + 1] == '"' -> {
+                    current.append('"')
+                    i++
+                }
+
+                this[i] == '"' -> {
+                    inQuotes = !inQuotes
+                }
+
+                this[i] == ',' && !inQuotes -> {
+                    result += current.toString()
+                    current.clear()
+                }
+
+                else -> current.append(this[i])
+            }
+            i++
+        }
+
+        result += current.toString()
+
+        return result
+    }
+
+    override suspend fun countEntries(
+        context: Context,
+        uri: Uri,
+    ): Int = withContext(Dispatchers.IO) {
         context.contentResolver.openInputStream(uri)?.use { inputStream ->
             val text = inputStream.bufferedReader().use { it.readText() }
-            text.split(",").count { it.trim().isNotBlank() }
+            text.splitEntries().count { it.trim().isNotBlank() }
         } ?: 0
     }
 
@@ -36,15 +73,33 @@ class CommaSeparatedImporter(private val logger: Logger) : Importer {
 
                     val text = inputStream.bufferedReader().use { it.readText() }
 
-                    text.split(",").forEach { rawEntry ->
+                    text.splitEntries().forEach { rawEntry ->
                         val trimmed = rawEntry.trim()
 
                         if (trimmed.isBlank()) return@forEach
 
                         try {
-                            val isPrefix = trimmed.endsWith("*")
+                            val separator = trimmed.indexOf(':')
 
-                            val rawPhoneNumber = trimmed
+                            val rawNumber = if (separator >= 0) {
+                                trimmed.substring(0, separator).trim()
+                            } else {
+                                trimmed
+                            }
+
+                            val description = if (separator >= 0) {
+                                trimmed
+                                    .substring(separator + 1)
+                                    .trim()
+                                    .removeSurrounding("\"")
+                                    .replace("\"\"", "\"")
+                            } else {
+                                null
+                            }
+
+                            val isPrefix = rawNumber.endsWith("*")
+
+                            val rawPhoneNumber = rawNumber
                                 .dropLast(if (isPrefix) 1 else 0)
                                 .let {
                                     val hasPlus = it.startsWith("+")
@@ -53,9 +108,19 @@ class CommaSeparatedImporter(private val logger: Logger) : Importer {
                                 }
 
                             if (rawPhoneNumber.isBlank()) {
-                                logger.log("Error importing $PHONE_NUMBER_REF: blank after removing non-digits", phoneNumber = trimmed)
+                                logger.log(
+                                    "Error importing $PHONE_NUMBER_REF: blank after removing non-digits",
+                                    phoneNumber = trimmed
+                                )
 
-                                add(ImportEntry(trimmed, status = ImportStatus.Error, reason = blankAfterRemovingNonDigitsError))
+                                add(
+                                    ImportEntry(
+                                        trimmed,
+                                        description = description,
+                                        status = ImportStatus.Error,
+                                        reason = blankAfterRemovingNonDigitsError
+                                    )
+                                )
 
                                 return@forEach
                             }
@@ -68,8 +133,13 @@ class CommaSeparatedImporter(private val logger: Logger) : Importer {
                             )
 
                             if (normalizeResult.error != null) {
-                                val prefix = if (defaultCountryIso.isEmpty()) "" else "$defaultCountryIso-"
-                                logger.log("Error normalizing $prefix$PHONE_NUMBER_REF: ${normalizeResult.error.description}", phoneNumber = trimmed)
+                                val prefix =
+                                    if (defaultCountryIso.isEmpty()) "" else "$defaultCountryIso-"
+
+                                logger.log(
+                                    "Error normalizing $prefix$PHONE_NUMBER_REF: ${normalizeResult.error.description}",
+                                    phoneNumber = trimmed
+                                )
 
                                 val error = when (normalizeResult.error) {
                                     NormalizeError.PARSE_ERROR -> parseError
@@ -78,7 +148,14 @@ class CommaSeparatedImporter(private val logger: Logger) : Importer {
                                     NormalizeError.FORMAT_ERROR -> formatError
                                 }
 
-                                add(ImportEntry(trimmed, status = ImportStatus.Error, reason = error))
+                                add(
+                                    ImportEntry(
+                                        trimmed,
+                                        description = description,
+                                        status = ImportStatus.Error,
+                                        reason = error
+                                    )
+                                )
 
                                 return@forEach
                             }
@@ -87,21 +164,74 @@ class CommaSeparatedImporter(private val logger: Logger) : Importer {
                                 ImportEntry(
                                     rawInput = trimmed,
                                     number = normalizeResult.normalizedPhoneNumber,
-                                    type = if (isPrefix) Type.PREFIX else Type.EXACT_COINCIDENCE,
+                                    description = description,
+                                    type = if (isPrefix) {
+                                        Type.PREFIX
+                                    } else {
+                                        Type.EXACT_COINCIDENCE
+                                    },
                                     status = ImportStatus.New
                                 )
                             )
-                        }
-                        catch (exception: Exception) {
-                            logger.log("Error importing $PHONE_NUMBER_REF: ${exception.toString()}", phoneNumber = trimmed)
+                        } catch (exception: Exception) {
+                            logger.log(
+                                "Error importing $PHONE_NUMBER_REF: ${exception.toString()}",
+                                phoneNumber = trimmed
+                            )
 
-                            add(ImportEntry(trimmed, status = ImportStatus.Error, reason = exception.toString()))
+                            add(
+                                ImportEntry(
+                                    trimmed,
+                                    status = ImportStatus.Error,
+                                    reason = exception.toString()
+                                )
+                            )
                         }
                     }
                 }
             } catch (exception: Exception) {
-                add(ImportEntry("", status = ImportStatus.Error, reason = exception.toString()))
+                add(
+                    ImportEntry(
+                        "",
+                        status = ImportStatus.Error,
+                        reason = exception.toString()
+                    )
+                )
             }
         })
+    }
+
+    private fun String.escapeDescription() =
+        replace("\"", "\"\"")
+
+    override suspend fun export(
+        context: Context,
+        uri: Uri,
+        numbers: List<Number>,
+    ): Boolean = withContext(Dispatchers.IO) {
+        val text = numbers
+            .filter { it.action == Action.BLOCK }
+            .joinToString(",") { number ->
+                buildString {
+                    append(number.phoneNumber)
+
+                    if (number.type == Type.PREFIX) {
+                        append("*")
+                    }
+
+                    number.description
+                        .takeIf { it.isNotBlank() }
+                        ?.let {
+                            append(":\"")
+                            append(it.escapeDescription())
+                            append('"')
+                        }
+                }
+            }
+
+        context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+            outputStream.write(text.encodeToByteArray())
+        }
+        true
     }
 }

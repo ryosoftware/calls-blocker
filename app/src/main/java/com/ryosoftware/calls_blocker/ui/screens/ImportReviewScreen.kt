@@ -201,32 +201,27 @@ private fun ImportPreviewContent(
 @Composable
 private fun ImportEntryCard(entry: ImportEntry) {
     val isAlreadyAdded = entry.status == ImportStatus.AlreadyBlocked || entry.status == ImportStatus.AlreadyAllowed
-    val icon = when (entry.status) {
-        ImportStatus.AlreadyBlocked -> Icons.Default.Block
-        ImportStatus.AlreadyAllowed -> Icons.Default.CheckCircleOutline
-        else -> Icons.Default.Block
-    }
     val color = when (entry.status) {
         ImportStatus.AlreadyBlocked -> MaterialTheme.colorScheme.error
         ImportStatus.AlreadyAllowed -> MaterialTheme.colorScheme.primary
         else -> MaterialTheme.colorScheme.onSurface
     }
-    val typeLabel = when (entry.type) {
-        Type.EXACT_COINCIDENCE -> stringResource(R.string.label_exact)
-        Type.PREFIX -> stringResource(R.string.label_prefix)
-    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface)
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = icon,
+                imageVector = when (entry.status) {
+                    ImportStatus.AlreadyBlocked -> Icons.Default.Block
+                    ImportStatus.AlreadyAllowed -> Icons.Default.CheckCircleOutline
+                    else -> Icons.Default.Block
+                },
                 contentDescription = null,
                 tint = color
             )
@@ -253,9 +248,22 @@ private fun ImportEntryCard(entry: ImportEntry) {
                     }
 
                     Text(
-                        text = typeLabel,
+                        text = when (entry.type) {
+                            Type.EXACT_COINCIDENCE -> stringResource(R.string.label_exact)
+                            Type.PREFIX -> stringResource(R.string.label_prefix)
+                        },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                if (!entry.description.isNullOrBlank()) {
+                    Spacer(Modifier.height(4.dp))
+
+                    Text(
+                        text = entry.description,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -273,6 +281,16 @@ private fun ImportErrorEntryCard(entry: ImportEntry) {
                 Text(
                     text = entry.rawInput,
                     style = MaterialTheme.typography.bodyMedium
+                )
+
+                Spacer(Modifier.height(4.dp))
+            }
+
+            if (!entry.description.isNullOrBlank()) {
+                Text(
+                    text = entry.description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
                 )
 
                 Spacer(Modifier.height(4.dp))
