@@ -16,6 +16,7 @@ import com.ryosoftware.calls_blocker.data.SettingsManager
 import com.ryosoftware.calls_blocker.data.db.NumberDao
 import com.ryosoftware.calls_blocker.data.fetchContactGroups
 import com.ryosoftware.calls_blocker.data.db.Action
+import com.ryosoftware.calls_blocker.data.db.Direction
 import com.ryosoftware.calls_blocker.data.db.Type
 import com.ryosoftware.calls_blocker.data.importexport.CommaSeparatedImporter
 import com.ryosoftware.calls_blocker.data.importexport.ImportOptions
@@ -25,6 +26,7 @@ import com.ryosoftware.calls_blocker.data.db.ScheduleRule
 import com.ryosoftware.calls_blocker.data.repository.ScheduleRuleRepository
 import com.ryosoftware.calls_blocker.service.callsblocker.Logic
 import com.ryosoftware.calls_blocker.data.db.Reason
+import com.ryosoftware.calls_blocker.service.callsblocker.DIRECTION_PARAM
 import com.ryosoftware.calls_blocker.service.callsblocker.PostServiceWorker
 import com.ryosoftware.calls_blocker.service.callsblocker.REASON_PARAM
 import com.ryosoftware.calls_blocker.service.callsblocker.TESTING_PURPOSES_PARAM
@@ -205,6 +207,7 @@ class SettingsViewModel @Inject constructor(
     fun testFindMyPhone() {
         val workerData = workDataOf(
             REASON_PARAM to Reason.FIND_MY_PHONE.code,
+            DIRECTION_PARAM to Direction.INCOMING.code,
             TIME_PARAM to System.currentTimeMillis(),
             TESTING_PURPOSES_PARAM to true
         )

@@ -236,12 +236,11 @@ class PostServiceWorker @AssistedInject constructor(
         if (testingPurposes && (reason != Reason.FIND_MY_PHONE)) return Result.failure()
 
         val phoneNumber = inputData.getString(PHONE_NUMBER_PARAM) ?: ""
+        val direction = Direction.fromCode(inputData.getInt(DIRECTION_PARAM, Direction.INCOMING.code))
         val time = inputData.getLong(TIME_PARAM, System.currentTimeMillis())
 
         if (! testingPurposes) {
             logger.log("Running Post call screening worker for $NORMALIZED_PHONE_NUMBER_REF", normalizedPhoneNumber = phoneNumber)
-
-            val direction = Direction.fromCode(inputData.getInt(DIRECTION_PARAM, Direction.INCOMING.code))
 
             historyRepository.add(
                 HistoryEntry(
@@ -253,27 +252,29 @@ class PostServiceWorker @AssistedInject constructor(
             )
         }
 
-        when {
-            reason == Reason.FIND_MY_PHONE -> {
-                startFindMyPhone(phoneNumber)
-            }
+        if (direction == Direction.INCOMING) {
+            when {
+                reason == Reason.FIND_MY_PHONE -> {
+                    startFindMyPhone(phoneNumber)
+                }
 
-            reason == Reason.FIND_MY_PHONE_CANCELLED -> {
-                stopFindMyPhone()
-            }
+                reason == Reason.FIND_MY_PHONE_CANCELLED -> {
+                    stopFindMyPhone()
+                }
 
-            reason == Reason.NONE &&
-                    phoneNumber.isNotEmpty() &&
-                    !blockSuggestionsRepository.isAdded(phoneNumber) &&
-                    !numberRepository.isIncomingAddedExact(phoneNumber) -> {
-                postSuggestionNotification(phoneNumber, time)
-            }
+                reason == Reason.NONE &&
+                        phoneNumber.isNotEmpty() &&
+                        !blockSuggestionsRepository.isAdded(phoneNumber) &&
+                        !numberRepository.isIncomingAddedExact(phoneNumber) -> {
+                    postSuggestionNotification(phoneNumber, time)
+                }
 
-            reason != Reason.NONE &&
-                    reason != Reason.FIND_MY_PHONE &&
-                    reason != Reason.WHITELISTED_NUMBER &&
-                    reason != Reason.WHITELISTED_PREFIX -> {
-                postBlockedNumberNotification(phoneNumber, reason, time)
+                reason != Reason.NONE &&
+                        reason != Reason.FIND_MY_PHONE &&
+                        reason != Reason.WHITELISTED_NUMBER &&
+                        reason != Reason.WHITELISTED_PREFIX -> {
+                    postBlockedNumberNotification(phoneNumber, reason, time)
+                }
             }
         }
 
