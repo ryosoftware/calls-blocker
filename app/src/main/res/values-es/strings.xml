@@ -268,9 +268,12 @@
     <string name="import_confirm">Importar</string>
     <string name="import_success_toast">Importación finalizada</string>
     <string name="import_error_toast">No se ha podido completar la importación</string>
-    <string name="import_file_summary">El archivo contiene %1$s.\n\nIndica cómo deseas validarlos:</string>
-    <string name="force_possible_number">Requerir que los números sean posibles</string>
-    <string name="force_valid_number">Requerir que los números sean válidos</string>
+    <string name="import_file_summary">El archivo contiene %1$s.\n\nIndica el tipo de validación a realizar:</string>
+    <string name="import_validation_none">Sin validación</string>
+    <string name="force_possible_number">Numeración posible</string>
+    <string name="force_possible_number_description">Comprueba que la longitud del número es correcta según las reglas de numeración del país</string>
+    <string name="force_valid_number">Numeración válida</string>
+    <string name="force_valid_number_description">Comprueba además que el número también pertenece a un rango asignado en el plan de numeración del país</string>
     <string name="collapse">Contraer</string>
     <string name="expand">Expandir</string>
     <string name="blank_after_removing_non_digits_error">Vacío después de eliminar carácteres no numéricos</string>

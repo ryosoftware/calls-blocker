@@ -267,8 +267,11 @@
     <string name="import_success_toast">Import completed</string>
     <string name="import_error_toast">Import could not be completed</string>
     <string name="import_file_summary">The file contains %1$s.\n\nConfigure how you want them to be validated:</string>
-    <string name="force_possible_number">Require numbers to be possible</string>
-    <string name="force_valid_number">Require numbers to be valid</string>
+    <string name="import_validation_none">No validation</string>
+    <string name="force_possible_number">Possible numbers</string>
+    <string name="force_possible_number_description">Basic verification: the length of the number is correct according to the country\'s numbering rules</string>
+    <string name="force_valid_number">Valid numbers</string>
+    <string name="force_valid_number_description">Advanced verification: the number also belongs to an assigned range in the country\'s numbering plan</string>
     <string name="collapse">Collapse</string>
     <string name="expand">Expand</string>
     <string name="blank_after_removing_non_digits_error">Blank after removing non-digits</string>

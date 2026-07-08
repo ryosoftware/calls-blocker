@@ -43,6 +43,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.RadioButton
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.CircularProgressIndicator
@@ -130,8 +131,7 @@ fun NumbersListScreen(
     var showImportOptionsDialog by remember { mutableStateOf(false) }
     var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
     var pendingImportCount by remember { mutableIntStateOf(0) }
-    var requirePossibleNumber by remember { mutableStateOf(true) }
-    var requireValidNumber by remember { mutableStateOf(true) }
+    var validationLevel by remember { mutableIntStateOf(2) } // 0=none, 1=possible, 2=valid
     var fabExpanded by remember { mutableStateOf(false) }
     val isDeleting by viewModel.isDeleting.collectAsState()
 
@@ -195,8 +195,7 @@ fun NumbersListScreen(
                 isImporting = true
                 pendingImportUri = uri
                 pendingImportCount = CommaSeparatedImporter(logger).countEntries(context, uri)
-                requirePossibleNumber = true
-                requireValidNumber = true
+                validationLevel = 2
                 isImporting = false
                 showImportOptionsDialog = true
             }
@@ -478,33 +477,65 @@ fun NumbersListScreen(
                     Spacer(Modifier.height(16.dp))
 
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.clickable { requirePossibleNumber = !requirePossibleNumber }
+                        verticalAlignment = Alignment.Top,
+                        modifier = Modifier.clickable { validationLevel = 0 }
                     ) {
-                        Checkbox(
-                            checked = requirePossibleNumber,
-                            onCheckedChange = null
+                        RadioButton(
+                            selected = validationLevel == 0,
+                            onClick = null
                         )
 
                         Spacer(Modifier.width(8.dp))
 
-                        Text(stringResource(R.string.force_possible_number))
+                        Text(stringResource(R.string.import_validation_none))
                     }
 
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(8.dp))
 
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.clickable { requireValidNumber = !requireValidNumber }
+                        verticalAlignment = Alignment.Top,
+                        modifier = Modifier.clickable { validationLevel = 1 }
                     ) {
-                        Checkbox(
-                            checked = requireValidNumber,
-                            onCheckedChange = null
+                        RadioButton(
+                            selected = validationLevel == 1,
+                            onClick = null
                         )
 
                         Spacer(Modifier.width(8.dp))
 
-                        Text(stringResource(R.string.force_valid_number))
+                        Column {
+                            Text(stringResource(R.string.force_possible_number))
+
+                            Text(
+                                text = stringResource(R.string.force_possible_number_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.Top,
+                        modifier = Modifier.clickable { validationLevel = 2 }
+                    ) {
+                        RadioButton(
+                            selected = validationLevel == 2,
+                            onClick = null
+                        )
+
+                        Spacer(Modifier.width(8.dp))
+
+                        Column {
+                            Text(stringResource(R.string.force_valid_number))
+
+                            Text(
+                                text = stringResource(R.string.force_valid_number_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             },
@@ -516,8 +547,8 @@ fun NumbersListScreen(
 
                         val uri = pendingImportUri ?: return@launch
                         val options = ImportOptions(
-                            requirePossibleNumber = requirePossibleNumber,
-                            requireValidNumber = requireValidNumber,
+                            requirePossibleNumber = validationLevel >= 1,
+                            requireValidNumber = validationLevel >= 2,
                         )
                         val result = CommaSeparatedImporter(logger).import(context, uri, defaultCountryIso, options)
                         val existingBlockedExact = manualBlocks.map { it.phoneNumber }.toSet()
