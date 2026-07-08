@@ -86,7 +86,8 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     onNavigateToDebugLog: () -> Unit = {},
     onNavigateToCallBlockingRules: () -> Unit = {},
-    onImportReady: (ImportResult) -> Unit = {}
+    onImportReady: (ImportResult) -> Unit = {},
+    onRestartApp: () -> Unit,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -272,6 +273,12 @@ fun SettingsScreen(
                     errorDialogMessage = event.message
                 }
             }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.backupEvent.collect { event ->
+            if (event == BackupEvent.RestoreSuccess) { onRestartApp() }
         }
     }
 

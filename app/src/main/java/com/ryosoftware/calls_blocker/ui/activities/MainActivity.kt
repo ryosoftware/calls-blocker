@@ -1,6 +1,7 @@
 package com.ryosoftware.calls_blocker.ui.activities
 
 import android.app.Activity
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
@@ -53,6 +54,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.material3.AlertDialog
+import com.ryosoftware.calls_blocker.Main.Companion.safeStartActivity
 import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.CountryNameProvider
@@ -66,11 +68,14 @@ import com.ryosoftware.calls_blocker.ui.screens.NumbersListScreen
 import com.ryosoftware.calls_blocker.ui.screens.CallBlockingRulesScreen
 import com.ryosoftware.calls_blocker.ui.screens.SettingsScreen
 import com.ryosoftware.calls_blocker.ui.theme.CallsBlockerTheme
+import com.ryosoftware.calls_blocker.viewmodel.BackupEvent
 import com.ryosoftware.calls_blocker.viewmodel.HistoryViewModel
+import com.ryosoftware.calls_blocker.viewmodel.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.milliseconds
 
 const val EXTRA_OPEN_HISTORY = "open-history"
@@ -80,6 +85,7 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var settingsManager: SettingsManager
+
     @Inject
     lateinit var countryNameProvider: CountryNameProvider
 
@@ -99,9 +105,17 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CallsBlockerTheme {
-                CallsBlockerApp(settingsManager, countryNameProvider)
+                CallsBlockerApp(settingsManager, onRestartApp = { restartApp() })
             }
         }
+    }
+
+    fun restartApp() {
+        val intent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        } ?: return
+        safeStartActivity(intent)
+        exitProcess(0)
     }
 }
 
@@ -109,7 +123,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun CallsBlockerApp(
     settingsManager: SettingsManager,
-    countryNameProvider: CountryNameProvider
+    onRestartApp: () -> Unit,
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -442,7 +456,8 @@ fun CallsBlockerApp(
                     onImportReady = { result ->
                         importResult = result
                         navController.navigate(Screen.ImportReview.route)
-                    }
+                    },
+                    onRestartApp = onRestartApp
                 )
             }
             composable(Screen.CallBlockingRules.route) {
