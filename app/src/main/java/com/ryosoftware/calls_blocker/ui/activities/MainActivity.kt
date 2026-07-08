@@ -417,10 +417,6 @@ fun CallsBlockerApp(
                         selectionOnClose = onClose
                         selectionOnSelectAll = onSelectAll
                         selectionOnDelete = onDelete
-                    },
-                    onImportReady = { result ->
-                        importResult = result
-                        navController.navigate(Screen.ImportReview.route)
                     }
                 )
             }
@@ -442,6 +438,10 @@ fun CallsBlockerApp(
                     },
                     onNavigateToCallBlockingRules = {
                         navController.navigate(Screen.CallBlockingRules.route)
+                    },
+                    onImportReady = { result ->
+                        importResult = result
+                        navController.navigate(Screen.ImportReview.route)
                     }
                 )
             }

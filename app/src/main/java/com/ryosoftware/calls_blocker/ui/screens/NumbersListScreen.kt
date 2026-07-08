@@ -4,15 +4,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -36,18 +27,15 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.RadioButton
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -60,15 +48,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import android.content.Intent
@@ -76,7 +61,6 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -89,14 +73,9 @@ import com.ryosoftware.calls_blocker.ui.rememberContactInfo
 import com.ryosoftware.calls_blocker.data.db.Action
 import com.ryosoftware.calls_blocker.data.Country
 import com.ryosoftware.calls_blocker.data.findCountryByPhoneNumber
-import com.ryosoftware.calls_blocker.data.importexport.CommaSeparatedImporter
-import com.ryosoftware.calls_blocker.data.importexport.ImportOptions
-import com.ryosoftware.calls_blocker.data.importexport.ImportResult
-import com.ryosoftware.calls_blocker.data.importexport.ImportStatus
 import com.ryosoftware.calls_blocker.data.db.Number
 import com.ryosoftware.calls_blocker.data.db.Type
 import com.ryosoftware.calls_blocker.viewmodel.NumbersViewModel
-import kotlinx.coroutines.launch
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.net.toUri
 
@@ -106,11 +85,9 @@ fun NumbersListScreen(
     viewModel: NumbersViewModel = hiltViewModel(),
     defaultCountryIso: String = "",
     onMultiSelect: (Int, Boolean, () -> Unit, () -> Unit, () -> Unit) -> Unit = { _, _, _, _, _ -> },
-    onImportReady: (ImportResult) -> Unit = {},
 ) {
     val context = LocalContext.current
     val logger = viewModel.logger
-    val scope = rememberCoroutineScope()
     val blockedNumbersCount by viewModel.blockedNumbersCount.collectAsState()
     val allowedNumbersCount by viewModel.allowedNumbersCount.collectAsState()
     val manualBlocks by viewModel.incomingExactBlocks.collectAsState()
@@ -127,12 +104,6 @@ fun NumbersListScreen(
     var showEditDescriptionDialog by remember { mutableStateOf(false) }
     var pendingEditDescription by remember { mutableStateOf<Number?>(null) }
     var pendingRemoveEntry by remember { mutableStateOf<Number?>(null) }
-    var isImporting by remember { mutableStateOf(false) }
-    var showImportOptionsDialog by remember { mutableStateOf(false) }
-    var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
-    var pendingImportCount by remember { mutableIntStateOf(0) }
-    var validationLevel by remember { mutableIntStateOf(2) } // 0=none, 1=possible, 2=valid
-    var fabExpanded by remember { mutableStateOf(false) }
     val isDeleting by viewModel.isDeleting.collectAsState()
 
     LaunchedEffect(isDeleting) {
@@ -187,65 +158,13 @@ fun NumbersListScreen(
         }
     }
 
-    val importLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        if (uri != null) {
-            scope.launch {
-                isImporting = true
-                pendingImportUri = uri
-                pendingImportCount = CommaSeparatedImporter(logger).countEntries(context, uri)
-                validationLevel = 2
-                isImporting = false
-                showImportOptionsDialog = true
-            }
-        }
-    }
-
-    val fabRotation by animateFloatAsState(
-        targetValue = if (fabExpanded) 135f else 0f,
-        animationSpec = tween(400),
-        label = "fabRotation"
-    )
-
     Scaffold(
         floatingActionButton = {
-            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                AnimatedVisibility(
-                    visible = fabExpanded,
-                    enter = fadeIn(tween(400)) + slideInVertically(tween(400)) { it },
-                    exit = fadeOut(tween(250)) + slideOutVertically(tween(250)) { it }
-                ) {
-                    ExtendedFloatingActionButton(
-                        onClick = {
-                            fabExpanded = false
-                            importLauncher.launch(arrayOf("text/*", "*/*"))
-                        },
-                        icon = { Icon(Icons.Default.FileDownload, contentDescription = stringResource(R.string.import_title)) },
-                        text = { Text(stringResource(R.string.fab_import_label)) }
-                    )
-                }
-                AnimatedVisibility(
-                    visible = fabExpanded,
-                    enter = fadeIn(tween(400)) + slideInVertically(tween(400)) { it },
-                    exit = fadeOut(tween(250)) + slideOutVertically(tween(250)) { it }
-                ) {
-                    ExtendedFloatingActionButton(
-                        onClick = {
-                            fabExpanded = false
-                            showAddDialog = true
-                        },
-                        icon = { Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_number)) },
-                        text = { Text(stringResource(R.string.fab_add_label)) }
-                    )
-                }
-                FloatingActionButton(onClick = { fabExpanded = !fabExpanded }) {
-                    Icon(
-                        Icons.Default.Add,
-                        contentDescription = stringResource(R.string.add_number),
-                        modifier = Modifier.rotate(fabRotation)
-                    )
-                }
+            FloatingActionButton(onClick = { showAddDialog = true }) {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = stringResource(R.string.add_number)
+                )
             }
         }
     ) { padding ->
@@ -323,24 +242,6 @@ fun NumbersListScreen(
                 }
             }
 
-            if (isImporting) {
-                AlertDialog(
-                    onDismissRequest = { },
-                    title = {
-                        Text(stringResource(R.string.processing_data_title))
-                    },
-                    text = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            CircularProgressIndicator()
-                            Text(stringResource(R.string.processing_data_message))
-                        }
-                    },
-                    confirmButton = {}
-                )
-            }
         }
     }
 
@@ -462,127 +363,6 @@ fun NumbersListScreen(
                 }
             },
             confirmButton = {}
-        )
-    }
-
-    if (showImportOptionsDialog) {
-        AlertDialog(
-            onDismissRequest = { showImportOptionsDialog = false },
-            title = { Text(stringResource(R.string.import_title)) },
-            text = {
-                Column {
-                    Text(stringResource(R.string.import_file_summary,
-                        pluralStringResource(R.plurals.numbers, pendingImportCount, pendingImportCount)))
-
-                    Spacer(Modifier.height(16.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.Top,
-                        modifier = Modifier.clickable { validationLevel = 0 }
-                    ) {
-                        RadioButton(
-                            selected = validationLevel == 0,
-                            onClick = null
-                        )
-
-                        Spacer(Modifier.width(8.dp))
-
-                        Text(stringResource(R.string.import_validation_none))
-                    }
-
-                    Spacer(Modifier.height(8.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.Top,
-                        modifier = Modifier.clickable { validationLevel = 1 }
-                    ) {
-                        RadioButton(
-                            selected = validationLevel == 1,
-                            onClick = null
-                        )
-
-                        Spacer(Modifier.width(8.dp))
-
-                        Column {
-                            Text(stringResource(R.string.force_possible_number))
-
-                            Text(
-                                text = stringResource(R.string.force_possible_number_description),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-
-                    Spacer(Modifier.height(8.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.Top,
-                        modifier = Modifier.clickable { validationLevel = 2 }
-                    ) {
-                        RadioButton(
-                            selected = validationLevel == 2,
-                            onClick = null
-                        )
-
-                        Spacer(Modifier.width(8.dp))
-
-                        Column {
-                            Text(stringResource(R.string.force_valid_number))
-
-                            Text(
-                                text = stringResource(R.string.force_valid_number_description),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    showImportOptionsDialog = false
-                    scope.launch {
-                        isImporting = true
-
-                        val uri = pendingImportUri ?: return@launch
-                        val options = ImportOptions(
-                            requirePossibleNumber = validationLevel >= 1,
-                            requireValidNumber = validationLevel >= 2,
-                        )
-                        val result = CommaSeparatedImporter(logger).import(context, uri, defaultCountryIso, options)
-                        val existingBlockedExact = manualBlocks.map { it.phoneNumber }.toSet()
-                        val existingBlockedPrefix = prefixBlocks.map { it.phoneNumber }.toSet()
-                        val existingAllowedExact = allowedExact.map { it.phoneNumber }.toSet()
-                        val existingAllowedPrefix = allowedPrefix.map { it.phoneNumber }.toSet()
-
-                        val updated = result.copy(
-                            entries = result.entries.map { entry ->
-                                if (entry.status == ImportStatus.New) {
-                                    val isPrefix = entry.type == Type.PREFIX
-                                    val inBlocked = if (isPrefix) entry.number in existingBlockedPrefix else entry.number in existingBlockedExact
-                                    val inAllowed = if (isPrefix) entry.number in existingAllowedPrefix else entry.number in existingAllowedExact
-                                    when {
-                                        inBlocked -> entry.copy(status = ImportStatus.AlreadyBlocked)
-                                        inAllowed -> entry.copy(status = ImportStatus.AlreadyAllowed)
-                                        else -> entry
-                                    }
-                                } else entry
-                            }
-                        )
-
-                        onImportReady(updated)
-                        isImporting = false
-                    }
-                }) {
-                    Text(stringResource(R.string.import_confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showImportOptionsDialog = false }) {
-                    Text(stringResource(R.string.cancel))
-                }
-            }
         )
     }
 

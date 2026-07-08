@@ -45,8 +45,6 @@
 
     <!-- Add Number Dialog -->
     <string name="add_number_title">Agregar número</string>
-    <string name="fab_add_label">Añadir entrada manualmente</string>
-    <string name="fab_import_label">Importar números a bloquear de un archivo</string>
     <string name="phone_number_label">Número de teléfono</string>
     <string name="country_label">País</string>
     <string name="description_label">Descripción (opcional)</string>
@@ -64,7 +62,6 @@
     <string name="confirm_unblock_number">¿Dejar de bloquear %1$s?</string>
     <string name="confirm_allow_number">¿Permitir %1$s?</string>
     <string name="confirm_unallow_number">¿Dejar de permitir %1$s?</string>
-    <string name="more_options">Más opciones</string>
 
     <!-- History Screen -->
     <string name="history_empty">No hay llamadas registradas</string>
@@ -92,7 +89,6 @@
     <string name="incoming_call_blocking_description">Configura qué llamadas entrantes bloquear: por horario, grupos, países y más.</string>
     <string name="incoming_call_bloquing_button">Configurar</string>
 
-    <string name="blocking_rules_title">Tu teléfono, tus reglas</string>
     <string name="blocking_rules_description">Estas reglas solo aplican a números o prefijos que no hayas aceptado explícitamente, que nunca se bloquean, ni siquiera si la opción \"bloquear todas las llamadas\" está activa.</string>
 
     <string name="schedule_blocking_title">Bloqueo por horario</string>
@@ -250,14 +246,18 @@
     <string name="screening_dialog_later">Más tarde</string>
 
     <!-- Backup & Restore -->
-    <string name="backup_title">Copia de seguridad</string>
+    <string name="settings_backup_title">Configuración</string>
+    <string name="settings_backup_description">La exportación incluirá sus ajustes, números, historial y sugerencias.\nLa importación reemplazará sus datos actuales por los incluidos en el archivo.</string>
     <string name="backup_export">Exportar</string>
     <string name="backup_import">Importar</string>
     <string name="backup_success">Copia de seguridad completada</string>
     <string name="backup_restore_success">Restauración completada</string>
     <string name="backup_restore_confirm_title">Restaurar copia de seguridad</string>
     <string name="backup_restore_confirm_message">Los datos actuales serán reemplazados por los de la copia de seguridad.\n\nLos ajustes, números, historial y sugerencias descartadas se perderán.\n\n¿Estás seguro de que quieres continuar?</string>
-    <string name="backup_export_numbers">Exportar números bloqueados</string>
+    <string name="blocked_numbers_backup_title">Números bloqueados</string>
+    <string name="blocked_numbers_backup_description">La exportación incluirá sólo los números y prefijos bloqueados y sus descripciones, si las hubiera.\nLa importación no eliminará los números ya bloqueados.</string>
+    <string name="backup_export_numbers">Exportar</string>
+    <string name="backup_import_numbers">Importar</string>
     <string name="backup_export_numbers_success">Números bloqueados exportados correctamente</string>
 
     <!-- Import -->

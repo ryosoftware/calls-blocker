@@ -15,7 +15,12 @@ import com.ryosoftware.calls_blocker.data.CountryNameProvider
 import com.ryosoftware.calls_blocker.data.SettingsManager
 import com.ryosoftware.calls_blocker.data.db.NumberDao
 import com.ryosoftware.calls_blocker.data.fetchContactGroups
+import com.ryosoftware.calls_blocker.data.db.Action
+import com.ryosoftware.calls_blocker.data.db.Type
 import com.ryosoftware.calls_blocker.data.importexport.CommaSeparatedImporter
+import com.ryosoftware.calls_blocker.data.importexport.ImportOptions
+import com.ryosoftware.calls_blocker.data.importexport.ImportResult
+import com.ryosoftware.calls_blocker.data.importexport.ImportStatus
 import com.ryosoftware.calls_blocker.data.db.ScheduleRule
 import com.ryosoftware.calls_blocker.data.repository.ScheduleRuleRepository
 import com.ryosoftware.calls_blocker.service.callsblocker.Logic
@@ -53,7 +58,7 @@ class SettingsViewModel @Inject constructor(
     private val countryNameProvider: CountryNameProvider,
     private val scheduleRuleRepository: ScheduleRuleRepository,
     private val numberDao: NumberDao,
-    private val logger: com.ryosoftware.calls_blocker.Logger,
+    val logger: com.ryosoftware.calls_blocker.Logger,
 ) : ViewModel() {
 
     companion object {
@@ -168,6 +173,33 @@ class SettingsViewModel @Inject constructor(
             CommaSeparatedImporter(logger).export(context, uri, numbers)
             _backupEvent.emit(BackupEvent.ExportSuccess)
         }
+    }
+
+    suspend fun countImportEntries(uri: Uri): Int {
+        return CommaSeparatedImporter(logger).countEntries(context, uri)
+    }
+
+    suspend fun importNumbers(uri: Uri, options: ImportOptions): ImportResult {
+        val result = CommaSeparatedImporter(logger).import(context, uri, defaultCountryIso, options)
+        val allNumbers = numberDao.getAllList()
+        val existingBlockedExact = allNumbers.filter { it.action == Action.BLOCK && it.type == Type.EXACT_COINCIDENCE }.map { it.phoneNumber }.toSet()
+        val existingBlockedPrefix = allNumbers.filter { it.action == Action.BLOCK && it.type == Type.PREFIX }.map { it.phoneNumber }.toSet()
+        val existingAllowedExact = allNumbers.filter { it.action == Action.ALLOW && it.type == Type.EXACT_COINCIDENCE }.map { it.phoneNumber }.toSet()
+        val existingAllowedPrefix = allNumbers.filter { it.action == Action.ALLOW && it.type == Type.PREFIX }.map { it.phoneNumber }.toSet()
+        return result.copy(
+            entries = result.entries.map { entry ->
+                if (entry.status == ImportStatus.New) {
+                    val isPrefix = entry.type == Type.PREFIX
+                    val inBlocked = if (isPrefix) entry.number in existingBlockedPrefix else entry.number in existingBlockedExact
+                    val inAllowed = if (isPrefix) entry.number in existingAllowedPrefix else entry.number in existingAllowedExact
+                    when {
+                        inBlocked -> entry.copy(status = ImportStatus.AlreadyBlocked)
+                        inAllowed -> entry.copy(status = ImportStatus.AlreadyAllowed)
+                        else -> entry
+                    }
+                } else entry
+            }
+        )
     }
 
     fun testFindMyPhone() {

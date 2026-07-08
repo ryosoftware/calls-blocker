@@ -28,9 +28,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -48,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -65,6 +68,8 @@ import com.ryosoftware.calls_blocker.Main.Companion.isIgnoringBatteryOptimizatio
 import com.ryosoftware.calls_blocker.Main.Companion.requestIgnoreBatteryOptimizationsPermission
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.countries
+import com.ryosoftware.calls_blocker.data.importexport.ImportOptions
+import com.ryosoftware.calls_blocker.data.importexport.ImportResult
 import com.ryosoftware.calls_blocker.data.db.Reason
 import com.ryosoftware.calls_blocker.ui.screens.settings.CallScreeningStatusCard
 import com.ryosoftware.calls_blocker.ui.screens.settings.FindMyPhoneSection
@@ -80,7 +85,8 @@ import java.time.format.DateTimeFormatter
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     onNavigateToDebugLog: () -> Unit = {},
-    onNavigateToCallBlockingRules: () -> Unit = {}
+    onNavigateToCallBlockingRules: () -> Unit = {},
+    onImportReady: (ImportResult) -> Unit = {}
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -110,6 +116,11 @@ fun SettingsScreen(
     var pendingRestoreUri by remember { mutableStateOf<Uri?>(null) }
     var showTestScreeningDialog by remember { mutableStateOf(false) }
     var testScreeningResult by remember { mutableStateOf<Pair<String, Reason?>?>(null) }
+    var showImportNumbersOptionsDialog by remember { mutableStateOf(false) }
+    var pendingImportNumbersUri by remember { mutableStateOf<Uri?>(null) }
+    var pendingImportNumbersCount by remember { mutableIntStateOf(0) }
+    var importNumbersValidationLevel by remember { mutableIntStateOf(2) }
+    var isImportingNumbers by remember { mutableStateOf(false) }
     val scheduleRules by viewModel.scheduleRules.collectAsStateWithLifecycle()
 
     // Listen for blockAll changes from Quick Settings Tile
@@ -153,6 +164,21 @@ fun SettingsScreen(
     ) { uri ->
         if (uri != null) {
             viewModel.exportBlockedNumbers(uri)
+        }
+    }
+
+    val importNumbersLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            scope.launch {
+                isImportingNumbers = true
+                pendingImportNumbersUri = uri
+                pendingImportNumbersCount = viewModel.countImportEntries(uri)
+                importNumbersValidationLevel = 2
+                isImportingNumbers = false
+                showImportNumbersOptionsDialog = true
+            }
         }
     }
 
@@ -565,11 +591,59 @@ fun SettingsScreen(
 
         HorizontalDivider()
 
+        Spacer(Modifier.height(8.dp))
+
+        Text(
+            text = stringResource(R.string.blocked_numbers_backup_title),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
         Spacer(Modifier.height(12.dp))
 
         Text(
-            text = stringResource(R.string.backup_title),
+            text = stringResource(R.string.blocked_numbers_backup_description),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            OutlinedButton(
+                onClick = { importNumbersLauncher.launch(arrayOf("text/*", "*/*")) },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(stringResource(R.string.backup_import_numbers))
+            }
+
+            OutlinedButton(
+                onClick = {
+                    val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd--HH-mm-ss"))
+                    exportNumbersLauncher.launch("blocked_numbers_$timestamp.txt")
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(stringResource(R.string.backup_export_numbers))
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        Text(
+            text = stringResource(R.string.settings_backup_title),
             style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        Text(
+            text = stringResource(R.string.settings_backup_description),
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
@@ -595,18 +669,6 @@ fun SettingsScreen(
             ) {
                 Text(stringResource(R.string.backup_export))
             }
-        }
-
-        Spacer(Modifier.height(8.dp))
-
-        OutlinedButton(
-            onClick = {
-                val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd--HH-mm-ss"))
-                exportNumbersLauncher.launch("blocked_numbers_$timestamp.txt")
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.backup_export_numbers))
         }
 
         if (showTestScreeningDialog) {
@@ -829,6 +891,115 @@ fun SettingsScreen(
                     showRestoreConfirmDialog = false
                     pendingRestoreUri = null
                 }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    if (isImportingNumbers) {
+        AlertDialog(
+            onDismissRequest = { },
+            title = { Text(stringResource(R.string.processing_data_title)) },
+            text = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    CircularProgressIndicator()
+                    Text(stringResource(R.string.processing_data_message))
+                }
+            },
+            confirmButton = {}
+        )
+    }
+
+    if (showImportNumbersOptionsDialog) {
+        AlertDialog(
+            onDismissRequest = { showImportNumbersOptionsDialog = false },
+            title = { Text(stringResource(R.string.import_title)) },
+            text = {
+                Column {
+                    Text(stringResource(R.string.import_file_summary,
+                        pluralStringResource(R.plurals.numbers, pendingImportNumbersCount, pendingImportNumbersCount)))
+
+                    Spacer(Modifier.height(16.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.Top,
+                        modifier = Modifier.clickable { importNumbersValidationLevel = 0 }
+                    ) {
+                        RadioButton(
+                            selected = importNumbersValidationLevel == 0,
+                            onClick = null
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.import_validation_none))
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.Top,
+                        modifier = Modifier.clickable { importNumbersValidationLevel = 1 }
+                    ) {
+                        RadioButton(
+                            selected = importNumbersValidationLevel == 1,
+                            onClick = null
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Column {
+                            Text(stringResource(R.string.force_possible_number))
+                            Text(
+                                text = stringResource(R.string.force_possible_number_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.Top,
+                        modifier = Modifier.clickable { importNumbersValidationLevel = 2 }
+                    ) {
+                        RadioButton(
+                            selected = importNumbersValidationLevel == 2,
+                            onClick = null
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Column {
+                            Text(stringResource(R.string.force_valid_number))
+                            Text(
+                                text = stringResource(R.string.force_valid_number_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showImportNumbersOptionsDialog = false
+                    scope.launch {
+                        isImportingNumbers = true
+                        val uri = pendingImportNumbersUri ?: return@launch
+                        val options = ImportOptions(
+                            requirePossibleNumber = importNumbersValidationLevel >= 1,
+                            requireValidNumber = importNumbersValidationLevel >= 2,
+                        )
+                        val result = viewModel.importNumbers(uri, options)
+                        onImportReady(result)
+                        isImportingNumbers = false
+                    }
+                }) {
+                    Text(stringResource(R.string.import_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showImportNumbersOptionsDialog = false }) {
                     Text(stringResource(R.string.cancel))
                 }
             }

@@ -44,8 +44,6 @@
 
     <!-- Add Number Dialog -->
     <string name="add_number_title">Add number</string>
-    <string name="fab_add_label">Add manually</string>
-    <string name="fab_import_label">Import numbers to block from a file</string>
     <string name="phone_number_label">Phone number</string>
     <string name="country_label">Country</string>
     <string name="description_label">Description (optional)</string>
@@ -63,7 +61,6 @@
     <string name="confirm_allow_number">Allow %1$s?</string>
     <string name="confirm_unblock_number">Unblock %1$s?</string>
     <string name="confirm_unallow_number">Unallow %1$s?</string>
-    <string name="more_options">More options</string>
 
     <!-- History Screen -->
     <string name="history_empty">No logged calls</string>
@@ -91,7 +88,6 @@
     <string name="incoming_call_blocking_description">Configure which incoming calls to block, by schedule, groups, countries, and more.</string>
     <string name="incoming_call_bloquing_button">Configure</string>
 
-    <string name="blocking_rules_title">Your phone, your rules!</string>
     <string name="blocking_rules_description">These rules only apply to numbers or prefixes that you have not explicitly accepted, which are never blocked, even if the \"block all incoming calls\" option is active.</string>
 
     <string name="schedule_blocking_title">Schedule blocking</string>
@@ -248,14 +244,18 @@
     <string name="screening_dialog_later">Later</string>
 
     <!-- Backup & Restore -->
-    <string name="backup_title">Backup &amp; Restore</string>
+    <string name="settings_backup_title">Settings</string>
+    <string name="settings_backup_description">Export will include your settings, numbers, history, and suggestions.\nImport will replace your current data with the one included in the file.</string>
     <string name="backup_export">Backup</string>
     <string name="backup_import">Restore</string>
     <string name="backup_success">Backup completed successfully</string>
     <string name="backup_restore_success">Restore completed successfully</string>
     <string name="backup_restore_confirm_title">Restore backup</string>
     <string name="backup_restore_confirm_message">Current data will be replaced by the backup.\n\nSettings, numbers, history and dismissed suggestions will be lost.\n\nAre you sure you want to continue?</string>
-    <string name="backup_export_numbers">Export blocked numbers</string>
+    <string name="blocked_numbers_backup_title">Blocked numbers</string>
+    <string name="blocked_numbers_backup_description">Export will only include blocked numbers and prefixes and their descriptions, if any.\nImport will not remove numbers that are already blocked.</string>
+    <string name="backup_export_numbers">Export</string>
+    <string name="backup_import_numbers">Import</string>
     <string name="backup_export_numbers_success">Blocked numbers exported successfully</string>
 
     <!-- Import -->
