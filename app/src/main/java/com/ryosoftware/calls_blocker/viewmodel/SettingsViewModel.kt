@@ -110,6 +110,7 @@ class SettingsViewModel @Inject constructor(
     var findMyPhoneCallCount by settingsManager::findMyPhoneCallCount
     var findMyPhoneWindowMinutes by settingsManager::findMyPhoneWindowMinutes
     var findMyPhoneRingtoneUri by settingsManager::findMyPhoneRingtoneUri
+    var findMyPhoneVibrationPattern by settingsManager::findMyPhoneVibrationPattern
 
     fun getContactGroups(): List<ContactGroup> = fetchContactGroups(context, context.contentResolver)
 

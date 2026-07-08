@@ -9,6 +9,11 @@ import com.ryosoftware.calls_blocker.BuildConfig
 import com.ryosoftware.calls_blocker.R
 import kotlin.reflect.KProperty
 
+fun String.toVibrationPattern(): LongArray =
+    split(",")
+        .map { it.trim().toLong() }
+        .toLongArray()
+
 class SettingsManager(private val context: Context) {
     companion object {
         private const val PREFS_NAME = "calls_blocker_settings"
@@ -36,6 +41,8 @@ class SettingsManager(private val context: Context) {
         private const val KEY_FIND_MY_PHONE_CALL_COUNT = "find-my-phone-call-count"
         private const val KEY_FIND_MY_PHONE_WINDOW_MINUTES = "find-my-phone-window-minutes"
         private const val KEY_FIND_MY_PHONE_RINGTONE_URI = "find-my-phone-ringtone-uri"
+
+        private const val KEY_FIND_MY_PHONE_VIBRATION_PATTERN = "find-my-phone-vibration-pattern"
         private const val KEY_LOGGING_TO_FILE_ENABLED = "logging-to-file"
         private const val KEY_DIALOG_DISMISSED = "screening-dialog-dismissed"
         private const val KEY_LAST_ACTIVE_TAB = "last-active-tab"
@@ -135,6 +142,15 @@ class SettingsManager(private val context: Context) {
     var findMyPhoneCallCount by intPref(KEY_FIND_MY_PHONE_CALL_COUNT, context.resources.getInteger(R.integer.find_my_phone_call_count_default))
     var findMyPhoneWindowMinutes by intPref(KEY_FIND_MY_PHONE_WINDOW_MINUTES, context.resources.getInteger(R.integer.find_my_phone_window_minutes_default))
     var findMyPhoneRingtoneUri by stringPref(KEY_FIND_MY_PHONE_RINGTONE_URI)
+
+    private val defaultFindMyPhoneVibrationPattern by lazy {
+        context.resources
+            .getIntArray(R.array.find_my_phone_vibration_aggressive)
+            .joinToString(",")
+    }
+
+    var findMyPhoneVibrationPattern by stringPref(KEY_FIND_MY_PHONE_VIBRATION_PATTERN, defaultFindMyPhoneVibrationPattern)
+
     var blockGroups by booleanPref(KEY_BLOCK_GROUPS, false)
     var blockedGroupIds by stringPref(KEY_BLOCKED_GROUP_IDS)
     var blockRepeated by booleanPref(KEY_BLOCK_REPEATED, false)

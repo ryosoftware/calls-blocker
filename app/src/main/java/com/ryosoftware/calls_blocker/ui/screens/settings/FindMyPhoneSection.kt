@@ -1,16 +1,20 @@
 package com.ryosoftware.calls_blocker.ui.screens.settings
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
 import android.net.Uri
+import android.os.VibrationEffect
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,6 +41,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,15 +51,36 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.IntentCompat
 import androidx.core.net.toUri
+import com.ryosoftware.calls_blocker.Main.Companion.getVibrator
 import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.Country
+import com.ryosoftware.calls_blocker.data.toVibrationPattern
 import com.ryosoftware.calls_blocker.ui.screens.AddNumberDialog
 import kotlin.math.roundToInt
+
+private data class PatternEntry(
+    val nameResId: Int,
+    val arrayResId: Int,
+)
+
+private val patternEntries = listOf(
+    PatternEntry(R.string.find_my_phone_vibration_aggressive, R.array.find_my_phone_vibration_aggressive),
+    PatternEntry(R.string.find_my_phone_vibration_siren, R.array.find_my_phone_vibration_siren),
+    PatternEntry(R.string.find_my_phone_vibration_hammer, R.array.find_my_phone_vibration_hammer),
+    PatternEntry(R.string.find_my_phone_vibration_sos, R.array.find_my_phone_vibration_sos),
+    PatternEntry(R.string.find_my_phone_vibration_continuous, R.array.find_my_phone_vibration_continuous),
+    PatternEntry(R.string.find_my_phone_vibration_alarm, R.array.find_my_phone_vibration_alarm),
+    PatternEntry(R.string.find_my_phone_vibration_double_knock, R.array.find_my_phone_vibration_double_knock),
+)
+
+private fun getPatternArrayCsv(context: Context, arrayResId: Int): String =
+    context.resources.getIntArray(arrayResId).joinToString(",")
 
 @Composable
 fun FindMyPhoneSection(
@@ -70,6 +96,8 @@ fun FindMyPhoneSection(
     onFindMyPhoneWindowMinutesChangeFinished: () -> Unit,
     findMyPhoneRingtoneUri: String,
     onFindMyPhoneRingtoneUriChange: (String) -> Unit,
+    findMyPhoneVibrationPattern: String,
+    onFindMyPhoneVibrationPatternChange: (String) -> Unit,
     callLogPermissionGranted: Boolean,
     onTestFindMyPhone: () -> Unit = {},
     batteryOptimizationGranted: Boolean,
@@ -79,8 +107,19 @@ fun FindMyPhoneSection(
     defaultCountryIso: String,
 ) {
     val context = LocalContext.current
+    val hasVibrator = context.getVibrator().hasVibrator()
     var showAddDialog by remember { mutableStateOf(false) }
     var showTestDialog by remember { mutableStateOf(false) }
+    var showVibrationPickerDialog by remember { mutableStateOf(false) }
+
+    @SuppressLint("LocalContextGetResourceValueCall")
+    val currentVibrationPatternName = remember(context, findMyPhoneVibrationPattern) {
+        patternEntries.firstOrNull { (_, arrayResId) ->
+            getPatternArrayCsv(context, arrayResId) == findMyPhoneVibrationPattern
+        }?.let { (nameResId) ->
+            context.getString(nameResId)
+        } ?: context.getString(R.string.find_my_phone_no_vibration_pattern_selected)
+    }
 
     val ringtonePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -184,7 +223,12 @@ fun FindMyPhoneSection(
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(start = 12.dp, end = 4.dp, top = 4.dp, bottom = 4.dp)
+                            modifier = Modifier.padding(
+                                start = 12.dp,
+                                end = 4.dp,
+                                top = 4.dp,
+                                bottom = 4.dp
+                            )
                         ) {
                             Text(
                                 text = PhoneUtils.formatPhoneNumber(number),
@@ -293,6 +337,13 @@ fun FindMyPhoneSection(
 
             Spacer(Modifier.height(8.dp))
 
+            Text(
+                text = stringResource(R.string.find_my_phone_select_ringtone),
+                style = MaterialTheme.typography.bodyLarge,
+            )
+
+            Spacer(Modifier.height(8.dp))
+
             Button(
                 onClick = {
                     val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
@@ -301,7 +352,10 @@ fun FindMyPhoneSection(
                         putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
                         val currentUri = findMyPhoneRingtoneUri.ifEmpty { null }
                         if (currentUri != null) {
-                            putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, currentUri.toUri())
+                            putExtra(
+                                RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
+                                currentUri.toUri()
+                            )
                         }
                     }
                     ringtonePickerLauncher.launch(intent)
@@ -311,11 +365,29 @@ fun FindMyPhoneSection(
                 val ringtoneTitle = if (findMyPhoneRingtoneUri.isNotEmpty()) {
                     val uri = findMyPhoneRingtoneUri.toUri()
                     val ringtone = RingtoneManager.getRingtone(context, uri)
-                    ringtone?.getTitle(context) ?: stringResource(R.string.find_my_phone_ringtone)
+                    ringtone?.getTitle(context) ?: stringResource(R.string.find_my_phone_no_ringtone_selected)
                 } else {
-                    stringResource(R.string.find_my_phone_ringtone)
+                    stringResource(R.string.find_my_phone_no_ringtone_selected)
                 }
                 Text(ringtoneTitle)
+            }
+
+            if (hasVibrator) {
+                Spacer(Modifier.height(8.dp))
+
+                Text(
+                    text = stringResource(R.string.find_my_phone_vibration_pattern),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                Button(
+                    onClick = { showVibrationPickerDialog = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(currentVibrationPatternName)
+                }
             }
 
             Spacer(Modifier.height(12.dp))
@@ -373,6 +445,18 @@ fun FindMyPhoneSection(
         )
     }
 
+    if (showVibrationPickerDialog) {
+        VibrationPatternPickerDialog(
+            context = context,
+            currentPattern = findMyPhoneVibrationPattern,
+            onDismiss = { showVibrationPickerDialog = false },
+            onConfirm = { csv ->
+                onFindMyPhoneVibrationPatternChange(csv)
+                showVibrationPickerDialog = false
+            }
+        )
+    }
+
     if (showAddDialog) {
         AddNumberDialog(
             title = stringResource(R.string.find_my_phone_add),
@@ -394,4 +478,76 @@ fun FindMyPhoneSection(
             }
         )
     }
+}
+
+@Composable
+private fun VibrationPatternPickerDialog(
+    context: Context,
+    currentPattern: String,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit,
+) {
+    val vibrator = context.getVibrator()
+    var selectedCsv by remember { mutableStateOf(currentPattern) }
+
+    DisposableEffect(Unit) {
+        onDispose { vibrator.cancel() }
+    }
+
+    AlertDialog(
+        onDismissRequest = {
+            vibrator.cancel()
+            onDismiss()
+        },
+        title = { Text(stringResource(R.string.find_my_phone_vibration_pattern)) },
+        text = {
+            Column {
+                patternEntries.forEach { (nameResId, arrayResId) ->
+                    val csv = getPatternArrayCsv(context, arrayResId)
+                    val isSelected = (csv == selectedCsv)
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                selectedCsv = csv
+                                vibrator.apply {
+                                    cancel()
+                                    vibrate(
+                                        VibrationEffect.createWaveform(
+                                            csv.toVibrationPattern(),
+                                            0
+                                        )
+                                    )
+                                }
+                            }
+                            .padding(vertical = 10.dp, horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(nameResId),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                vibrator.cancel()
+                onConfirm(selectedCsv)
+            }) {
+                Text(stringResource(R.string.save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = {
+                vibrator.cancel()
+                onDismiss()
+            }) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }

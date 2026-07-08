@@ -94,6 +94,7 @@ fun SettingsScreen(
     var findMyPhoneCallCount by remember { mutableIntStateOf(viewModel.findMyPhoneCallCount) }
     var findMyPhoneWindowMinutes by remember { mutableIntStateOf(viewModel.findMyPhoneWindowMinutes) }
     var findMyPhoneRingtoneUri by remember { mutableStateOf(viewModel.findMyPhoneRingtoneUri) }
+    var findMyPhoneVibrationPattern by remember { mutableStateOf(viewModel.findMyPhoneVibrationPattern) }
     var hasRequestedContacts by remember { mutableStateOf(viewModel.contactsPermissionRequested) }
     var showReadContactsPermissionRationale by remember { mutableStateOf(false) }
     var hasRequestedCallsLog by remember { mutableStateOf(viewModel.callsLogPermissionRequested) }
@@ -223,6 +224,7 @@ fun SettingsScreen(
                     findMyPhoneCallCount = viewModel.findMyPhoneCallCount
                     findMyPhoneWindowMinutes = viewModel.findMyPhoneWindowMinutes
                     findMyPhoneRingtoneUri = viewModel.findMyPhoneRingtoneUri
+                    findMyPhoneVibrationPattern = viewModel.findMyPhoneVibrationPattern
                     isLoggingToFile = viewModel.isLoggingToFile
                     hasRequestedContacts = viewModel.contactsPermissionRequested
                     hasRequestedCallsLog = viewModel.callsLogPermissionRequested
@@ -441,6 +443,8 @@ fun SettingsScreen(
             onFindMyPhoneWindowMinutesChangeFinished = { viewModel.findMyPhoneWindowMinutes = findMyPhoneWindowMinutes },
             findMyPhoneRingtoneUri = findMyPhoneRingtoneUri,
             onFindMyPhoneRingtoneUriChange = { findMyPhoneRingtoneUri = it; viewModel.findMyPhoneRingtoneUri = it },
+            findMyPhoneVibrationPattern = findMyPhoneVibrationPattern,
+            onFindMyPhoneVibrationPatternChange = { findMyPhoneVibrationPattern = it; viewModel.findMyPhoneVibrationPattern = it },
             callLogPermissionGranted = callLogPermissionGranted,
             onTestFindMyPhone = { viewModel.testFindMyPhone() },
             batteryOptimizationGranted = batteryOptimizationGranted,

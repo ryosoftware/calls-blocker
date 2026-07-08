@@ -10,6 +10,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.provider.Settings
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
@@ -26,6 +28,18 @@ class Main : Application(), Configuration.Provider {
         const val SUGGESTION_CHANNEL_ID = "block-suggestions"
 
         const val FIND_MY_PHONE_CHANNEL_ID = "find-my-phone"
+
+        fun Context.getVibrator(): Vibrator =
+            when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                    val vibratorManager = getSystemService(VibratorManager::class.java)
+                    vibratorManager.defaultVibrator
+                }
+                else -> {
+                    @Suppress("DEPRECATION")
+                    getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                }
+            }
 
         fun Context.safeStartActivity(intent: Intent) =
             try {

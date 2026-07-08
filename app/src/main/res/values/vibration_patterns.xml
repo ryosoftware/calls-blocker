@@ -1,3 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <resources>
+
+    <integer-array name="find_my_phone_vibration_aggressive">
+        <item>0</item>
+        <item>1000</item><item>250</item>
+        <item>1000</item><item>250</item>
+        <item>1000</item><item>250</item>
+        <item>1500</item>
+    </integer-array>
+
+    <integer-array name="find_my_phone_vibration_siren">
+        <item>0</item>
+        <item>300</item><item>100</item>
+        <item>600</item><item>100</item>
+        <item>900</item><item>100</item>
+        <item>1200</item><item>200</item>
+        <item>1500</item>
+    </integer-array>
+
+    <integer-array name="find_my_phone_vibration_hammer">
+        <item>0</item>
+        <item>200</item><item>80</item>
+        <item>200</item><item>80</item>
+        <item>200</item><item>300</item>
+        <item>1200</item><item>300</item>
+        <item>1200</item>
+    </integer-array>
+
+    <integer-array name="find_my_phone_vibration_sos">
+        <item>0</item>
+        <item>150</item><item>80</item>
+        <item>150</item><item>80</item>
+        <item>150</item><item>250</item>
+        <item>500</item><item>250</item>
+        <item>500</item><item>250</item>
+        <item>500</item><item>250</item>
+        <item>150</item><item>80</item>
+        <item>150</item><item>80</item>
+        <item>150</item>
+    </integer-array>
+
+    <integer-array name="find_my_phone_vibration_continuous">
+        <item>0</item>
+        <item>2500</item><item>300</item>
+        <item>2500</item>
+    </integer-array>
+
+    <integer-array name="find_my_phone_vibration_alarm">
+        <item>0</item>
+        <item>800</item><item>150</item>
+        <item>800</item><item>150</item>
+        <item>800</item><item>600</item>
+        <item>1600</item>
+    </integer-array>
+
+    <integer-array name="find_my_phone_vibration_double_knock">
+        <item>0</item>
+        <item>400</item><item>100</item>
+        <item>400</item><item>500</item>
+        <item>400</item><item>100</item>
+        <item>400</item><item>1000</item>
+    </integer-array>
+
 </resources>

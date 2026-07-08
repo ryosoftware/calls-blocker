@@ -13,13 +13,16 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.text.TextUtils.split
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.registerReceiver
 import androidx.core.net.toUri
 import com.ryosoftware.calls_blocker.BuildConfig
 import com.ryosoftware.calls_blocker.Logger
+import com.ryosoftware.calls_blocker.Main.Companion.getVibrator
 import com.ryosoftware.calls_blocker.Main.Companion.safeStartActivity
 import com.ryosoftware.calls_blocker.data.SettingsManager
+import com.ryosoftware.calls_blocker.data.toVibrationPattern
 import com.ryosoftware.calls_blocker.ui.activities.FindMyPhoneActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
@@ -119,18 +122,6 @@ class FindMyPhonePlayer @Inject constructor(
         context.safeStartActivity(activityIntent)
     }
 
-    private fun getVibrator(): Vibrator =
-        when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                val vibratorManager = context.getSystemService(VibratorManager::class.java)
-                vibratorManager.defaultVibrator
-            }
-            else -> {
-                @Suppress("DEPRECATION")
-                context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-            }
-        }
-
     private fun playbackStart() {
         val playableRingtone = listOfNotNull(
             settingsManager.findMyPhoneRingtoneUri.ifEmpty { null }?.toUri(),
@@ -157,11 +148,11 @@ class FindMyPhonePlayer @Inject constructor(
             return
         }
 
-        getVibrator()
+        context.getVibrator()
             .takeIf { it.hasVibrator() }
             ?.vibrate(
                 VibrationEffect.createWaveform(
-                    longArrayOf(0, 800, 200, 800, 1000),
+                    settingsManager.findMyPhoneVibrationPattern.toVibrationPattern(),
                     0
                 )
             )
@@ -196,6 +187,6 @@ class FindMyPhonePlayer @Inject constructor(
             )
         }
 
-        getVibrator().takeIf { it.hasVibrator() }?.cancel()
+        context.getVibrator().takeIf { it.hasVibrator() }?.cancel()
     }
 }

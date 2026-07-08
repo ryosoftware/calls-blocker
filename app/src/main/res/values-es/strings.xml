@@ -187,7 +187,10 @@
     <string name="find_my_phone_no_numbers">No se han añadido números</string>
     <string name="find_my_phone_call_count_label">Llamadas necesarias</string>
     <string name="find_my_phone_window_label">Tiempo</string>
-    <string name="find_my_phone_ringtone">Elija el tono</string>
+    <string name="find_my_phone_select_ringtone">Elija el tono</string>
+    <string name="find_my_phone_no_ringtone_selected">Tono no seleccionado</string>
+    <string name="find_my_phone_vibration_pattern">Patrón de vibración</string>
+    <string name="find_my_phone_no_vibration_pattern_selected">Patrón no seleccionado</string>
     <string name="find_my_phone_activated_from">Buscar mi teléfono activado desde\n%1$s</string>
     <string name="find_my_phone_activated_no_number">Buscar mi teléfono</string>
     <string name="find_my_phone_stop_sound">¡Lo encontré!</string>
@@ -298,6 +301,15 @@
     <string name="csv_column_phone_number">Número de teléfono</string>
     <string name="csv_column_date">Fecha</string>
     <string name="csv_column_reason">Razón</string>
+
+    <!-- Vibration patterns -->
+    <string name="find_my_phone_vibration_aggressive">Agresivo</string>
+    <string name="find_my_phone_vibration_siren">Sirena</string>
+    <string name="find_my_phone_vibration_hammer">Martillo</string>
+    <string name="find_my_phone_vibration_sos">SOS</string>
+    <string name="find_my_phone_vibration_continuous">Continuo</string>
+    <string name="find_my_phone_vibration_alarm">Alarma</string>
+    <string name="find_my_phone_vibration_double_knock">Golpes dobles</string>
 
     <!-- Misc -->
     <string name="add_description">Añadir</string>
