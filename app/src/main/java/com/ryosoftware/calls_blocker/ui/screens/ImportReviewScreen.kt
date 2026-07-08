@@ -68,7 +68,9 @@ fun ImportReviewScreen(
             scope.launch {
                 isImporting = true
                 val entries = importResult.newEntries.mapNotNull { entry ->
-                    entry.number?.let { it to entry.type }
+                    entry.number?.let {
+                        Triple(it, entry.type, entry.description)
+                    }
                 }
                 val actualImported = if (entries.isNotEmpty()) {
                     viewModel.addAll(entries)

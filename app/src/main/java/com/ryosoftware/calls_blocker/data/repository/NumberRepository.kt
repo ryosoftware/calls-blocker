@@ -77,10 +77,10 @@ class NumberRepository(private val dao: NumberDao) {
         loadAllLists()
     }
 
-    suspend fun addAll(numbers: List<Pair<String, Type>>): Int {
+    suspend fun addAll(numbers: List<Triple<String, Type, String?>>): Int {
         val before = blockedIncomingExactNumbers.size + blockedIncomingPrefixes.size
-        val entries = numbers.map { (phoneNumber, type) ->
-            Number(phoneNumber = phoneNumber, description = "", action = Action.BLOCK, type = type)
+        val entries = numbers.map { (phoneNumber, type, description) ->
+            Number(phoneNumber = phoneNumber, description = description ?: "", action = Action.BLOCK, type = type)
         }
         entries.chunked(500).forEach { chunk -> dao.insertAll(chunk) }
         reloadSets()

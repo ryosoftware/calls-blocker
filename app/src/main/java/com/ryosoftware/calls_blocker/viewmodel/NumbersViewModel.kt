@@ -78,7 +78,7 @@ class NumbersViewModel @Inject constructor(
         _addNumberError.value = null
     }
 
-    suspend fun addAll(numbers: List<Pair<String, Type>>): Int = repo.addAll(numbers)
+    suspend fun addAll(numbers: List<Triple<String, Type, String?>>): Int = repo.addAll(numbers)
 
     fun removeEntries(ids: List<Long>) {
         viewModelScope.launch {
