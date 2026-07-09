@@ -485,7 +485,11 @@ fun CallsBlockerApp(
         }
 
         BackHandler(enabled = currentScreen != null) {
-            (context as? Activity)?.finish()
+            if (selectionActive) {
+                selectionOnClose?.invoke()
+            } else {
+                (context as? Activity)?.finish()
+            }
         }
     }
 }

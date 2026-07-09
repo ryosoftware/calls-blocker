@@ -139,10 +139,6 @@ fun HistoryScreen(
     var showBlockHiddenConfirm by remember { mutableStateOf(false) }
     var showUnblockHiddenConfirm by remember { mutableStateOf(false) }
 
-    BackHandler(enabled = expandedEntryId != null) {
-        expandedEntryId = null
-    }
-
     val today = remember { LocalDate.now() }
     var collapsedHeaders by remember { mutableStateOf(setOf<HistoryHeader>()) }
 
@@ -156,6 +152,14 @@ fun HistoryScreen(
 
     fun toggleSelection(id: Long) {
         selectedIds = if (id in selectedIds) selectedIds - id else selectedIds + id
+    }
+
+    BackHandler(enabled = expandedEntryId != null) {
+        expandedEntryId = null
+    }
+
+    BackHandler(enabled = multiSelect) {
+        selectedIds = emptySet()
     }
 
     LaunchedEffect(selectedIds, filteredHistory.size) {
