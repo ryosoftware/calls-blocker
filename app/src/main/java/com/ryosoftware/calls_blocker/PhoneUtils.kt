@@ -7,6 +7,7 @@ import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import androidx.core.app.ActivityCompat
 import com.google.i18n.phonenumbers.PhoneNumberUtil
+import com.ryosoftware.calls_blocker.data.db.NumberType
 
 data class NormalizeResult(
     val normalizedPhoneNumber: String? = null,
@@ -22,14 +23,39 @@ enum class NormalizeError(val description: String) {
 
 class PhoneUtils {
     companion object {
-        fun formatPhoneNumber(phoneNumber: String): String {
-            if (!phoneNumber.startsWith("+")) return phoneNumber
+        fun getNumberType(phoneNumber: String): NumberType {
+            if (!phoneNumber.startsWith("+")) return NumberType.UNKNOWN
+
+            return runCatching {
+                val phoneUtil = PhoneNumberUtil.getInstance()
+                val parsedPhoneNumber = phoneUtil.parse(phoneNumber, null)
+                val type = phoneUtil.getNumberType(parsedPhoneNumber)
+
+                when (type) {
+                    PhoneNumberUtil.PhoneNumberType.MOBILE -> NumberType.MOBILE
+                    PhoneNumberUtil.PhoneNumberType.FIXED_LINE -> NumberType.FIXED_LINE
+                    PhoneNumberUtil.PhoneNumberType.FIXED_LINE_OR_MOBILE -> NumberType.FIXED_LINE_OR_MOBILE
+                    PhoneNumberUtil.PhoneNumberType.VOIP -> NumberType.VOIP
+                    PhoneNumberUtil.PhoneNumberType.TOLL_FREE -> NumberType.TOLL_FREE
+                    PhoneNumberUtil.PhoneNumberType.PREMIUM_RATE -> NumberType.PREMIUM_RATE
+                    PhoneNumberUtil.PhoneNumberType.SHARED_COST -> NumberType.SHARED_COST
+                    PhoneNumberUtil.PhoneNumberType.PERSONAL_NUMBER -> NumberType.PERSONAL_NUMBER
+                    PhoneNumberUtil.PhoneNumberType.PAGER -> NumberType.PAGER
+                    PhoneNumberUtil.PhoneNumberType.UAN -> NumberType.UAN
+                    PhoneNumberUtil.PhoneNumberType.VOICEMAIL -> NumberType.VOICEMAIL
+                    PhoneNumberUtil.PhoneNumberType.UNKNOWN -> NumberType.UNKNOWN
+                }
+            }.getOrDefault(NumberType.UNKNOWN)
+        }
+
+        fun formatPhoneNumber(phone: String): String {
+            if (!phone.startsWith("+")) return phone
             return try {
                 val phoneUtil = PhoneNumberUtil.getInstance()
-                val parsed = phoneUtil.parse(phoneNumber, null)
+                val parsed = phoneUtil.parse(phone, null)
                 phoneUtil.format(parsed, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL)
             } catch (_: Exception) {
-                phoneNumber
+                phone
             }
         }
 

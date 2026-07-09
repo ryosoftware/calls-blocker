@@ -71,6 +71,7 @@ import com.ryosoftware.calls_blocker.data.countries
 import com.ryosoftware.calls_blocker.data.importexport.ImportOptions
 import com.ryosoftware.calls_blocker.data.importexport.ImportResult
 import com.ryosoftware.calls_blocker.data.db.Reason
+import com.ryosoftware.calls_blocker.data.db.Reason.Companion.toString
 import com.ryosoftware.calls_blocker.ui.screens.settings.CallScreeningStatusCard
 import com.ryosoftware.calls_blocker.ui.screens.settings.FindMyPhoneSection
 import com.ryosoftware.calls_blocker.viewmodel.BackupEvent
@@ -706,7 +707,7 @@ fun SettingsScreen(
                 text = {
                     Column {
                         Text(
-                            text = if (isBlocked) stringResource(if (reason == Reason.FIND_MY_PHONE) R.string.test_screening_result_blocked_find_by_phone else R.string.test_screening_result_blocked, number, HistoryViewModel.getReasonString(context, reason))
+                            text = if (isBlocked) stringResource(if (reason == Reason.FIND_MY_PHONE) R.string.test_screening_result_blocked_find_by_phone else R.string.test_screening_result_blocked, number, reason.toString(context)!!)
                                    else stringResource(R.string.test_screening_result_not_blocked, number),
                         )
                     }

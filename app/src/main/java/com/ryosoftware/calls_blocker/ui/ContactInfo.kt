@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.ryosoftware.calls_blocker.Main.Companion.hasReadContactsPermission
 
 data class ContactInfo(
     val photo: Bitmap? = null,
@@ -24,6 +25,8 @@ fun rememberContactInfo(phoneNumber: String, context: Context): ContactInfo {
 
     LaunchedEffect(phoneNumber) {
         if (phoneNumber.isEmpty()) return@LaunchedEffect
+
+        if (! context.hasReadContactsPermission()) return@LaunchedEffect
 
         try {
             val lookupUri = Uri.withAppendedPath(

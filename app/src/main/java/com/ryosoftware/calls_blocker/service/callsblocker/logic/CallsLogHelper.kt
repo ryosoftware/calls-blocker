@@ -23,7 +23,7 @@ class CallsLogHelper @Inject constructor() {
                     }
                     false
                 } ?: defaultValue
-        }.getOrElse { defaultValue }
+        }.getOrDefault(defaultValue)
     }
 
     fun countFromCallsLog(context: Context, normalizedPhoneNumber: String, selection: String?, selectionArgs: Array<String>?, normalizeToE164: (String?) -> String): Int {
@@ -44,7 +44,7 @@ class CallsLogHelper @Inject constructor() {
                     }
                 }
             count
-        }.getOrElse { 0 }
+        }.getOrDefault(0)
     }
 
     fun getRecentCallsCount(context: Context, normalizedPhoneNumber: String, phoneNumber: String, windowMinutes: Int, normalizeToE164: (String?) -> String): Int {

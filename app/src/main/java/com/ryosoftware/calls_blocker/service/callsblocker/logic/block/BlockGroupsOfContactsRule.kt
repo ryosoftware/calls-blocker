@@ -47,7 +47,7 @@ class BlockGroupsOfContactsRule @Inject constructor(
                 generateSequence { if (cursor.moveToNext()) cursor else null }
                     .any { cursor.getLong(0) in blockedIds }
             } ?: false
-        }.getOrElse { false }
+        }.getOrDefault(false)
     }
 
     override suspend fun evaluate(normalizedPhoneNumber: String, phoneNumber: String, normalizeToE164: (String?) -> String, isHiddenNumber: (String?) -> Boolean): Reason {

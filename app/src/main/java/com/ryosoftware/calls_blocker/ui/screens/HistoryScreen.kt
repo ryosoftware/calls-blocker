@@ -84,6 +84,8 @@ import java.time.temporal.WeekFields
 import java.util.Date
 import java.util.Locale
 import androidx.core.net.toUri
+import com.ryosoftware.calls_blocker.data.db.NumberType.Companion.toString
+import com.ryosoftware.calls_blocker.data.db.Reason.Companion.toString
 
 private sealed interface HistoryHeader {
     data object Today : HistoryHeader
@@ -579,6 +581,9 @@ private fun HistoryItem(
     val countryInfo = remember(entry.phoneNumber) {
         findCountryByPhoneNumber(entry.phoneNumber)
     }
+    val numberTypeString = remember(entry.type) {
+        entry.type.toString(context)
+    }
 
     val contactInfo = rememberContactInfo(entry.phoneNumber, context)
 
@@ -676,7 +681,15 @@ private fun HistoryItem(
                         Spacer(Modifier.height(8.dp))
 
                         Text(
-                            text = stringResource(R.string.country_name_and_flag, viewModel.getCountryName(country), country.flag),
+                            text = if (numberTypeString != null) stringResource(R.string.country_name_and_flag_and_number_type, viewModel.getCountryName(country), country.flag, numberTypeString)
+                                   else stringResource(R.string.country_name_and_flag, viewModel.getCountryName(country), country.flag),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    } else if (numberTypeString != null) {
+                        Spacer(Modifier.height(8.dp))
+
+                        Text(
+                            text = numberTypeString,
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
@@ -696,12 +709,12 @@ private fun HistoryItem(
                         Spacer(Modifier.height(8.dp))
 
                         Text(
-                            text = stringResource(R.string.reason, HistoryViewModel.getReasonString(context, entry.reason)),
+                            text = stringResource(R.string.reason, entry.reason.toString(context)!!),
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
 
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(12.dp))
 
                     Text(
                         text = dateFormat.format(Date(entry.timeStamp)),

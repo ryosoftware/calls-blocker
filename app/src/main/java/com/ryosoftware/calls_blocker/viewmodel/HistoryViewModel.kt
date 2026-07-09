@@ -13,6 +13,7 @@ import com.ryosoftware.calls_blocker.data.db.Action
 import com.ryosoftware.calls_blocker.data.db.Type
 import com.ryosoftware.calls_blocker.data.db.NumberDao
 import com.ryosoftware.calls_blocker.data.db.HistoryEntry
+import com.ryosoftware.calls_blocker.data.db.Reason.Companion.toString
 import com.ryosoftware.calls_blocker.data.repository.HistoryRepository
 import com.ryosoftware.calls_blocker.data.repository.NumberRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,28 +40,6 @@ class HistoryViewModel @Inject constructor(
     private val countryNameProvider: CountryNameProvider,
     private val settingsManager: SettingsManager,
 ) : ViewModel() {
-    companion object {
-        fun getReasonString(context: Context, reason: Reason): String =
-            when (reason) {
-                Reason.WHITELISTED_NUMBER -> context.getString(R.string.reason_whitelisted_number)
-                Reason.WHITELISTED_PREFIX -> context.getString(R.string.reason_whitelisted_prefix)
-                Reason.BLOCK_ALL -> context.getString(R.string.reason_block_all)
-                Reason.HIDDEN_NUMBER -> context.getString(R.string.reason_hidden)
-                Reason.BLACKLISTED_NUMBER -> context.getString(R.string.reason_blacklisted_number)
-                Reason.BLACKLISTED_PREFIX -> context.getString(R.string.reason_blacklisted_prefix)
-                Reason.NOT_A_CONTACT -> context.getString(R.string.reason_unknown_number)
-                Reason.MEMBER_OF_BLOCKED_GROUP_OF_CONTACTS -> context.getString(R.string.reason_group)
-                Reason.INTERNATIONAL_NUMBER -> context.getString(R.string.reason_international)
-                Reason.NOT_CALLED -> context.getString(R.string.reason_not_called)
-                Reason.REJECTED_BEFORE -> context.getString(R.string.reason_rejected_before)
-                Reason.REPEATED_CALL -> context.getString(R.string.reason_repeated_call)
-                Reason.SCHEDULE -> context.getString(R.string.reason_schedule)
-                Reason.NONE -> context.getString(R.string.reason_unknown)
-                Reason.FIND_MY_PHONE -> context.getString(R.string.reason_find_my_phone)
-                Reason.FIND_MY_PHONE_CANCELLED -> context.getString(R.string.reason_find_my_phone_cancelled)
-            }
-    }
-
     var blockHidden by settingsManager::blockHidden
 
     val history: StateFlow<List<HistoryEntry>> = repo.allEntries
@@ -146,7 +125,7 @@ class HistoryViewModel @Inject constructor(
                     val dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.getDefault())
                     for (entry in entries) {
                         val date = dateFormat.format(Date(entry.timeStamp))
-                        val reason = getReasonString(context, entry.reason)
+                        val reason = entry.reason.toString(context)
                         val escapedPhone = entry.phoneNumber.replace("\"", "\"\"")
                         writer.write("\"$escapedPhone\",$date,$reason\n")
                     }

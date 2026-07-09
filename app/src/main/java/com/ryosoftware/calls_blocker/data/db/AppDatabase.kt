@@ -11,7 +11,7 @@ import androidx.room.TypeConverters
     version = 1,
     exportSchema = false
 )
-@TypeConverters(ActionConverter::class, DirectionConverter::class, ReasonConverter::class, TypeConverter::class)
+@TypeConverters(ActionConverter::class, DirectionConverter::class, NumberTypeConverter::class, ReasonConverter::class, TypeConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun numberDao(): NumberDao
     abstract fun historyDao(): HistoryDao

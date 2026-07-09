@@ -1,9 +1,11 @@
 package com.ryosoftware.calls_blocker.data.db
 
+import android.content.Context
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
+import com.ryosoftware.calls_blocker.R
 
 enum class Direction(val code: Int) {
     INCOMING(0),
@@ -17,29 +19,57 @@ enum class Direction(val code: Int) {
     }
 }
 
-enum class Reason(val code: Int) {
+enum class Reason(val code: Int, val resource: Int? = 0) {
     NONE(0),
-    WHITELISTED_NUMBER(11),
-    WHITELISTED_PREFIX(12),
-    BLOCK_ALL(21),
-    HIDDEN_NUMBER(31),
-    BLACKLISTED_NUMBER(41),
-    BLACKLISTED_PREFIX(42),
-    NOT_A_CONTACT(51),
-    MEMBER_OF_BLOCKED_GROUP_OF_CONTACTS(52),
-    INTERNATIONAL_NUMBER(61),
-    NOT_CALLED(71),
-    REJECTED_BEFORE(72),
-    REPEATED_CALL(73),
-    SCHEDULE(81),
-    FIND_MY_PHONE(91),
-    FIND_MY_PHONE_CANCELLED(92);
+    WHITELISTED_NUMBER(11, R.string.reason_whitelisted_number),
+    WHITELISTED_PREFIX(12, R.string.reason_whitelisted_prefix),
+    BLOCK_ALL(21, R.string.reason_block_all),
+    HIDDEN_NUMBER(31, R.string.reason_hidden),
+    BLACKLISTED_NUMBER(41, R.string.reason_blacklisted_number),
+    BLACKLISTED_PREFIX(42, R.string.reason_blacklisted_prefix),
+    NOT_A_CONTACT(51, R.string.reason_unknown),
+    MEMBER_OF_BLOCKED_GROUP_OF_CONTACTS(52, R.string.reason_group),
+    INTERNATIONAL_NUMBER(61, R.string.reason_international),
+    NOT_CALLED(71, R.string.reason_not_called),
+    REJECTED_BEFORE(72, R.string.reason_rejected_before),
+    REPEATED_CALL(73, R.string.reason_repeated_call),
+    SCHEDULE(81, R.string.reason_schedule),
+    FIND_MY_PHONE(91, R.string.reason_find_my_phone),
+    FIND_MY_PHONE_CANCELLED(92, R.string.reason_find_my_phone_cancelled);
 
     companion object {
         private val map = entries.associateBy { it.code }
 
         fun fromCode(code: Int): Reason =
             map[code] ?: NONE
+
+        fun Reason.toString(context: Context) =
+            if ((resource != null) && (resource != 0)) context.getString(resource) else null
+    }
+}
+
+enum class NumberType(val code: Int, val resource: Int? = 0) {
+    UNKNOWN(0),
+    MOBILE(1, R.string.number_type_mobile),
+    FIXED_LINE(2, R.string.number_type_fixed_line),
+    FIXED_LINE_OR_MOBILE(3),
+    VOIP(4, R.string.number_type_voip),
+    TOLL_FREE(5, R.string.number_type_toll_free),
+    PREMIUM_RATE(6, R.string.number_type_premium_rate),
+    SHARED_COST(7, R.string.number_type_shared_cost),
+    PERSONAL_NUMBER(8, R.string.number_type_personal_number),
+    PAGER(9, R.string.number_type_pager),
+    UAN(10, R.string.number_type_uan),
+    VOICEMAIL(11, R.string.number_type_voicemail);
+
+    companion object {
+        private val map = entries.associateBy { it.code }
+
+        fun fromCode(code: Int): NumberType =
+            map[code] ?: UNKNOWN
+
+        fun NumberType.toString(context: Context) =
+            if ((resource != null) && (resource != 0)) context.getString(resource) else null
     }
 }
 
@@ -63,6 +93,15 @@ class ReasonConverter {
         Reason.fromCode(code)
 }
 
+class NumberTypeConverter {
+    @TypeConverter
+    fun fromNumberType(type: NumberType): Int =
+        type.code
+
+    @TypeConverter
+    fun toNumberType(code: Int): NumberType =
+        NumberType.fromCode(code)
+}
 
 @Entity(tableName = "history")
 data class HistoryEntry(
@@ -70,6 +109,8 @@ data class HistoryEntry(
     val id: Long = 0,
     @ColumnInfo(name = "phone_number")
     val phoneNumber: String,
+    @ColumnInfo(name = "number_type")
+    val type: NumberType,
     @ColumnInfo(name = "direction")
     val direction: Direction = Direction.INCOMING,
     @ColumnInfo(name = "timestamp")

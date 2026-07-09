@@ -22,16 +22,16 @@ import com.ryosoftware.calls_blocker.ui.activities.MainActivity
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.NORMALIZED_PHONE_NUMBER_REF
 import com.ryosoftware.calls_blocker.PhoneUtils
-import com.ryosoftware.calls_blocker.data.SettingsManager
 import com.ryosoftware.calls_blocker.data.db.Direction
 import com.ryosoftware.calls_blocker.data.db.HistoryEntry
+import com.ryosoftware.calls_blocker.data.db.NumberType
 import com.ryosoftware.calls_blocker.data.db.Reason
+import com.ryosoftware.calls_blocker.data.db.Reason.Companion.toString
 import com.ryosoftware.calls_blocker.data.repository.HistoryRepository
 import com.ryosoftware.calls_blocker.data.repository.BlockSuggestionsRepository
 import com.ryosoftware.calls_blocker.data.repository.NumberRepository
 import com.ryosoftware.calls_blocker.receiver.SuggestionNotificationActionsReceiver
 import com.ryosoftware.calls_blocker.ui.activities.FindMyPhoneActivity
-import com.ryosoftware.calls_blocker.viewmodel.HistoryViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.time.Instant
@@ -43,6 +43,7 @@ import java.util.Locale
 const val PHONE_NUMBER_PARAM = "phone-number"
 const val REASON_PARAM = "reason"
 const val DIRECTION_PARAM = "direction"
+
 const val TIME_PARAM = "time"
 const val TESTING_PURPOSES_PARAM = "testing-purposes"
 
@@ -57,7 +58,6 @@ class PostServiceWorker @AssistedInject constructor(
     private val numberRepository: NumberRepository,
     private val blockSuggestionsRepository: BlockSuggestionsRepository,
     private val logger: Logger,
-    private val settingsManager: SettingsManager,
     private val findMyPhonePlayer: FindMyPhonePlayer,
 ) : CoroutineWorker(appContext, workerParams) {
 
@@ -93,7 +93,7 @@ class PostServiceWorker @AssistedInject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val reasonString = HistoryViewModel.getReasonString(applicationContext, reason)
+        val reasonString = reason.toString(applicationContext)
         val date = getStringDateTime(applicationContext, time)
 
         @SuppressLint("StringFormatInvalid")
@@ -245,6 +245,7 @@ class PostServiceWorker @AssistedInject constructor(
             historyRepository.add(
                 HistoryEntry(
                     phoneNumber = phoneNumber,
+                    type = PhoneUtils.getNumberType(phoneNumber),
                     reason = reason,
                     direction = direction,
                     timeStamp = time
@@ -263,16 +264,16 @@ class PostServiceWorker @AssistedInject constructor(
                 }
 
                 reason == Reason.NONE &&
-                        phoneNumber.isNotEmpty() &&
-                        !blockSuggestionsRepository.isAdded(phoneNumber) &&
-                        !numberRepository.isIncomingAddedExact(phoneNumber) -> {
+                          phoneNumber.isNotEmpty() &&
+                          !blockSuggestionsRepository.isAdded(phoneNumber) &&
+                          !numberRepository.isIncomingAddedExact(phoneNumber) -> {
                     postSuggestionNotification(phoneNumber, time)
                 }
 
                 reason != Reason.NONE &&
-                        reason != Reason.FIND_MY_PHONE &&
-                        reason != Reason.WHITELISTED_NUMBER &&
-                        reason != Reason.WHITELISTED_PREFIX -> {
+                          reason != Reason.FIND_MY_PHONE &&
+                          reason != Reason.WHITELISTED_NUMBER &&
+                          reason != Reason.WHITELISTED_PREFIX -> {
                     postBlockedNumberNotification(phoneNumber, reason, time)
                 }
             }

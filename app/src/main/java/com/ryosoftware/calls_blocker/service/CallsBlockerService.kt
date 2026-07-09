@@ -11,6 +11,7 @@ import com.ryosoftware.calls_blocker.NORMALIZED_PHONE_NUMBER_REF
 import com.ryosoftware.calls_blocker.data.SettingsManager
 import com.ryosoftware.calls_blocker.data.db.Direction
 import com.ryosoftware.calls_blocker.data.db.Reason
+import com.ryosoftware.calls_blocker.data.db.Reason.Companion.toString
 import com.ryosoftware.calls_blocker.service.callsblocker.DIRECTION_PARAM
 import com.ryosoftware.calls_blocker.service.callsblocker.PHONE_NUMBER_PARAM
 import com.ryosoftware.calls_blocker.service.callsblocker.REASON_PARAM
@@ -48,7 +49,7 @@ class CallsBlockerService : CallScreeningService() {
                 .build()
         )
 
-        val reasonString = HistoryViewModel.getReasonString(applicationContext, reason)
+        val reasonString = reason.toString(this)
         logger.log("Call from $NORMALIZED_PHONE_NUMBER_REF has been rejected due to $reasonString", normalizedPhoneNumber = normalizedPhoneNumber ?: "unknown")
     }
 
@@ -58,7 +59,7 @@ class CallsBlockerService : CallScreeningService() {
     private fun allowCall(callDetails: Call.Details, normalizedPhoneNumber: String?, reason: Reason) {
         allowCall(callDetails)
 
-        val reasonString = HistoryViewModel.getReasonString(applicationContext, reason)
+        val reasonString = reason.toString(this)
         logger.log("Call from $NORMALIZED_PHONE_NUMBER_REF has been allowed due to $reasonString", normalizedPhoneNumber = normalizedPhoneNumber ?: "unknown")
     }
 
@@ -78,41 +79,45 @@ class CallsBlockerService : CallScreeningService() {
         scope.launch {
             val startedInMemory = logger.startInMemory()
             try {
-                if (callDetails.callDirection != Call.Details.DIRECTION_INCOMING) {
-                    if (callDetails.callDirection == Call.Details.DIRECTION_OUTGOING) {
-                        val normalizedPhoneNumber = callScreeningLogic.normalizePhoneNumber(callDetails)
-
-                        val workerData = workDataOf(
-                            PHONE_NUMBER_PARAM to normalizedPhoneNumber,
-                            DIRECTION_PARAM to Direction.OUTGOING.code,
-                            TIME_PARAM to System.currentTimeMillis()
-                        )
-                        enqueueWorker(workerData)
-                    }
+                if (callDetails.callDirection == Call.Details.DIRECTION_UNKNOWN) {
                     return@launch
                 }
 
-                val (normalizedPhoneNumber, reason) = callScreeningLogic.isCallBlocked(callDetails)
+                val direction: Direction
+                val normalizedPhoneNumber: String?
+                val reason: Reason?
 
-                val isAllowed = (reason in listOf(
-                    Reason.NONE,
-                    Reason.WHITELISTED_NUMBER,
-                    Reason.WHITELISTED_PREFIX
-                ))
-
-                if (isAllowed) {
-                    allowCall(callDetails, normalizedPhoneNumber, reason)
+                if (callDetails.callDirection == Call.Details.DIRECTION_OUTGOING) {
+                    direction = Direction.OUTGOING
+                    normalizedPhoneNumber = callScreeningLogic.normalizePhoneNumber(callDetails)
+                    reason = null
                 } else {
-                    rejectCall(callDetails, normalizedPhoneNumber, reason)
+                    val result = callScreeningLogic.isCallBlocked(callDetails)
+                    direction = Direction.OUTGOING
+                    normalizedPhoneNumber = result.first
+                    reason = result.second
+
+                    val isAllowed = reason in listOf(
+                        Reason.NONE,
+                        Reason.WHITELISTED_NUMBER,
+                        Reason.WHITELISTED_PREFIX
+                    )
+
+                    if (isAllowed) {
+                        allowCall(callDetails, normalizedPhoneNumber, reason)
+                    } else {
+                        rejectCall(callDetails, normalizedPhoneNumber, reason)
+                    }
                 }
 
-                val workerData = workDataOf(
+                val workerData = mutableListOf(
+                    DIRECTION_PARAM to direction.code,
                     PHONE_NUMBER_PARAM to normalizedPhoneNumber,
-                    DIRECTION_PARAM to Direction.INCOMING.code,
-                    REASON_PARAM to reason.code,
-                    TIME_PARAM to System.currentTimeMillis()
+                    TIME_PARAM to System.currentTimeMillis(),
                 )
-                enqueueWorker(workerData)
+                reason?.let { workerData += REASON_PARAM to it.code }
+
+                enqueueWorker(workDataOf(*workerData.toTypedArray()))
             }
             finally {
                 if (startedInMemory) {

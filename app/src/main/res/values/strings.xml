@@ -116,6 +116,7 @@
     <string name="block_international_description">Blocks calls from other countries</string>
     <string name="select_allowed_countries">Allowed countries</string>
     <string name="country_name_and_flag">%2$s %1$s</string>
+    <string name="country_name_and_flag_and_number_type">%2$s %1$s, %3$s</string>
     <string name="no_allowed_countries_warning">We normalize all numbers to their international format before processing any rules, so we will block all calls if you do not allow at least one country.</string>
 
     <string name="block_not_called_title">Block not called before</string>
@@ -314,6 +315,20 @@
     <string name="find_my_phone_vibration_continuous">Continuous</string>
     <string name="find_my_phone_vibration_alarm">Alarm</string>
     <string name="find_my_phone_vibration_double_knock">Double knock</string>
+
+    <!-- Number types -->
+    <string name="number_type_mobile">Mobile</string>
+    <string name="number_type_fixed_line">Fixed line</string>
+    <string name="number_type_fixed_line_or_mobile">Mobile or fixed line</string>
+    <string name="number_type_voip">VoIP</string>
+    <string name="number_type_toll_free">Toll free</string>
+    <string name="number_type_premium_rate">Premium rate</string>
+    <string name="number_type_shared_cost">Shared cost</string>
+    <string name="number_type_personal_number">Personal number</string>
+    <string name="number_type_pager">Pager</string>
+    <string name="number_type_uan">UAN</string>
+    <string name="number_type_voicemail">Voicemail</string>
+    <string name="number_type_unknown">Unknown</string>
 
     <!-- Misc -->
     <string name="add_description">Add</string>

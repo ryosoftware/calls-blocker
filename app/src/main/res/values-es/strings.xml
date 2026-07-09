@@ -117,6 +117,7 @@
     <string name="block_international_description">Se bloquearán las llamadas desde otros países</string>
     <string name="select_allowed_countries">Países permitidos</string>
     <string name="country_name_and_flag">%2$s %1$s</string>
+    <string name="country_name_and_flag_and_number_type">%2$s %1$s, %3$s</string>
     <string name="no_allowed_countries_warning">Normalizamos todos los números a su formato internacional antes de procesar ninguna regla, por lo que bloquearemos todas las llamadas si no permite al menos un país.</string>
 
     <string name="block_not_called_title">Bloquear no marcados</string>
@@ -316,6 +317,20 @@
     <string name="find_my_phone_vibration_continuous">Continuo</string>
     <string name="find_my_phone_vibration_alarm">Alarma</string>
     <string name="find_my_phone_vibration_double_knock">Golpes dobles</string>
+
+    <!-- Number types -->
+    <string name="number_type_mobile">móvil</string>
+    <string name="number_type_fixed_line">fijo</string>
+    <string name="number_type_fixed_line_or_mobile">fijo o móvil</string>
+    <string name="number_type_voip">voz sobre IP</string>
+    <string name="number_type_toll_free">gratuíto</string>
+    <string name="number_type_premium_rate">tarifa premium</string>
+    <string name="number_type_shared_cost">coste compartido</string>
+    <string name="number_type_personal_number">personal</string>
+    <string name="number_type_pager">buscapersonas</string>
+    <string name="number_type_uan">acceso universal</string>
+    <string name="number_type_voicemail">buzón de voz</string>
+    <string name="number_type_unknown">desconocido</string>
 
     <!-- Misc -->
     <string name="add_description">Añadir</string>

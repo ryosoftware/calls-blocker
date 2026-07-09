@@ -10,6 +10,7 @@ import com.ryosoftware.calls_blocker.data.db.Number
 import com.ryosoftware.calls_blocker.data.db.NumberDao
 import com.ryosoftware.calls_blocker.data.db.HistoryDao
 import com.ryosoftware.calls_blocker.data.db.HistoryEntry
+import com.ryosoftware.calls_blocker.data.db.NumberType
 import com.ryosoftware.calls_blocker.data.db.Reason
 import com.ryosoftware.calls_blocker.data.db.ScheduleRule
 import com.ryosoftware.calls_blocker.data.db.ScheduleRuleDao
@@ -69,6 +70,7 @@ class BackupManager @Inject constructor(
             history = historyDao.getAllList().map { entry ->
                 BackupData.BackupHistoryEntry(
                     phoneNumber = entry.phoneNumber,
+                    type = entry.type.code,
                     timestamp = entry.timeStamp,
                     direction = entry.direction.code,
                     reason = entry.reason.code,
@@ -132,6 +134,7 @@ class BackupManager @Inject constructor(
         historyDao.insertAll(backupData.history.map { historyEntry ->
             HistoryEntry(
                 phoneNumber = historyEntry.phoneNumber,
+                type = NumberType.fromCode(historyEntry.type),
                 timeStamp = historyEntry.timestamp,
                 direction = Direction.fromCode(historyEntry.direction),
                 reason = Reason.fromCode(historyEntry.reason),
@@ -180,6 +183,7 @@ data class BackupData(
     @Serializable
     data class BackupHistoryEntry(
         @SerialName("phone-number") val phoneNumber: String,
+        val type: Int = NumberType.UNKNOWN.code,
         val timestamp: Long,
         val direction: Int = Direction.INCOMING.code,
         val reason: Int,
