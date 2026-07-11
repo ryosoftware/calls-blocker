@@ -13,7 +13,7 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.ryosoftware.calls_blocker"
+        applicationId = namespace
 
         minSdk = 30
         targetSdk = 37
@@ -78,8 +78,8 @@ dependencies {
     implementation("androidx.room:room-runtime:2.8.4")
     implementation("androidx.room:room-ktx:2.8.4")
     ksp("androidx.room:room-compiler:2.8.4")
-    implementation("com.google.dagger:hilt-android:2.60")
-    ksp("com.google.dagger:hilt-compiler:2.60")
+    implementation("com.google.dagger:hilt-android:2.60.1")
+    ksp("com.google.dagger:hilt-compiler:2.60.1")
     ksp("androidx.hilt:hilt-compiler:1.4.0")
     implementation("androidx.hilt:hilt-navigation-compose:1.4.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
