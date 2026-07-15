@@ -68,9 +68,7 @@ import com.ryosoftware.calls_blocker.ui.screens.NumbersListScreen
 import com.ryosoftware.calls_blocker.ui.screens.CallBlockingRulesScreen
 import com.ryosoftware.calls_blocker.ui.screens.SettingsScreen
 import com.ryosoftware.calls_blocker.ui.theme.CallsBlockerTheme
-import com.ryosoftware.calls_blocker.viewmodel.BackupEvent
 import com.ryosoftware.calls_blocker.viewmodel.HistoryViewModel
-import com.ryosoftware.calls_blocker.viewmodel.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

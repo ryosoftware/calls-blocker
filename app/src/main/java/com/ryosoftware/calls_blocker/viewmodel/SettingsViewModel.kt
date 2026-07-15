@@ -90,6 +90,8 @@ class SettingsViewModel @Inject constructor(
     var callsLogPermissionRequested by settingsManager::callsLogPermissionRequested
     var notificationsPermissionRequested by settingsManager::notificationsPermissionRequested
     var skipCallLog by settingsManager::skipCallLog
+    var skipMissedCallNotification by settingsManager::skipMissedCallNotification
+    var silenceInsteadOfHangup by settingsManager::silenceInsteadOfHangup
     var defaultCountryIso by settingsManager::defaultCountryIso
 
     fun checkScreeningStatus() {

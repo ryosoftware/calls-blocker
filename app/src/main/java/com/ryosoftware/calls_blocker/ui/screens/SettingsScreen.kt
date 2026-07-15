@@ -75,7 +75,6 @@ import com.ryosoftware.calls_blocker.data.db.Reason.Companion.toString
 import com.ryosoftware.calls_blocker.ui.screens.settings.CallScreeningStatusCard
 import com.ryosoftware.calls_blocker.ui.screens.settings.FindMyPhoneSection
 import com.ryosoftware.calls_blocker.viewmodel.BackupEvent
-import com.ryosoftware.calls_blocker.viewmodel.HistoryViewModel
 import com.ryosoftware.calls_blocker.viewmodel.SettingsViewModel
 import com.ryosoftware.calls_blocker.service.BlockAllTileService
 import kotlinx.coroutines.launch
@@ -93,6 +92,8 @@ fun SettingsScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var skipCallLog by remember { mutableStateOf(viewModel.skipCallLog) }
+    var skipMissedCallNotification by remember { mutableStateOf(viewModel.skipMissedCallNotification) }
+    var silenceInsteadOfHangup by remember { mutableStateOf(viewModel.silenceInsteadOfHangup) }
     var defaultCountryIso by remember { mutableStateOf(viewModel.defaultCountryIso) }
     val screeningEnabled by viewModel.isScreeningEnabled.collectAsState()
     var showDefaultCountryDialog by remember { mutableStateOf(false) }
@@ -258,6 +259,8 @@ fun SettingsScreen(
                 is BackupEvent.RestoreSuccess -> {
                     defaultCountryIso = viewModel.defaultCountryIso
                     skipCallLog = viewModel.skipCallLog
+                    skipMissedCallNotification = viewModel.skipMissedCallNotification
+                    silenceInsteadOfHangup = viewModel.silenceInsteadOfHangup
                     findMyPhoneEnabled = viewModel.findMyPhoneEnabled
                     findMyPhonePhoneNumbers = viewModel.findMyPhonePhoneNumbers
                     findMyPhoneCallCount = viewModel.findMyPhoneCallCount
@@ -432,6 +435,14 @@ fun SettingsScreen(
 
                 Spacer(Modifier.height(12.dp))
 
+                Text(
+                    text = stringResource(R.string.blocking_options_description),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(Modifier.height(12.dp))
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -458,6 +469,70 @@ fun SettingsScreen(
 
                     Switch(
                         checked = skipCallLog,
+                        onCheckedChange = null
+                    )
+                }
+
+                Spacer(Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            skipMissedCallNotification = !skipMissedCallNotification
+                            viewModel.skipMissedCallNotification = skipMissedCallNotification
+                        },
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.silence_missed_call_notification_title),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+
+                        Text(
+                            text = stringResource(R.string.silence_missed_call_notification_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Spacer(Modifier.width(24.dp))
+
+                    Switch(
+                        checked = skipMissedCallNotification,
+                        onCheckedChange = null
+                    )
+                }
+
+                Spacer(Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            silenceInsteadOfHangup = !silenceInsteadOfHangup
+                            viewModel.silenceInsteadOfHangup = silenceInsteadOfHangup
+                        },
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.silence_instead_of_hangup_title),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+
+                        Text(
+                            text = stringResource(R.string.silence_instead_of_hangup_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Spacer(Modifier.width(24.dp))
+
+                    Switch(
+                        checked = silenceInsteadOfHangup,
                         onCheckedChange = null
                     )
                 }

@@ -133,8 +133,16 @@
     <string name="repeated_call_window_label">Time window</string>
     <string name="value_in_minutes">%1$d min</string>
 
+    <string name="blocking_options_description">These options are only used when blocking calls</string>
+
     <string name="skip_call_log_title">Don\'t log blocked calls</string>
     <string name="skip_call_log_description">Prevents blocked calls from appearing in the Phone calls log</string>
+
+    <string name="silence_missed_call_notification_title">Skip missed call notification</string>
+    <string name="silence_missed_call_notification_description">Prevents a missed call notification from appearing when a call is blocked</string>
+
+    <string name="silence_instead_of_hangup_title">Silence instead of hang up</string>
+    <string name="silence_instead_of_hangup_description">The call will be silenced instead of being rejected</string>
 
     <string name="find_my_phone_background_permission_description">If this feature is not working properly, consider allowing the app to run in the background and to auto-start (these options are usually found within the \"Battery\" section).</string>
     <string name="find_my_phone_title">Find my phone</string>

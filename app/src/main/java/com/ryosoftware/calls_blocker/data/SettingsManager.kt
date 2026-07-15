@@ -33,6 +33,8 @@ class SettingsManager(private val context: Context) {
         private const val KEY_BLOCK_REPEATED_CALL_COUNT = "block-repeated-count"
         private const val KEY_BLOCK_REPEATED_CALL_WINDOW_MINUTES = "block-repeated-window-minutes"
         private const val KEY_SKIP_CALL_LOG = "skip-call-log"
+        private const val KEY_SKIP_MISSED_CALL_NOTIFICATION = "skip-missed-call-notification"
+        private const val KEY_SILENCE_INSTEAD_OF_HANGUP = "silence-instead-of-hangup"
         private const val KEY_CONTACTS_PERMISSION_REQUESTED = "contacts-permission-requested"
         private const val KEY_CALLS_LOG_PERMISSION_REQUESTED = "calls-log-permission-requested"
         private const val KEY_NOTIFICATIONS_PERMISSION_REQUESTED = "notifications-permission-requested"
@@ -136,6 +138,8 @@ class SettingsManager(private val context: Context) {
     var callsLogPermissionRequested by booleanPref(KEY_CALLS_LOG_PERMISSION_REQUESTED, false)
     var notificationsPermissionRequested by booleanPref(KEY_NOTIFICATIONS_PERMISSION_REQUESTED, false)
     var skipCallLog by booleanPref(KEY_SKIP_CALL_LOG, false)
+    var skipMissedCallNotification by booleanPref(KEY_SKIP_MISSED_CALL_NOTIFICATION, false)
+    var silenceInsteadOfHangup by booleanPref(KEY_SILENCE_INSTEAD_OF_HANGUP, false)
     var defaultCountryIso by stringPref(KEY_DEFAULT_COUNTRY_ISO)
     var findMyPhoneEnabled by booleanPref(KEY_FIND_MY_PHONE_ENABLED, false)
     var findMyPhonePhoneNumbers by stringPref(KEY_FIND_MY_PHONE_NUMBERS)

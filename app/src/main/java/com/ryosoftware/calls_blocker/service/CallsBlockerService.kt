@@ -39,15 +39,14 @@ class CallsBlockerService : CallScreeningService() {
     private val scope = CoroutineScope(Dispatchers.Default)
 
     private fun rejectCall(callDetails: Call.Details, normalizedPhoneNumber: String?, reason: Reason) {
-        respondToCall(
-            callDetails,
-            CallResponse.Builder()
-                .setDisallowCall(true)
-                .setRejectCall(true)
-                .setSkipCallLog(settingsManager.skipCallLog)
-                .setSkipNotification(true)
-                .build()
-        )
+        val callResponse = CallResponse.Builder()
+            .setSkipCallLog(settingsManager.skipCallLog)
+            .setSkipNotification(settingsManager.skipMissedCallNotification)
+
+        if (settingsManager.silenceInsteadOfHangup) callResponse.setSilenceCall(true)
+        else callResponse.setDisallowCall(true).setRejectCall(true)
+
+        respondToCall(callDetails, callResponse.build())
 
         val reasonString = reason.toString(this)
         logger.log("Call from $NORMALIZED_PHONE_NUMBER_REF has been rejected due to $reasonString", normalizedPhoneNumber = normalizedPhoneNumber ?: "unknown")

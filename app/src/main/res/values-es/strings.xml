@@ -134,8 +134,16 @@
     <string name="repeated_call_window_label">Tiempo</string>
     <string name="value_in_minutes">%1$d min</string>
 
+    <string name="blocking_options_description">Estas opciones solo se usan al bloquear llamadas</string>
+
     <string name="skip_call_log_title">No registrar llamadas bloqueadas</string>
     <string name="skip_call_log_description">Evita que las llamadas bloqueadas aparezcan en el registro de llamadas del teléfono</string>
+
+    <string name="silence_missed_call_notification_title">No mostrar notificación de llamada perdida</string>
+    <string name="silence_missed_call_notification_description">Evita que aparezca una notificación de llamada perdida al bloquear una llamada</string>
+
+    <string name="silence_instead_of_hangup_title">Silenciar en lugar de colgar</string>
+    <string name="silence_instead_of_hangup_description">Se silenciará la llamada en lugar de rechazarla</string>
 
     <string name="find_my_phone_background_permission_description">Si esta característica no está funcionando correctamente, considera permitir que la app pueda ejecutarse en segundo plano y que pueda iniciarse automáticamente (habitualmente estas opciones se encuentran dentro de la sección \"Batería\").</string>
     <string name="find_my_phone_title">Buscar mi teléfono</string>
