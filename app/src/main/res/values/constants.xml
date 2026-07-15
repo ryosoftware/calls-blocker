@@ -4,10 +4,17 @@
 
     <string name="github_repo">https://github.com/ryosoftware/calls-blocker</string>
 
+    <bool name="skip_call_log_default">false</bool>
+    <bool name="skip_missed_call_notification_default">false</bool>
+    <bool name="silence_instead_of_hangup_default">false</bool>
+
     <integer name="repeated_call_count_default">3</integer>
     <integer name="repeated_call_window_minutes_default">5</integer>
+
     <integer name="not_called_window_days_default">7</integer>
+
     <integer name="rejected_window_days_default">7</integer>
+
     <integer name="find_my_phone_call_count_default">3</integer>
     <integer name="find_my_phone_window_minutes_default">2</integer>
 

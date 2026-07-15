@@ -137,9 +137,10 @@ class SettingsManager(private val context: Context) {
     var contactsPermissionRequested by booleanPref(KEY_CONTACTS_PERMISSION_REQUESTED, false)
     var callsLogPermissionRequested by booleanPref(KEY_CALLS_LOG_PERMISSION_REQUESTED, false)
     var notificationsPermissionRequested by booleanPref(KEY_NOTIFICATIONS_PERMISSION_REQUESTED, false)
-    var skipCallLog by booleanPref(KEY_SKIP_CALL_LOG, false)
-    var skipMissedCallNotification by booleanPref(KEY_SKIP_MISSED_CALL_NOTIFICATION, false)
-    var silenceInsteadOfHangup by booleanPref(KEY_SILENCE_INSTEAD_OF_HANGUP, false)
+    var skipCallLog by booleanPref(KEY_SKIP_CALL_LOG, context.resources.getBoolean(R.bool.skip_call_log_default))
+    var skipMissedCallNotification by booleanPref(KEY_SKIP_MISSED_CALL_NOTIFICATION, context.resources.getBoolean(R.bool.skip_missed_call_notification_default))
+    var silenceInsteadOfHangup by booleanPref(KEY_SILENCE_INSTEAD_OF_HANGUP, context.resources.getBoolean(R.bool.silence_instead_of_hangup_default))
+
     var defaultCountryIso by stringPref(KEY_DEFAULT_COUNTRY_ISO)
     var findMyPhoneEnabled by booleanPref(KEY_FIND_MY_PHONE_ENABLED, false)
     var findMyPhonePhoneNumbers by stringPref(KEY_FIND_MY_PHONE_NUMBERS)
