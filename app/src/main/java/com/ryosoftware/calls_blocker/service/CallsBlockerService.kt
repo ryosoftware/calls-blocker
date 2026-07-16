@@ -92,7 +92,7 @@ class CallsBlockerService : CallScreeningService() {
                     reason = null
                 } else {
                     val result = callScreeningLogic.isCallBlocked(callDetails)
-                    direction = Direction.OUTGOING
+                    direction = Direction.INCOMING
                     normalizedPhoneNumber = result.first
                     reason = result.second
 
