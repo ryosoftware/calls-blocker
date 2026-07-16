@@ -26,6 +26,9 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.floatOrNull
 import java.io.IOException
+import java.text.DateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -68,6 +71,9 @@ class BackupManager @Inject constructor(
                 )
             },
             history = historyDao.getAllList().map { entry ->
+                val timestampString = DateFormat.getDateTimeInstance(
+                    DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.getDefault()
+                ).format(Date(entry.timeStamp))
                 BackupData.BackupHistoryEntry(
                     phoneNumber = entry.phoneNumber,
                     type = entry.type.code,
@@ -75,6 +81,7 @@ class BackupManager @Inject constructor(
                     direction = entry.direction.code,
                     reason = entry.reason.code,
                     flags = entry.flags,
+                    timestampString = timestampString,
                 )
             },
             dismissedBlockSuggestions = blockSuggestionDao.getAllList().map { suggestion ->
@@ -190,6 +197,7 @@ data class BackupData(
         val direction: Int = Direction.INCOMING.code,
         val reason: Int,
         val flags: Int = 0,
+        @SerialName("timestamp-string") val timestampString: String = "",
     )
 
     @Serializable
