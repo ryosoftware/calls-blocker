@@ -86,6 +86,9 @@ import java.util.Locale
 import androidx.core.net.toUri
 import com.ryosoftware.calls_blocker.data.db.NumberType.Companion.toString
 import com.ryosoftware.calls_blocker.data.db.Reason.Companion.toString
+import com.ryosoftware.calls_blocker.data.db.FLAG_CALL_SILENCED
+import com.ryosoftware.calls_blocker.data.db.FLAG_SKIP_CALL_LOG
+import com.ryosoftware.calls_blocker.data.db.FLAG_SKIP_NOTIFICATION
 
 private sealed interface HistoryHeader {
     data object Today : HistoryHeader
@@ -575,6 +578,14 @@ private fun HistoryItem(
     onUnallow: () -> Unit,
     onDelete: () -> Unit
 ) {
+    fun Int.flagsToText(context: Context): String? {
+        val labels = mutableListOf<String>()
+        if ((this and FLAG_CALL_SILENCED) != 0) labels.add(context.getString(R.string.flag_call_silenced))
+        if ((this and FLAG_SKIP_CALL_LOG) != 0) labels.add(context.getString(R.string.flag_skip_call_log))
+        if ((this and FLAG_SKIP_NOTIFICATION) != 0) labels.add(context.getString(R.string.flag_skip_notification))
+        return labels.ifEmpty { null }?.joinToString("\n")
+    }
+
     val dateFormat = remember {
         DateFormat.getDateTimeInstance(
             DateFormat.MEDIUM,
@@ -590,6 +601,8 @@ private fun HistoryItem(
     }
 
     val contactInfo = rememberContactInfo(entry.phoneNumber, context)
+
+    val rejectedCallColor = colorResource(if ((entry.flags and FLAG_CALL_SILENCED) == 0) R.color.status_inactive_text else R.color.status_inactive_text_2)
 
     Card(
         colors = if (isSelected) {
@@ -642,7 +655,7 @@ private fun HistoryItem(
                         Reason.REPEATED_CALL,
                         Reason.SCHEDULE,
                         Reason.FIND_MY_PHONE,
-                        Reason.FIND_MY_PHONE_CANCELLED -> colorResource(R.color.status_inactive_text)
+                        Reason.FIND_MY_PHONE_CANCELLED -> rejectedCallColor
                         Reason.WHITELISTED_NUMBER,
                         Reason.WHITELISTED_PREFIX -> colorResource(R.color.status_active_text)
                         Reason.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
@@ -672,7 +685,7 @@ private fun HistoryItem(
                             Reason.REPEATED_CALL,
                             Reason.SCHEDULE,
                             Reason.FIND_MY_PHONE,
-                            Reason.FIND_MY_PHONE_CANCELLED -> colorResource(R.color.status_inactive_text)
+                            Reason.FIND_MY_PHONE_CANCELLED -> rejectedCallColor
                             Reason.WHITELISTED_NUMBER,
                             Reason.WHITELISTED_PREFIX -> colorResource(R.color.status_active_text)
                             Reason.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
@@ -715,6 +728,17 @@ private fun HistoryItem(
                         Text(
                             text = stringResource(R.string.reason, entry.reason.toString(context)!!),
                             style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
+                    val flagsText = remember(entry.flags, context) { entry.flags.flagsToText(context) }
+                    if (flagsText != null) {
+                        Spacer(Modifier.height(8.dp))
+
+                        Text(
+                            text = flagsText,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 

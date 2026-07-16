@@ -74,6 +74,7 @@ class BackupManager @Inject constructor(
                     timestamp = entry.timeStamp,
                     direction = entry.direction.code,
                     reason = entry.reason.code,
+                    flags = entry.flags,
                 )
             },
             dismissedBlockSuggestions = blockSuggestionDao.getAllList().map { suggestion ->
@@ -138,6 +139,7 @@ class BackupManager @Inject constructor(
                 timeStamp = historyEntry.timestamp,
                 direction = Direction.fromCode(historyEntry.direction),
                 reason = Reason.fromCode(historyEntry.reason),
+                flags = historyEntry.flags,
             )
         })
 
@@ -187,6 +189,7 @@ data class BackupData(
         val timestamp: Long,
         val direction: Int = Direction.INCOMING.code,
         val reason: Int,
+        val flags: Int = 0,
     )
 
     @Serializable

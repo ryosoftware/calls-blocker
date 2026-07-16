@@ -338,6 +338,11 @@
     <string name="number_type_voicemail">Voicemail</string>
     <string name="number_type_unknown">Unknown</string>
 
+    <!-- History entry flags -->
+    <string name="flag_call_silenced">Silenced call</string>
+    <string name="flag_skip_call_log">Call not added to call log</string>
+    <string name="flag_skip_notification">Missed call notification skipped</string>
+
     <!-- Misc -->
     <string name="add_description">Add</string>
     <string name="remove_element_description">Remove %1$s</string>

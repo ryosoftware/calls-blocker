@@ -12,5 +12,7 @@
     <color name="status_active_text">#FF1B5E20</color>
     <color name="status_inactive_container">#FFFFCDD2</color>
     <color name="status_inactive_text">#FFB71C1C</color>
+    <color name="status_inactive_container_2">#FFFFDBC2</color>
+    <color name="status_inactive_text_2">#EF6C00</color>
 
 </resources>

@@ -42,6 +42,8 @@ import java.util.Locale
 
 const val PHONE_NUMBER_PARAM = "phone-number"
 const val REASON_PARAM = "reason"
+
+const val FLAGS_PARAM = "flags"
 const val DIRECTION_PARAM = "direction"
 
 const val TIME_PARAM = "time"
@@ -240,6 +242,8 @@ class PostServiceWorker @AssistedInject constructor(
         val time = inputData.getLong(TIME_PARAM, System.currentTimeMillis())
 
         if (! testingPurposes) {
+            val flags = inputData.getInt(FLAGS_PARAM, 0)
+
             logger.log("Running Post call screening worker for $NORMALIZED_PHONE_NUMBER_REF", normalizedPhoneNumber = phoneNumber)
 
             historyRepository.add(
@@ -248,7 +252,8 @@ class PostServiceWorker @AssistedInject constructor(
                     type = PhoneUtils.getNumberType(phoneNumber),
                     reason = reason,
                     direction = direction,
-                    timeStamp = time
+                    timeStamp = time,
+                    flags = flags
                 )
             )
         }

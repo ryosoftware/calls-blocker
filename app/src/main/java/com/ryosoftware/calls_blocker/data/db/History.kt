@@ -73,6 +73,10 @@ enum class NumberType(val code: Int, val resource: Int? = 0) {
     }
 }
 
+const val FLAG_CALL_SILENCED     = 1 shl 0
+const val FLAG_SKIP_CALL_LOG     = 1 shl 1
+const val FLAG_SKIP_NOTIFICATION = 1 shl 2
+
 class DirectionConverter {
     @TypeConverter
     fun fromDirection(direction: Direction): Int =
@@ -117,4 +121,6 @@ data class HistoryEntry(
     val timeStamp: Long = System.currentTimeMillis(),
     @ColumnInfo(name = "reason")
     val reason: Reason = Reason.NONE,
+    @ColumnInfo(name = "flags")
+    val flags: Int = 0,
 )
