@@ -108,6 +108,7 @@ class BackupManager @Inject constructor(
         val restoredPrefs = mutableMapOf<String, Any?>()
         for ((key, element) in backupData.settings) {
             if (element !is JsonPrimitive) continue
+            if (element.isString) { restoredPrefs[key] = element.content; continue }
             val bool = element.booleanOrNull
             if (bool != null) { restoredPrefs[key] = bool; continue }
             val int = element.intOrNull
@@ -116,7 +117,6 @@ class BackupManager @Inject constructor(
             if (long != null) { restoredPrefs[key] = long; continue }
             val float = element.floatOrNull
             if (float != null) { restoredPrefs[key] = float; continue }
-            if (element.isString) restoredPrefs[key] = element.content
         }
         settingsManager.importPrefs(restoredPrefs)
 
