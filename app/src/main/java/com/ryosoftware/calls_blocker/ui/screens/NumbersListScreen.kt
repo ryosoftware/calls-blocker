@@ -451,6 +451,20 @@ private fun NumberItem(
                         .weight(1f)
                         .padding(start = if (multiSelect) 0.dp else 12.dp)
                 ) {
+                    if (!contactInfo.name.isNullOrBlank()) {
+                        Text(
+                            text = contactInfo.name,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Medium,
+                            color = colorResource(when (number.action) {
+                                Action.BLOCK -> R.color.blocked_call
+                                Action.ALLOW -> R.color.allowed_call
+                            })
+                        )
+
+                        Spacer(Modifier.height(8.dp))
+                    }
+
                     Text(
                         text = PhoneUtils.formatPhoneNumber(number.phoneNumber),
                         style = MaterialTheme.typography.bodyLarge,
@@ -469,20 +483,6 @@ private fun NumberItem(
                         Text(
                             text = stringResource(R.string.country_name_and_flag, getCountryName(country), country.flag),
                             style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-
-                    if (!contactInfo.name.isNullOrBlank()) {
-                        Spacer(Modifier.height(8.dp))
-
-                        Text(
-                            text = contactInfo.name,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Medium,
-                            color = colorResource(when (number.action) {
-                                Action.BLOCK -> R.color.blocked_call
-                                Action.ALLOW -> R.color.allowed_call
-                            })
                         )
                     }
 

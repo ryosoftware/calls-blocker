@@ -668,6 +668,17 @@ private fun HistoryItem(
                         .weight(1f)
                         .padding(horizontal = 12.dp)
                 ) {
+                    if (!contactInfo.name.isNullOrBlank()) {
+                        Text(
+                            text = contactInfo.name,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Medium,
+                            color = callColor
+                        )
+
+                        Spacer(Modifier.height(8.dp))
+                    }
+
                     Text(
                         text = entry.phoneNumber.takeIf { it.isNotEmpty() }?.let { PhoneUtils.formatPhoneNumber(it) } ?: stringResource(R.string.hidden_number),
                         style = MaterialTheme.typography.bodyLarge,
@@ -691,17 +702,6 @@ private fun HistoryItem(
                         Text(
                             text = numberTypeString,
                             style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-
-                    if (!contactInfo.name.isNullOrBlank()) {
-                        Spacer(Modifier.height(8.dp))
-
-                        Text(
-                            text = contactInfo.name,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Medium,
-                            color = callColor
                         )
                     }
 
