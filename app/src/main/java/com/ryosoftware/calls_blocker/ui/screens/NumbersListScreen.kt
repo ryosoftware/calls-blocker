@@ -456,8 +456,8 @@ private fun NumberItem(
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium,
                         color = colorResource(when (number.action) {
-                            Action.BLOCK -> R.color.status_inactive_text
-                            Action.ALLOW -> R.color.status_active_text
+                            Action.BLOCK -> R.color.blocked_call
+                            Action.ALLOW -> R.color.allowed_call
                         })
                     )
 
@@ -479,7 +479,10 @@ private fun NumberItem(
                             text = contactInfo.name,
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.primary
+                            color = colorResource(when (number.action) {
+                                Action.BLOCK -> R.color.blocked_call
+                                Action.ALLOW -> R.color.allowed_call
+                            })
                         )
                     }
 
@@ -580,13 +583,15 @@ private fun NumberItem(
                     IconButton(onClick = onRemove) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = stringResource(
-                                when (number.action) {
-                                    Action.BLOCK -> R.string.stop_blocking
-                                    Action.ALLOW -> R.string.stop_allowing
-                                }
-                            ),
-                            modifier = Modifier.size(20.dp)
+                            contentDescription = stringResource(when (number.action) {
+                                Action.BLOCK -> R.string.stop_blocking
+                                Action.ALLOW -> R.string.stop_allowing
+                            }),
+                            modifier = Modifier.size(20.dp),
+                            tint = colorResource(when (number.action) {
+                                Action.BLOCK -> R.color.unblock
+                                Action.ALLOW -> R.color.unallow
+                            })
                         )
                     }
                 }

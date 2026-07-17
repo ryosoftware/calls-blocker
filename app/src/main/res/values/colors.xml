@@ -15,4 +15,15 @@
     <color name="status_inactive_container_2">#FFFFDBC2</color>
     <color name="status_inactive_text_2">#EF6C00</color>
 
+    <color name="delete">@color/status_inactive_text</color>
+
+    <color name="allow">@color/status_active_text</color>
+    <color name="unallow">@color/status_inactive_text_2</color>
+    <color name="block">@color/status_inactive_text</color>
+    <color name="unblock">@color/status_active_text</color>
+
+    <color name="blocked_call">@color/status_inactive_text</color>
+    <color name="silenced_call">@color/status_inactive_text_2</color>
+    <color name="allowed_call">@color/status_active_text</color>
+
 </resources>

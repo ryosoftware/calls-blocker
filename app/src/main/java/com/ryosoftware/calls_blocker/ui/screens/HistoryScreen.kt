@@ -602,7 +602,24 @@ private fun HistoryItem(
 
     val contactInfo = rememberContactInfo(entry.phoneNumber, context)
 
-    val rejectedCallColor = colorResource(if ((entry.flags and FLAG_CALL_SILENCED) == 0) R.color.status_inactive_text else R.color.status_inactive_text_2)
+    val callColor = when (entry.reason) {
+        Reason.BLOCK_ALL,
+        Reason.HIDDEN_NUMBER,
+        Reason.BLACKLISTED_NUMBER,
+        Reason.BLACKLISTED_PREFIX,
+        Reason.NOT_A_CONTACT,
+        Reason.MEMBER_OF_BLOCKED_GROUP_OF_CONTACTS,
+        Reason.INTERNATIONAL_NUMBER,
+        Reason.NOT_CALLED,
+        Reason.REJECTED_BEFORE,
+        Reason.REPEATED_CALL,
+        Reason.SCHEDULE,
+        Reason.FIND_MY_PHONE,
+        Reason.FIND_MY_PHONE_CANCELLED -> colorResource(if ((entry.flags and FLAG_CALL_SILENCED) == 0) R.color.blocked_call else R.color.silenced_call)
+        Reason.WHITELISTED_NUMBER,
+        Reason.WHITELISTED_PREFIX -> colorResource(R.color.allowed_call)
+        Reason.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
 
     Card(
         colors = if (isSelected) {
@@ -642,24 +659,7 @@ private fun HistoryItem(
                         Direction.OUTGOING -> Icons.AutoMirrored.Filled.CallMade
                     },
                     contentDescription = null,
-                    tint = when (entry.reason) {
-                        Reason.BLOCK_ALL,
-                        Reason.HIDDEN_NUMBER,
-                        Reason.BLACKLISTED_NUMBER,
-                        Reason.BLACKLISTED_PREFIX,
-                        Reason.NOT_A_CONTACT,
-                        Reason.MEMBER_OF_BLOCKED_GROUP_OF_CONTACTS,
-                        Reason.INTERNATIONAL_NUMBER,
-                        Reason.NOT_CALLED,
-                        Reason.REJECTED_BEFORE,
-                        Reason.REPEATED_CALL,
-                        Reason.SCHEDULE,
-                        Reason.FIND_MY_PHONE,
-                        Reason.FIND_MY_PHONE_CANCELLED -> rejectedCallColor
-                        Reason.WHITELISTED_NUMBER,
-                        Reason.WHITELISTED_PREFIX -> colorResource(R.color.status_active_text)
-                        Reason.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
-                    },
+                    tint = callColor,
                     modifier = Modifier.size(24.dp)
                 )
 
@@ -672,24 +672,7 @@ private fun HistoryItem(
                         text = entry.phoneNumber.takeIf { it.isNotEmpty() }?.let { PhoneUtils.formatPhoneNumber(it) } ?: stringResource(R.string.hidden_number),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium,
-                        color = when (entry.reason) {
-                            Reason.BLOCK_ALL,
-                            Reason.HIDDEN_NUMBER,
-                            Reason.BLACKLISTED_NUMBER,
-                            Reason.BLACKLISTED_PREFIX,
-                            Reason.NOT_A_CONTACT,
-                            Reason.MEMBER_OF_BLOCKED_GROUP_OF_CONTACTS,
-                            Reason.INTERNATIONAL_NUMBER,
-                            Reason.NOT_CALLED,
-                            Reason.REJECTED_BEFORE,
-                            Reason.REPEATED_CALL,
-                            Reason.SCHEDULE,
-                            Reason.FIND_MY_PHONE,
-                            Reason.FIND_MY_PHONE_CANCELLED -> rejectedCallColor
-                            Reason.WHITELISTED_NUMBER,
-                            Reason.WHITELISTED_PREFIX -> colorResource(R.color.status_active_text)
-                            Reason.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
-                        }
+                        color = callColor
                     )
 
                     if (countryInfo != null) {
@@ -718,7 +701,7 @@ private fun HistoryItem(
                             text = contactInfo.name,
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.primary
+                            color = callColor
                         )
                     }
 
@@ -806,7 +789,8 @@ private fun HistoryItem(
                                 Icon(
                                     imageVector = Icons.Default.Block,
                                     contentDescription = stringResource(R.string.action_unblock),
-                                    modifier = Modifier.size(20.dp)
+                                    modifier = Modifier.size(20.dp),
+                                    tint = colorResource(R.color.unblock)
                                 )
                             }
                         } else if (!isAllowed) {
@@ -814,7 +798,8 @@ private fun HistoryItem(
                                 Icon(
                                     imageVector = Icons.Default.Block,
                                     contentDescription = stringResource(R.string.action_block),
-                                    modifier = Modifier.size(20.dp)
+                                    modifier = Modifier.size(20.dp),
+                                    tint = colorResource(R.color.block)
                                 )
                             }
                         }
@@ -825,7 +810,7 @@ private fun HistoryItem(
                                     imageVector = Icons.Default.CheckCircleOutline,
                                     contentDescription = stringResource(R.string.action_unallow),
                                     modifier = Modifier.size(20.dp),
-                                    tint = MaterialTheme.colorScheme.error
+                                    tint = colorResource(R.color.unallow)
                                 )
                             }
                         } else if (!isBlocked) {
@@ -834,7 +819,7 @@ private fun HistoryItem(
                                     imageVector = Icons.Default.CheckCircleOutline,
                                     contentDescription = stringResource(R.string.action_allow),
                                     modifier = Modifier.size(20.dp),
-                                    tint = MaterialTheme.colorScheme.primary
+                                    tint = colorResource(R.color.allow)
                                 )
                             }
                         }
@@ -845,7 +830,8 @@ private fun HistoryItem(
                             Icon(
                                 imageVector = Icons.Default.Block,
                                 contentDescription = stringResource(R.string.block_hidden_title),
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(20.dp),
+                                tint = colorResource(R.color.block)
                             )
                         }
                     }
@@ -856,7 +842,7 @@ private fun HistoryItem(
                                 imageVector = Icons.Default.CheckCircleOutline,
                                 contentDescription = stringResource(R.string.action_unblock),
                                 modifier = Modifier.size(20.dp),
-                                tint = MaterialTheme.colorScheme.primary
+                                tint = colorResource(R.color.unblock)
                             )
                         }
                     }
@@ -865,7 +851,8 @@ private fun HistoryItem(
                         Icon(
                             imageVector = Icons.Default.Delete,
                             contentDescription = stringResource(R.string.delete),
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(20.dp),
+                            tint = colorResource(R.color.delete)
                         )
                     }
                 }
