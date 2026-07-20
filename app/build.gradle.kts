@@ -16,10 +16,10 @@ android {
         applicationId = namespace
 
         minSdk = 30
-        targetSdk = 37
+        targetSdk = compileSdk
 
-        versionCode = 10
-        versionName = "1.10"
+        versionCode = 11
+        versionName = "1.11"
 
         buildConfigField(
             "String",
@@ -73,7 +73,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
     implementation("androidx.core:core-ktx:1.19.0")
-    implementation("com.googlecode.libphonenumber:libphonenumber:9.0.34")
+    implementation("com.googlecode.libphonenumber:libphonenumber:9.0.35")
     implementation("com.google.errorprone:error_prone_annotations:2.50.0")
     implementation("androidx.room:room-runtime:2.8.4")
     implementation("androidx.room:room-ktx:2.8.4")
