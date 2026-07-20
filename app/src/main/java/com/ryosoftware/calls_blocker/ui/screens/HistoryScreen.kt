@@ -283,11 +283,8 @@ fun HistoryScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable {
-                                            collapsedHeaders = if (collapsed) {
-                                                collapsedHeaders - item.header
-                                            } else {
-                                                collapsedHeaders + item.header
-                                            }
+                                            collapsedHeaders = if (collapsed) { collapsedHeaders - item.header }
+                                                               else { collapsedHeaders + item.header }
                                         }
                                         .padding(top = 16.dp, bottom = 4.dp)
                                 ) {
@@ -296,7 +293,9 @@ fun HistoryScreen(
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.primary
                                     )
+
                                     Spacer(Modifier.width(4.dp))
+
                                     Text(
                                         text = text,
                                         style = MaterialTheme.typography.bodySmall,

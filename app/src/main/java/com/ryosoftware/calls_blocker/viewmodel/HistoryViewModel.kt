@@ -8,7 +8,6 @@ import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.Country
 import com.ryosoftware.calls_blocker.data.CountryNameProvider
 import com.ryosoftware.calls_blocker.data.SettingsManager
-import com.ryosoftware.calls_blocker.data.db.Reason
 import com.ryosoftware.calls_blocker.data.db.Action
 import com.ryosoftware.calls_blocker.data.db.Type
 import com.ryosoftware.calls_blocker.data.db.NumberDao

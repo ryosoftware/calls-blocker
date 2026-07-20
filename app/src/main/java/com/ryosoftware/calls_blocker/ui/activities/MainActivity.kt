@@ -103,7 +103,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CallsBlockerTheme {
-                CallsBlockerApp(settingsManager, onRestartApp = { restartApp() })
+                CallsBlockerApp(settingsManager, countryNameProvider, onRestartApp = { restartApp() })
             }
         }
     }
@@ -121,6 +121,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun CallsBlockerApp(
     settingsManager: SettingsManager,
+    countryNameProvider: CountryNameProvider,
     onRestartApp: () -> Unit,
 ) {
     val navController = rememberNavController()
@@ -422,6 +423,7 @@ fun CallsBlockerApp(
         ) {
             composable(Screen.BlockList.route) {
                 NumbersListScreen(
+                    countryNameProvider = countryNameProvider,
                     defaultCountryIso = settingsManager.defaultCountryIso,
                     onMultiSelect = { count, allSelected, onClose, onSelectAll, onDelete ->
                         selectionCount = count

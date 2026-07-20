@@ -345,7 +345,23 @@
     <string name="flag_skip_call_log">Llamada no añadida al registro de llamadas</string>
     <string name="flag_skip_notification">Llamada sin notificación de llamada perdida</string>
 
+    <!-- Call log picker dialog -->
+    <string name="select_call">Seleccionar llamada</string>
+    <string name="call_log_permission_required">Se requiere acceso al registro de llamadas para mostrar la lista de llamadas.</string>
+    <string name="call_type_incoming">Entrante</string>
+    <string name="call_type_outgoing">Saliente</string>
+    <string name="call_type_missed">Perdida</string>
+    <string name="call_type_rejected">Rechazada</string>
+    <string name="duration_minutes">%1$d:%2$02d</string>
+    <string name="add_from_call_log">Desde el registro de llamadas</string>
+    <string name="add_manually">Añadir manualmente</string>
+    <string name="block_or_allow_title">¿Bloquear o permitir este número?</string>
+    <string name="call_date_and_duration">%1$s, %2$s</string>
+
     <!-- Misc -->
+    <string name="days_and_hours_and_minutes">%1$dd %2$dh %3$dm</string>
+    <string name="hours_and_minutes">%1$dh %2$dm</string>
+    <string name="minutes">%1$dm</string>
     <string name="add_description">Añadir</string>
     <string name="remove_element_description">Eliminar %1$s</string>
     <string name="error_title">Error</string>
@@ -360,4 +376,5 @@
     <string name="no">No</string>
     <string name="call">Llamar</string>
     <string name="copy">Copiar</string>
+
 </resources>
