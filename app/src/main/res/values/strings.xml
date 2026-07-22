@@ -106,6 +106,8 @@
 
     <string name="block_all_title">Block all</string>
     <string name="block_all_description">Blocks all incoming calls</string>
+    <string name="block_all_enabled">\"Block all calls\" is enabled</string>
+    <string name="block_all_disabled">\"Block all calls\" has been disabled</string>
 
     <string name="block_groups_title">Block groups</string>
     <string name="block_groups_description">Blocks calls from contacts that belong to selected groups</string>

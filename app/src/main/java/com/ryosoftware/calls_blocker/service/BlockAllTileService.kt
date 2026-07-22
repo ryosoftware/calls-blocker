@@ -3,7 +3,9 @@ package com.ryosoftware.calls_blocker.service
 import android.content.Intent
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
+import android.widget.Toast
 import com.ryosoftware.calls_blocker.BuildConfig
+import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.SettingsManager
 import dagger.hilt.android.AndroidEntryPoint
 import jakarta.inject.Inject
@@ -32,6 +34,9 @@ class BlockAllTileService : TileService() {
         super.onClick()
 
         settingsManager.blockAll = !settingsManager.blockAll
+
+        val toastMessage = if (settingsManager.blockAll) R.string.block_all_enabled else R.string.block_all_disabled
+        Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show()
 
         sendBroadcast(
             Intent(ACTION_BLOCK_ALL_CHANGED).apply {

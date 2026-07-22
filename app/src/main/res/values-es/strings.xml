@@ -107,6 +107,8 @@
 
     <string name="block_all_title">Bloquear todas</string>
     <string name="block_all_description">Bloquea todas las llamadas entrantes</string>
+    <string name="block_all_enabled">\"Bloquear todas las llamadas\" activado</string>
+    <string name="block_all_disabled">\"Bloquear todas las llamadas\" desactivado</string>
 
     <string name="block_groups_title">Bloqueo de grupos</string>
     <string name="block_groups_description">Bloquea las llamadas de contactos que pertenecen a los grupos seleccionados</string>
