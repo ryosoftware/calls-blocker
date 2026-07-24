@@ -78,6 +78,9 @@
     <string name="history_export">Export as CSV</string>
     <string name="history_export_success">History exported successfully</string>
     <string name="hidden_number">Hidden number</string>
+    <string name="no_blocked_calls">no one blocked</string>
+    <string name="all_calls_blocked">all blocked</string>
+    <string name="calls_and_blocked_calls">%1$s, %2$s</string>
 
     <!-- Settings Screen -->
     <string name="default_country_title">Your country</string>

@@ -32,6 +32,10 @@
         <item quantity="one">%d call</item>
         <item quantity="other">%d calls</item>
     </plurals>
+    <plurals name="blocked_calls">
+        <item quantity="one">%d blocked</item>
+        <item quantity="other">%d blocked</item>
+    </plurals>
     <plurals name="numbers">
         <item quantity="one">%d number</item>
         <item quantity="other">%d numbers</item>

@@ -99,7 +99,7 @@ private sealed interface HistoryHeader {
 }
 
 private sealed interface HistoryListItem {
-    data class Header(val header: HistoryHeader, val count: Int) : HistoryListItem
+    data class Header(val header: HistoryHeader, val callsCount: Int, val blockedCallsCount: Int) : HistoryListItem
     data class Entry(val entry: HistoryEntry) : HistoryListItem
 }
 
@@ -230,7 +230,12 @@ fun HistoryScreen(
 
                         fun addGroup(header: HistoryHeader) {
                             val entries = byHeader[header] ?: return
-                            add(HistoryListItem.Header(header, entries.size))
+                            val blockedCallsCount = entries.count {
+                                it.reason != Reason.NONE &&
+                                it.reason != Reason.WHITELISTED_NUMBER &&
+                                it.reason != Reason.WHITELISTED_PREFIX
+                            }
+                            add(HistoryListItem.Header(header, entries.size, blockedCallsCount))
                             if (header !in collapsedHeaders) {
                                 entries.forEach { add(HistoryListItem.Entry(it)) }
                             }
@@ -262,22 +267,28 @@ fun HistoryScreen(
                         when (item) {
                             is HistoryListItem.Header -> {
                                 val collapsed = item.header in collapsedHeaders
-                                val callsBlockedString = pluralStringResource(R.plurals.calls, item.count, item.count)
-                                val text = when (val history = item.header) {
-                                    HistoryHeader.Today -> stringResource(R.string.history_header_today, callsBlockedString)
-                                    HistoryHeader.Yesterday -> stringResource(R.string.history_header_yesterday, callsBlockedString)
-                                    HistoryHeader.ThisWeek -> stringResource(R.string.history_header_this_week, callsBlockedString)
-                                    HistoryHeader.ThisMonth -> stringResource(R.string.history_header_this_month, callsBlockedString)
+                                val callsString = pluralStringResource(R.plurals.calls, item.callsCount, item.callsCount)
+                                val blockedString = when {
+                                    item.blockedCallsCount == 0 -> stringResource(R.string.no_blocked_calls)
+                                    item.blockedCallsCount == item.callsCount -> stringResource(R.string.all_calls_blocked)
+                                    else -> pluralStringResource(R.plurals.blocked_calls, item.blockedCallsCount, item.blockedCallsCount)
+                                }
+                                val headerText = when (val history = item.header) {
+                                    HistoryHeader.Today -> stringResource(R.string.history_header_today, callsString)
+                                    HistoryHeader.Yesterday -> stringResource(R.string.history_header_yesterday, callsString)
+                                    HistoryHeader.ThisWeek -> stringResource(R.string.history_header_this_week, callsString)
+                                    HistoryHeader.ThisMonth -> stringResource(R.string.history_header_this_month, callsString)
                                     is HistoryHeader.Month -> {
                                         val monthName = remember(history.month) { monthNames[history.month - 1] }
                                         if (history.year == today.year) {
-                                            stringResource(R.string.history_header_month_without_year, callsBlockedString, monthName)
+                                            stringResource(R.string.history_header_month_without_year, callsString, monthName)
                                         } else {
-                                            stringResource(R.string.history_header_month_with_year, callsBlockedString, monthName, history.year)
+                                            stringResource(R.string.history_header_month_with_year, callsString, monthName, history.year)
                                         }
 
                                     }
                                 }
+                                val text = stringResource(R.string.calls_and_blocked_calls, headerText, blockedString)
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier

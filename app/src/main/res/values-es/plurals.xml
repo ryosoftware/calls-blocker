@@ -40,6 +40,11 @@
         <item quantity="other">%d llamadas</item>
         <item quantity="many">%d llamadas</item>
     </plurals>
+    <plurals name="blocked_calls">
+        <item quantity="one">%d bloqueada</item>
+        <item quantity="other">%d bloqueadas</item>
+        <item quantity="many">%d bloqueadas</item>
+    </plurals>
     <plurals name="numbers">
         <item quantity="one">%d número</item>
         <item quantity="other">%d números</item>
