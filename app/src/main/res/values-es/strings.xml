@@ -362,6 +362,8 @@
     <string name="add_manually">Añadir manualmente</string>
     <string name="block_or_allow_title">¿Bloquear o permitir este número?</string>
     <string name="call_date_and_duration">%1$s, %2$s</string>
+    <string name="rejected_call">La llamada se rechazó</string>
+    <string name="blocked_call">La llamada se bloqueó</string>
 
     <!-- Misc -->
     <string name="days_and_hours_and_minutes">%1$dd %2$dh %3$dm</string>

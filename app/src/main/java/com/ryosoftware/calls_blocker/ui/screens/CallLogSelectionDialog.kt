@@ -359,6 +359,18 @@ private fun CallLogRow(
                 )
             }
 
+            if ((entry.callType == CallLog.Calls.REJECTED_TYPE) || (entry.callType == CallLog.Calls.BLOCKED_TYPE)) {
+                Spacer(Modifier.height(8.dp))
+
+                val resource = if (entry.callType == CallLog.Calls.REJECTED_TYPE) R.string.rejected_call else R.string.blocked_call
+
+                Text(
+                    text = stringResource(resource),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = iconColor
+                )
+            }
+
             if (isExisting) {
                 Spacer(Modifier.height(8.dp))
 

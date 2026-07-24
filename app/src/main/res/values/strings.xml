@@ -360,6 +360,8 @@
     <string name="add_manually">Add manually</string>
     <string name="block_or_allow_title">Block or allow this number?</string>
     <string name="call_date_and_duration">%1$s, %2$s</string>
+    <string name="rejected_call">Call was rejected</string>
+    <string name="blocked_call">Call was blocked</string>
 
     <!-- Misc -->
     <string name="days_and_hours_and_minutes">%1$dd %2$dh %3$dm</string>
