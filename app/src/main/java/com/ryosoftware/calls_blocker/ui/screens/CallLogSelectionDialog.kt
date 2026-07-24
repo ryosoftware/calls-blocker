@@ -315,9 +315,10 @@ private fun CallLogRow(
     ) {
         Icon(
             imageVector = when (entry.callType) {
-                CallLog.Calls.INCOMING_TYPE -> Icons.AutoMirrored.Filled.CallReceived
+                CallLog.Calls.INCOMING_TYPE,
+                CallLog.Calls.REJECTED_TYPE,
+                CallLog.Calls.BLOCKED_TYPE -> Icons.AutoMirrored.Filled.CallReceived
                 CallLog.Calls.OUTGOING_TYPE -> Icons.AutoMirrored.Filled.CallMade
-                CallLog.Calls.MISSED_TYPE -> Icons.AutoMirrored.Filled.PhoneMissed
                 else -> Icons.AutoMirrored.Filled.PhoneMissed
             },
             contentDescription = null,
