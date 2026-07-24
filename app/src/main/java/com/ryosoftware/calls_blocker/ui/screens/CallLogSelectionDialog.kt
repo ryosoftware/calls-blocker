@@ -1,11 +1,14 @@
 package com.ryosoftware.calls_blocker.ui.screens
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.provider.CallLog
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -22,7 +24,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.CallMade
 import androidx.compose.material.icons.automirrored.filled.CallReceived
 import androidx.compose.material.icons.automirrored.filled.PhoneMissed
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -47,6 +53,7 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.ryosoftware.calls_blocker.Main.Companion.hasReadCallLogPermission
@@ -100,12 +107,13 @@ private fun getCallLogHeader(timestamp: Long, today: LocalDate): CallLogHeader {
     return CallLogHeader.Month(date.year, date.monthValue)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CallLogPickerDialog(
     countryNameProvider: CountryNameProvider,
     blockedNumbers: Set<String>,
     allowedNumbers: Set<String>,
-    onSelect: (CallLogEntry) -> Unit,
+    onMultiSelect: (List<CallLogEntry>, String) -> Unit,  // action: "block" or "allow"
     onDismiss: () -> Unit,
     onRequestCallLogPermission: () -> Unit
 ) {
@@ -116,6 +124,24 @@ fun CallLogPickerDialog(
     var callLogEntries by remember { mutableStateOf<List<CallLogEntry>>(emptyList()) }
     val hasCallLogPermission = remember { context.hasReadCallLogPermission() }
 
+    @SuppressLint("MutableCollectionMutableState")
+    var selectedPhoneNumbers by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var showConfirmDialog by remember { mutableStateOf(false) }
+    var pendingAction by remember { mutableStateOf<String?>(null) }
+
+    val selectedEntries = remember(selectedPhoneNumbers, callLogEntries) {
+        callLogEntries.filter { it.phoneNumber in selectedPhoneNumbers }
+    }
+
+    val rejectedBlockedEntries = remember(callLogEntries) {
+        callLogEntries.filter { it.callType == CallLog.Calls.REJECTED_TYPE || it.callType == CallLog.Calls.BLOCKED_TYPE }
+    }
+
+    val rejectedBlockedPhoneNumbers = remember(rejectedBlockedEntries) {
+        rejectedBlockedEntries.map { it.phoneNumber }.toSet()
+    }
+
+    val canSelectRejectedBlocked = rejectedBlockedPhoneNumbers.isNotEmpty()
 
     LaunchedEffect(hasCallLogPermission) {
         if (hasCallLogPermission) {
@@ -127,9 +153,7 @@ fun CallLogPickerDialog(
         if (search.isBlank()) callLogEntries
         else {
             val q = search.lowercase()
-            callLogEntries.filter {
-                it.phoneNumber.lowercase().contains(q)
-            }
+            callLogEntries.filter { it.phoneNumber.lowercase().contains(q) }
         }
     }
 
@@ -155,6 +179,41 @@ fun CallLogPickerDialog(
         }
     }
 
+    fun togglePhoneNumber(phoneNumber: String) {
+        selectedPhoneNumbers = if (phoneNumber in selectedPhoneNumbers) {
+            selectedPhoneNumbers - phoneNumber
+        } else {
+            selectedPhoneNumbers + phoneNumber
+        }
+    }
+
+    fun selectAllRejectedBlocked() {
+        selectedPhoneNumbers = rejectedBlockedPhoneNumbers
+    }
+
+    fun clearSelection() {
+        selectedPhoneNumbers = emptySet()
+    }
+
+    fun onConfirmAction(action: String) {
+        pendingAction = action
+        showConfirmDialog = true
+    }
+
+    fun executeAction() {
+        val entriesToProcess = selectedEntries.toList()
+        if (entriesToProcess.isNotEmpty() && pendingAction != null) {
+            onMultiSelect(entriesToProcess, pendingAction!!)
+        }
+        clearSelection()
+        pendingAction = null
+        showConfirmDialog = false
+    }
+
+    BackHandler(enabled = selectedPhoneNumbers.isNotEmpty()) {
+        clearSelection()
+    }
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -164,20 +223,32 @@ fun CallLogPickerDialog(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Spacer(Modifier.weight(1f))
+            if (selectedPhoneNumbers.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = pluralStringResource(R.plurals.numbers_selected, selectedPhoneNumbers.size, selectedPhoneNumbers.size, pluralStringResource(R.plurals.calls, selectedEntries.size, selectedEntries.size)),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
 
-                TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.cancel))
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    TextButton(onClick = { onConfirmAction("block") }) {
+                        Text(stringResource(R.string.action_block))
+                    }
+
+                    TextButton(onClick = { onConfirmAction("allow") }) {
+                        Text(stringResource(R.string.action_allow))
+                    }
                 }
-            }
 
-            Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(8.dp))
+            }
 
             if (!hasCallLogPermission) {
                 Column(
@@ -249,7 +320,7 @@ fun CallLogPickerDialog(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(top = 16.dp, bottom = 4.dp)
+                                        .padding(top = 16.dp, bottom = 4.dp, start = 16.dp, end = 16.dp)
                                 ) {
                                     Text(
                                         text = text,
@@ -264,8 +335,12 @@ fun CallLogPickerDialog(
                                 countryNameProvider = countryNameProvider,
                                 isBlocked = item.entry.phoneNumber in blockedNumbers,
                                 isAllowed = item.entry.phoneNumber in allowedNumbers,
+                                isSelected = item.entry.phoneNumber in selectedPhoneNumbers,
                                 onClick = {
-                                    onSelect(item.entry)
+                                    val isExisting = item.entry.phoneNumber in blockedNumbers || item.entry.phoneNumber in allowedNumbers
+                                    if (!isExisting) {
+                                        togglePhoneNumber(item.entry.phoneNumber)
+                                    }
                                 }
                             )
                         }
@@ -273,6 +348,41 @@ fun CallLogPickerDialog(
                 }
             }
         }
+    }
+
+    if (showConfirmDialog) {
+        val action = pendingAction ?: ""
+        val isBlockAction = action == "block"
+        val actionTitle = if (isBlockAction) stringResource(R.string.action_block) else stringResource(R.string.action_allow)
+        val selectedNumbersList = remember(selectedPhoneNumbers) { selectedPhoneNumbers.toList() }
+        val displayNumbers = selectedNumbersList.take(10).joinToString("\n") { PhoneUtils.formatPhoneNumber(it) }
+        val remaining = if (selectedNumbersList.size > 10) "\n... y ${selectedNumbersList.size - 10} más" else ""
+        val confirmText = if (isBlockAction)
+            stringResource(R.string.confirm_block_multiple_numbers_detail, displayNumbers, remaining)
+        else
+            stringResource(R.string.confirm_allow_multiple_numbers_detail, displayNumbers, remaining)
+
+        AlertDialog(
+            onDismissRequest = {
+                showConfirmDialog = false
+                pendingAction = null
+            },
+            title = { Text(actionTitle) },
+            text = { Text(confirmText) },
+            confirmButton = {
+                TextButton(onClick = { executeAction() }) {
+                    Text(stringResource(R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showConfirmDialog = false
+                    pendingAction = null
+                }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 }
 
@@ -282,7 +392,8 @@ private fun CallLogRow(
     countryNameProvider: CountryNameProvider,
     isBlocked: Boolean,
     isAllowed: Boolean,
-    onClick: () -> Unit,
+    isSelected: Boolean,
+    onClick: () -> Unit
 ) {
     val context = LocalContext.current
     val contactInfo = rememberContactInfo(entry.phoneNumber, context)
@@ -306,13 +417,18 @@ private fun CallLogRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .then(
-                if (isExisting) Modifier else Modifier.clickable(onClick = onClick)
-            )
+            .then(if (isExisting) Modifier else Modifier.clickable(onClick = onClick))
             .alpha(if (isExisting) 0.4f else 1f)
             .padding(12.dp),
         verticalAlignment = Alignment.Top
     ) {
+        Checkbox(
+            checked = isSelected,
+            enabled = !isExisting,
+            onCheckedChange = { _ -> onClick() },
+            modifier = Modifier.padding(end = 8.dp)
+        )
+
         Icon(
             imageVector = when (entry.callType) {
                 CallLog.Calls.INCOMING_TYPE,
@@ -336,7 +452,7 @@ private fun CallLogRow(
                     text = contactInfo.name,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
-                    color = iconColor
+                    color = if (isSelected) MaterialTheme.colorScheme.primary else iconColor
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -346,7 +462,7 @@ private fun CallLogRow(
                 text = PhoneUtils.formatPhoneNumber(entry.phoneNumber),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
-                color = iconColor
+                color = if (isSelected) MaterialTheme.colorScheme.primary else iconColor
             )
 
             if (countryInfo != null) {

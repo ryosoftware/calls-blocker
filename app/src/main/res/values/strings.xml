@@ -60,7 +60,11 @@
     <string name="confirm_block_number">Block %1$s?</string>
     <string name="confirm_allow_number">Allow %1$s?</string>
     <string name="confirm_unblock_number">Unblock %1$s?</string>
-    <string name="confirm_unallow_number">Unallow %1$s?</string>
+    <string name="confirm_unallow_number">Disallow %1$s?</string>
+    <string name="confirm_block_multiple_numbers_detail">Block these numbers?\n\n%1$s%2$s</string>
+    <string name="confirm_allow_multiple_numbers_detail">Allow these numbers?\n\n%1$s%2$s</string>
+
+    <!-- Call Log Selection Dialog -->
 
     <!-- History Screen -->
     <string name="history_empty">No logged calls</string>
@@ -215,7 +219,6 @@
     <string name="reason_hidden">Hidden number</string>
     <string name="reason_blacklisted_number">Blacklisted number</string>
     <string name="reason_blacklisted_prefix">Blacklisted prefix</string>
-    <string name="reason_unknown_number">It\'s not a contact</string>
     <string name="reason_group">Blocked group</string>
     <string name="reason_international">International call</string>
     <string name="reason_not_called">Not dialed before</string>
@@ -332,7 +335,6 @@
     <!-- Number types -->
     <string name="number_type_mobile">Mobile</string>
     <string name="number_type_fixed_line">Fixed line</string>
-    <string name="number_type_fixed_line_or_mobile">Mobile or fixed line</string>
     <string name="number_type_voip">VoIP</string>
     <string name="number_type_toll_free">Toll free</string>
     <string name="number_type_premium_rate">Premium rate</string>
@@ -341,7 +343,6 @@
     <string name="number_type_pager">Pager</string>
     <string name="number_type_uan">UAN</string>
     <string name="number_type_voicemail">Voicemail</string>
-    <string name="number_type_unknown">Unknown</string>
 
     <!-- History entry flags -->
     <string name="flag_call_silenced">Silenced call</string>
@@ -349,16 +350,9 @@
     <string name="flag_skip_notification">Missed call notification skipped</string>
 
     <!-- Call log picker dialog -->
-    <string name="select_call">Select call</string>
     <string name="call_log_permission_required">Call log access is required to show the list of calls.</string>
-    <string name="call_type_incoming">Incoming</string>
-    <string name="call_type_outgoing">Outgoing</string>
-    <string name="call_type_missed">Missed</string>
-    <string name="call_type_rejected">Rejected</string>
-    <string name="duration_minutes">%1$d:%2$02d</string>
-    <string name="add_from_call_log">From call log</string>
+    <string name="add_from_call_log">Add from Calls Log</string>
     <string name="add_manually">Add manually</string>
-    <string name="block_or_allow_title">Block or allow this number?</string>
     <string name="call_date_and_duration">%1$s, %2$s</string>
     <string name="rejected_call">Call was rejected</string>
     <string name="blocked_call">Call was blocked</string>

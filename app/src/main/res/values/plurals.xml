@@ -40,6 +40,10 @@
         <item quantity="one">%d number</item>
         <item quantity="other">%d numbers</item>
     </plurals>
+    <plurals name="numbers_selected">
+        <item quantity="one">%1$d number selected (%2$s)</item>
+        <item quantity="other">%1$d numbers selected (%2$s)</item>
+    </plurals>
     <plurals name="date_and_time">
         <item quantity="one">%1$s at %2$s</item>
         <item quantity="other">%1$s at %2$s</item>

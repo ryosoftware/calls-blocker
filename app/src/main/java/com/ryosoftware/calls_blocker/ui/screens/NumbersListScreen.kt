@@ -81,6 +81,7 @@ import com.ryosoftware.calls_blocker.data.Country
 import com.ryosoftware.calls_blocker.data.findCountryByPhoneNumber
 import com.ryosoftware.calls_blocker.data.db.Number
 import com.ryosoftware.calls_blocker.data.db.Type
+import com.ryosoftware.calls_blocker.ui.screens.CallLogPickerDialog
 import com.ryosoftware.calls_blocker.viewmodel.NumbersViewModel
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -108,8 +109,6 @@ fun NumbersListScreen(
     val addNumberError by viewModel.addNumberError.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
     var showCallLogPicker by remember { mutableStateOf(false) }
-    var showCallLogPickerActionDialog by remember { mutableStateOf(false) }
-    var pendingPhoneNumber by remember { mutableStateOf("") }
     var speedDialExpanded by remember { mutableStateOf(false) }
     var searchVisible by remember { mutableStateOf(true) }
     var searchQuery by remember { mutableStateOf("") }
@@ -217,7 +216,6 @@ fun NumbersListScreen(
                         ExtendedFloatingActionButton(
                             onClick = {
                                 speedDialExpanded = false
-                                pendingPhoneNumber = ""
                                 showAddDialog = true
                             },
                             text = {
@@ -468,44 +466,21 @@ fun NumbersListScreen(
             countryNameProvider = countryNameProvider,
             blockedNumbers = blockedExactNumbers,
             allowedNumbers = allowedExactNumbers,
-            onSelect = { entry ->
-                pendingPhoneNumber = entry.phoneNumber
-                showCallLogPickerActionDialog = true
+            onMultiSelect = { entries, action ->
+                if (entries.isNotEmpty()) {
+                    val phoneNumbers = entries.map { it.phoneNumber }.distinct()
+                    phoneNumbers.forEach { phoneNumber ->
+                        when (action) {
+                            "block" -> viewModel.addNumber(phoneNumber, "", Action.BLOCK, Type.EXACT_COINCIDENCE)
+                            "allow" -> viewModel.addNumber(phoneNumber, "", Action.ALLOW, Type.EXACT_COINCIDENCE)
+                        }
+                    }
+                }
+                showCallLogPicker = false
             },
             onDismiss = { showCallLogPicker = false },
             onRequestCallLogPermission = {
                 callLogPermissionLauncher.launch(Manifest.permission.READ_CALL_LOG)
-            }
-        )
-    }
-
-    if (showCallLogPickerActionDialog && pendingPhoneNumber.isNotEmpty()) {
-        AlertDialog(
-            onDismissRequest = {
-                showCallLogPickerActionDialog = false
-                pendingPhoneNumber = ""
-            },
-            title = { Text(stringResource(R.string.block_or_allow_title)) },
-            text = { Text(PhoneUtils.formatPhoneNumber(pendingPhoneNumber)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    viewModel.addNumber(pendingPhoneNumber, "", Action.BLOCK, Type.EXACT_COINCIDENCE)
-                    showCallLogPickerActionDialog = false
-                    showCallLogPicker = false
-                    pendingPhoneNumber = ""
-                }) {
-                    Text(stringResource(R.string.action_block))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    viewModel.addNumber(pendingPhoneNumber, "", Action.ALLOW, Type.EXACT_COINCIDENCE)
-                    showCallLogPickerActionDialog = false
-                    showCallLogPicker = false
-                    pendingPhoneNumber = ""
-                }) {
-                    Text(stringResource(R.string.action_allow))
-                }
             }
         )
     }

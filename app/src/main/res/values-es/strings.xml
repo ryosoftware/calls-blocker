@@ -62,6 +62,10 @@
     <string name="confirm_unblock_number">¿Dejar de bloquear %1$s?</string>
     <string name="confirm_allow_number">¿Permitir %1$s?</string>
     <string name="confirm_unallow_number">¿Dejar de permitir %1$s?</string>
+    <string name="confirm_block_multiple_numbers_detail">¿Bloquear estos números?\n\n%1$s%2$s</string>
+    <string name="confirm_allow_multiple_numbers_detail">¿Permitir estos números?\n\n%1$s%2$s</string>
+
+    <!-- Call Log Selection Dialog -->
 
     <!-- History Screen -->
     <string name="history_empty">No hay llamadas registradas</string>
@@ -217,7 +221,6 @@
     <string name="reason_hidden">Número oculto</string>
     <string name="reason_blacklisted_number">Número rechazado</string>
     <string name="reason_blacklisted_prefix">Prefijo rechazado</string>
-    <string name="reason_unknown_number">No es un contacto</string>
     <string name="reason_group">Grupo bloqueado</string>
     <string name="reason_international">Número internacional</string>
     <string name="reason_not_called">Número no marcado</string>
@@ -334,7 +337,6 @@
     <!-- Number types -->
     <string name="number_type_mobile">móvil</string>
     <string name="number_type_fixed_line">fijo</string>
-    <string name="number_type_fixed_line_or_mobile">fijo o móvil</string>
     <string name="number_type_voip">voz sobre IP</string>
     <string name="number_type_toll_free">gratuíto</string>
     <string name="number_type_premium_rate">tarifa premium</string>
@@ -343,7 +345,6 @@
     <string name="number_type_pager">buscapersonas</string>
     <string name="number_type_uan">acceso universal</string>
     <string name="number_type_voicemail">buzón de voz</string>
-    <string name="number_type_unknown">desconocido</string>
 
     <!-- History entry flags -->
     <string name="flag_call_silenced">Llamada silenciada</string>
@@ -351,16 +352,9 @@
     <string name="flag_skip_notification">Llamada sin notificación de llamada perdida</string>
 
     <!-- Call log picker dialog -->
-    <string name="select_call">Seleccionar llamada</string>
     <string name="call_log_permission_required">Se requiere acceso al registro de llamadas para mostrar la lista de llamadas.</string>
-    <string name="call_type_incoming">Entrante</string>
-    <string name="call_type_outgoing">Saliente</string>
-    <string name="call_type_missed">Perdida</string>
-    <string name="call_type_rejected">Rechazada</string>
-    <string name="duration_minutes">%1$d:%2$02d</string>
-    <string name="add_from_call_log">Desde el registro de llamadas</string>
+    <string name="add_from_call_log">Añadir desde el registro de llamadas</string>
     <string name="add_manually">Añadir manualmente</string>
-    <string name="block_or_allow_title">¿Bloquear o permitir este número?</string>
     <string name="call_date_and_duration">%1$s, %2$s</string>
     <string name="rejected_call">La llamada se rechazó</string>
     <string name="blocked_call">La llamada se bloqueó</string>

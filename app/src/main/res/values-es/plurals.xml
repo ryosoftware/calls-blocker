@@ -50,6 +50,11 @@
         <item quantity="other">%d números</item>
         <item quantity="many">%d números</item>
     </plurals>
+    <plurals name="numbers_selected">
+        <item quantity="one">%1$d número seleccionado (%2$s)</item>
+        <item quantity="other">%1$d números seleccionados (%2$s)</item>
+        <item quantity="many">%1$d números seleccionados (%2$s)</item>
+    </plurals>
     <plurals name="date_and_time">
         <item quantity="one">%1$s a la %2$s</item>
         <item quantity="other">%1$s a las %2$s</item>
