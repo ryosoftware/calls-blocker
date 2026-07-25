@@ -30,6 +30,16 @@
         <item quantity="other">%d días</item>
         <item quantity="many">%d días</item>
     </plurals>
+    <plurals name="hours">
+        <item quantity="one">%d hora</item>
+        <item quantity="other">%d horas</item>
+        <item quantity="many">%d horas</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="one">%d minuto</item>
+        <item quantity="other">%d minutos</item>
+        <item quantity="many">%d minutos</item>
+    </plurals>
     <plurals name="group_contacts_count">
         <item quantity="one">%1$d contacto</item>
         <item quantity="other">%1$d contactos</item>

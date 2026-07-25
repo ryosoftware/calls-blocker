@@ -84,6 +84,8 @@ class SettingsViewModel @Inject constructor(
     var blockUnknown by settingsManager::blockUnknown
     var blockHidden by settingsManager::blockHidden
     var blockAll by settingsManager::blockAll
+
+    var blockAllUntil by settingsManager::blockAllUntil
     var blockInternational by settingsManager::blockInternational
     var allowedCountryIsos by settingsManager::allowedCountryIsos
     var contactsPermissionRequested by settingsManager::contactsPermissionRequested

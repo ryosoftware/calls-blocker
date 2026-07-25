@@ -27,5 +27,16 @@
         <item>December</item>
     </string-array>
 
+     <array name="predefined_block_all_timeouts">
+        <item>300</item>
+        <item>600</item>
+        <item>1800</item>
+         <item>3600</item>
+         <item>7200</item>
+         <item>14400</item>
+        <item>0</item>
+    </array>
+
+
 </resources>
 

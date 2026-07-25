@@ -21,6 +21,7 @@ class SettingsManager(private val context: Context) {
         private const val KEY_BLOCK_UNKNOWN = "block-unknown"
         private const val KEY_BLOCK_HIDDEN = "block-hidden"
         private const val KEY_BLOCK_ALL = "block-all"
+        private const val KEY_BLOCK_ALL_UNTIL = "block-all-until"
         private const val KEY_BLOCK_GROUPS = "block-groups"
         private const val KEY_BLOCKED_GROUP_IDS = "blocked-group-ids"
         private const val KEY_BLOCK_INTERNATIONAL = "block-international"
@@ -103,14 +104,33 @@ class SettingsManager(private val context: Context) {
         }
     }
 
+    private class LongDelegate(
+        private val prefs: SharedPreferences,
+        private val key: String,
+        private val default: Long
+    ) {
+        operator fun getValue(thisRef: Any?, property: KProperty<*>): Long = prefs.getLong(key, default)
+        operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Long) {
+            prefs.edit { putLong(key, value) }
+        }
+    }
+
     private fun booleanPref(key: String, default: Boolean) = BooleanDelegate(prefs, key, default)
     private fun stringPref(key: String, default: String = "") = StringDelegate(prefs, key, default)
     private fun intPref(key: String, default: Int) = IntDelegate(prefs, key, default)
+    private fun longPref(key: String, default: Long) = LongDelegate(prefs, key, default)
 
     var isLoggingToFile by booleanPref(KEY_LOGGING_TO_FILE_ENABLED, BuildConfig.DEBUG)
     var blockUnknown by booleanPref(KEY_BLOCK_UNKNOWN, false)
     var blockHidden by booleanPref(KEY_BLOCK_HIDDEN, false)
     var blockAll by booleanPref(KEY_BLOCK_ALL, false)
+    var blockAllUntil by longPref(KEY_BLOCK_ALL_UNTIL, Long.MAX_VALUE)
+
+    fun temporaryBlockAll(until: Long) {
+        blockAllUntil = until
+        blockAll = true
+    }
+
     var screeningDialogDismissed by booleanPref(KEY_DIALOG_DISMISSED, false)
     var blockInternational by booleanPref(KEY_BLOCK_INTERNATIONAL, false)
     var allowedCountryIsos by stringPref(KEY_ALLOWED_COUNTRY_ISOS)

@@ -16,6 +16,13 @@
     <string name="notification_suggestion_block">Bloquear</string>
     <string name="notification_suggestion_dismiss">No preguntar más</string>
 
+    <!-- Quick Settings Tile -->
+    <string name="blocking_all">Bloquear todas</string>
+    <string name="blocking_all_enabled">Activado</string>
+    <string name="blocking_all_enabled_until">Activado, hasta %1$s</string>
+    <string name="blocking_all_disabled">Desactivado</string>
+    <string name="blocking_all_missing_permissions">Error de permisos</string>
+
     <!-- Navigation -->
     <string name="nav_block_list">Números</string>
     <string name="nav_history">Historial</string>
@@ -115,6 +122,8 @@
     <string name="block_all_title">Bloquear todas</string>
     <string name="block_all_description">Bloquea todas las llamadas entrantes</string>
     <string name="block_all_enabled">\"Bloquear todas las llamadas\" activado</string>
+    <string name="block_all_enabled_for">\"Bloquear todas las llamadas\" activado durante %1$s</string>
+    <string name="block_all_enabled_until">Activado hasta el %1$s</string>
     <string name="block_all_disabled">\"Bloquear todas las llamadas\" desactivado</string>
 
     <string name="block_groups_title">Bloqueo de grupos</string>
@@ -363,6 +372,8 @@
     <string name="days_and_hours_and_minutes">%1$dd %2$dh %3$dm</string>
     <string name="hours_and_minutes">%1$dh %2$dm</string>
     <string name="minutes">%1$dm</string>
+    <string name="hours_and_minutes_large">%1$s y %2$s</string>
+    <string name="until_manually_disabled">Until you deactivate it</string>
     <string name="add_description">Añadir</string>
     <string name="remove_element_description">Eliminar %1$s</string>
     <string name="error_title">Error</string>

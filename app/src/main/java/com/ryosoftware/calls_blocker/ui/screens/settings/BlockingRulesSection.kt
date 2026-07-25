@@ -30,16 +30,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.ContactGroup
 import com.ryosoftware.calls_blocker.data.Country
 import com.ryosoftware.calls_blocker.data.countries
+import java.text.DateFormat
+import java.time.ZoneId
+import java.util.Date
 
 @Composable
 fun BlockingRulesSection(
     blockAll: Boolean,
+    blockAllUntil: Long,
     onBlockAllChange: (Boolean) -> Unit,
     blockUnknown: Boolean,
     onBlockUnknownChange: (Boolean) -> Unit,
@@ -81,14 +86,32 @@ fun BlockingRulesSection(
                     )
                 }
 
-                Spacer(Modifier.width(24.dp))
-
                 Switch(
-                    checked = blockAll,
+                    checked = blockAll && blockAllUntil > System.currentTimeMillis(),
                     onCheckedChange = null
                 )
             }
+
+            Spacer(Modifier.width(24.dp))
         }
+
+        if (blockAll && (blockAllUntil != Long.MAX_VALUE) && (blockAllUntil > System.currentTimeMillis())) {
+            val date = Date(blockAllUntil)
+            val blockAllUntilString = pluralStringResource(R.plurals.date_and_time, date.toInstant().atZone(ZoneId.systemDefault()).hour, DateFormat.getDateInstance(DateFormat.MEDIUM).format(date), DateFormat.getTimeInstance(DateFormat.MEDIUM).format(date))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.block_all_enabled_until, blockAllUntilString),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        }
+
     }
 
     Spacer(Modifier.height(12.dp))
@@ -202,9 +225,9 @@ fun BlockingRulesSection(
                 .toSet()
             val selectedGroups = contactGroups.filter { it.groupId in selectedIds }
 
-            Spacer(Modifier.height(8.dp))
-
             if (selectedGroups.isEmpty()) {
+                Spacer(Modifier.height(8.dp))
+
                 Row(
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -214,9 +237,9 @@ fun BlockingRulesSection(
                         color = MaterialTheme.colorScheme.error
                     )
                 }
-
-                Spacer(Modifier.height(8.dp))
             }
+
+            Spacer(Modifier.height(8.dp))
 
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),

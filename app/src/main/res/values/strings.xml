@@ -16,6 +16,13 @@
     <string name="notification_suggestion_block">Block</string>
     <string name="notification_suggestion_dismiss">Don\'t ask again</string>
 
+    <!-- Quick Settings Tile -->
+    <string name="blocking_all">Block all</string>
+    <string name="blocking_all_enabled">Active</string>
+    <string name="blocking_all_enabled_until">Active, until %1$s</string>
+    <string name="blocking_all_disabled">Inactive</string>
+    <string name="blocking_all_missing_permissions">Missing permissions</string>
+
     <!-- Navigation -->
     <string name="nav_block_list">Numbers</string>
     <string name="nav_history">History</string>
@@ -114,6 +121,8 @@
     <string name="block_all_title">Block all</string>
     <string name="block_all_description">Blocks all incoming calls</string>
     <string name="block_all_enabled">\"Block all calls\" is enabled</string>
+    <string name="block_all_enabled_for">\"Block all calls\" is enabled for %1$s</string>
+    <string name="block_all_enabled_until">Enabled until %1$s</string>
     <string name="block_all_disabled">\"Block all calls\" has been disabled</string>
 
     <string name="block_groups_title">Block groups</string>
@@ -361,6 +370,8 @@
     <string name="days_and_hours_and_minutes">%1$dd %2$dh %3$dm</string>
     <string name="hours_and_minutes">%1$dh %2$dm</string>
     <string name="minutes">%1$dm</string>
+    <string name="hours_and_minutes_large">%1$s and %2$s</string>
+    <string name="until_manually_disabled">Hasta que lo desactive</string>
     <string name="add_description">Add</string>
     <string name="remove_element_description">Remove %1$s</string>
     <string name="error_title">Error</string>

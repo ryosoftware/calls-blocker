@@ -1,7 +1,11 @@
 package com.ryosoftware.calls_blocker.ui.screens
 
 import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -41,6 +45,7 @@ import com.ryosoftware.calls_blocker.Main.Companion.hasReadContactsPermission
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.ContactGroup
 import com.ryosoftware.calls_blocker.data.db.ScheduleRule
+import com.ryosoftware.calls_blocker.service.BlockAllTileService
 import com.ryosoftware.calls_blocker.ui.screens.settings.BlockingRulesSection
 import com.ryosoftware.calls_blocker.ui.screens.settings.CallLogRulesSection
 import com.ryosoftware.calls_blocker.ui.screens.settings.ScheduleRulesSection
@@ -51,7 +56,10 @@ fun CallBlockingRulesScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
-    var blockAll by remember { mutableStateOf(viewModel.blockAll) }
+    val blockAllState = remember { mutableStateOf(viewModel.blockAll) }
+    var blockAll by blockAllState
+    val blockAllUntilState = remember { mutableStateOf(viewModel.blockAllUntil) }
+    var blockAllUntil by blockAllUntilState
     var blockHidden by remember { mutableStateOf(viewModel.blockHidden) }
     var blockUnknown by remember { mutableStateOf(viewModel.blockUnknown) }
     var blockInternational by remember { mutableStateOf(viewModel.blockInternational) }
@@ -138,6 +146,31 @@ fun CallBlockingRulesScreen(
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(Unit) {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (intent.action == BlockAllTileService.ACTION_BLOCK_ALL_CHANGED) {
+                    val blockAll = intent.getBooleanExtra(BlockAllTileService.EXTRA_VALUE, false)
+                    viewModel.blockAll = blockAll
+                    blockAllState.value = blockAll
+                    if (blockAll) {
+                        val blockAllUntil = intent.getLongExtra(BlockAllTileService.EXTRA_UNTIL, Long.MAX_VALUE)
+                        viewModel.blockAllUntil = blockAllUntil
+                        blockAllUntilState.value = blockAllUntil
+                    }
+                }
+            }
+        }
+        val filter = IntentFilter(BlockAllTileService.ACTION_BLOCK_ALL_CHANGED)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            context.registerReceiver(receiver, filter)
+        }
+        onDispose { context.unregisterReceiver(receiver) }
+    }
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
@@ -171,6 +204,8 @@ fun CallBlockingRulesScreen(
                     viewModel.blockRejected = pendingBlockRejectedToggle!!
                     pendingBlockRejectedToggle = null
                 }
+                blockAll = viewModel.blockAll
+                blockAllUntil = viewModel.blockAllUntil
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -197,9 +232,12 @@ fun CallBlockingRulesScreen(
 
         BlockingRulesSection(
             blockAll = blockAll,
+            blockAllUntil = blockAllUntil,
             onBlockAllChange = {
                 blockAll = it
-                viewModel.blockAll = it
+                viewModel.blockAll = blockAll
+                blockAllUntil = Long.MAX_VALUE
+                viewModel.blockAllUntil = blockAllUntil
             },
             blockUnknown = blockUnknown,
             onBlockUnknownChange = { enabled ->

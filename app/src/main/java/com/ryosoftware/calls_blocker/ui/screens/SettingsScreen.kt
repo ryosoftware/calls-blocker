@@ -126,13 +126,16 @@ fun SettingsScreen(
     var isImportingNumbers by remember { mutableStateOf(false) }
     val scheduleRules by viewModel.scheduleRules.collectAsStateWithLifecycle()
 
-    // Listen for blockAll changes from Quick Settings Tile
     DisposableEffect(Unit) {
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 if (intent.action == BlockAllTileService.ACTION_BLOCK_ALL_CHANGED) {
-                    val newValue = intent.getBooleanExtra(BlockAllTileService.EXTRA_VALUE, false)
-                    viewModel.blockAll = newValue
+                    val blockAll = intent.getBooleanExtra(BlockAllTileService.EXTRA_VALUE, false)
+                    viewModel.blockAll = blockAll
+                    if (blockAll) {
+                        val blockAllUntil = intent.getLongExtra(BlockAllTileService.EXTRA_UNTIL, Long.MAX_VALUE)
+                        viewModel.blockAllUntil = blockAllUntil
+                    }
                 }
             }
         }
