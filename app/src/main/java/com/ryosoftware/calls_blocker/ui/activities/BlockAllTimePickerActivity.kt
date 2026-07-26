@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
@@ -67,7 +68,7 @@ class BlockAllTimePickerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (settingsManager.blockAll) {
+        if (settingsManager.blockAll && (settingsManager.blockAllUntil > System.currentTimeMillis())) {
             finish()
             return
         }
@@ -81,7 +82,7 @@ class BlockAllTimePickerActivity : ComponentActivity() {
             CallsBlockerTheme {
                 AlertDialog(
                     onDismissRequest = { finish() },
-                    title = { Text(stringResource(R.string.block_all_title)) },
+                    title = { Text(stringResource(R.string.block_all_for_a_period)) },
                     text = {
                         Column {
                             values.forEachIndexed { index, value ->
@@ -90,11 +91,16 @@ class BlockAllTimePickerActivity : ComponentActivity() {
                                         .fillMaxWidth()
                                         .clickable {
                                             selectedIndex = index
+
                                             val until = if (values[index] == 0) Long.MAX_VALUE else System.currentTimeMillis() + values[index] * DateUtils.SECOND_IN_MILLIS
+
                                             settingsManager.temporaryBlockAll(until)
+
                                             val text = if (values[index] == 0) getString(R.string.block_all_enabled) else getString(R.string.block_all_enabled_for, labels[index])
                                             Toast.makeText(this@BlockAllTimePickerActivity, text, Toast.LENGTH_LONG).show()
+
                                             notifyBlockAllEnabled(until)
+
                                             finish()
                                         }
                                         .padding(vertical = 8.dp),
@@ -105,9 +111,9 @@ class BlockAllTimePickerActivity : ComponentActivity() {
                                         onClick = null
                                     )
 
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Spacer(modifier = Modifier.width(12.dp))
 
-                                    Text(labels[index])
+                                    Text(text = labels[index], style = MaterialTheme.typography.bodyMedium)
                                 }
                             }
                         }

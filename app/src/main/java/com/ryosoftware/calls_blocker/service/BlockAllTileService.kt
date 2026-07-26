@@ -72,7 +72,7 @@ class BlockAllTileService : TileService() {
                 val date = Date(blockAllUntil)
                 tile.state = Tile.STATE_ACTIVE
                 tile.subtitle = if (blockAllUntil == Long.MAX_VALUE) { getString(R.string.blocking_all_enabled) }
-                                else { getString(R.string.blocking_all_enabled_until, resources.getQuantityString(R.plurals.date_and_time, date.toInstant().atZone(ZoneId.systemDefault()).hour, DateFormat.getDateInstance(DateFormat.SHORT).format(date), DateFormat.getTimeInstance(DateFormat.SHORT).format(date))) }
+                                else { getString(R.string.blocking_all_enabled_until, resources.getQuantityString(R.plurals.date_and_time, date.toInstant().atZone(ZoneId.systemDefault()).hour, DateFormat.getDateInstance(DateFormat.SHORT).format(date), DateFormat.getTimeInstance(DateFormat.MEDIUM).format(date))) }
             }
             else -> {
                 tile.state = Tile.STATE_INACTIVE

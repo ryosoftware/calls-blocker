@@ -402,7 +402,7 @@ fun SettingsScreen(
                     onClick = { onNavigateToCallBlockingRules() },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(stringResource(R.string.incoming_call_bloquing_button))
+                    Text(stringResource(R.string.incoming_call_blocking_button))
                 }
 
                 Spacer(Modifier.height(12.dp))

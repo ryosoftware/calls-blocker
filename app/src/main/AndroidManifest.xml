@@ -42,6 +42,7 @@
 
         <activity
             android:name=".ui.activities.FindMyPhoneActivity"
+            android:taskAffinity="${applicationId}.FindMyPhone"
             android:excludeFromRecents="true"
             android:exported="false"
             android:showWhenLocked="true"
@@ -50,10 +51,10 @@
 
         <activity
             android:name=".ui.activities.BlockAllTimePickerActivity"
-            android:taskAffinity="${applicationId}.time_picker"
-            android:theme="@style/Theme.CallsBlocker.Transparent"
+            android:taskAffinity="${applicationId}.BlockAllTimePicker"
             android:excludeFromRecents="true"
             android:exported="true"
+            android:theme="@style/Theme.CallsBlocker.Transparent"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
 
             <intent-filter>

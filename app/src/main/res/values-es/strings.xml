@@ -22,6 +22,8 @@
     <string name="blocking_all_enabled_until">Activado, hasta %1$s</string>
     <string name="blocking_all_disabled">Desactivado</string>
     <string name="blocking_all_missing_permissions">Error de permisos</string>
+    <string name="block_all_for_a_period">Bloquear todas durante&#8230;</string>
+    <string name="until_manually_disabled">Hasta que lo desactive</string>
 
     <!-- Navigation -->
     <string name="nav_block_list">Números</string>
@@ -101,7 +103,7 @@
 
     <string name="incoming_call_blocking_title">Bloqueo de llamadas entrantes</string>
     <string name="incoming_call_blocking_description">Configura qué llamadas entrantes bloquear: por horario, grupos, países y más.</string>
-    <string name="incoming_call_bloquing_button">Configurar</string>
+    <string name="incoming_call_blocking_button">Configurar</string>
 
     <string name="blocking_rules_description">Estas reglas solo aplican a números o prefijos que no hayas aceptado explícitamente, que nunca se bloquean, ni siquiera si la opción \"bloquear todas las llamadas\" está activa.</string>
 
@@ -373,7 +375,6 @@
     <string name="hours_and_minutes">%1$dh %2$dm</string>
     <string name="minutes">%1$dm</string>
     <string name="hours_and_minutes_large">%1$s y %2$s</string>
-    <string name="until_manually_disabled">Until you deactivate it</string>
     <string name="add_description">Añadir</string>
     <string name="remove_element_description">Eliminar %1$s</string>
     <string name="error_title">Error</string>

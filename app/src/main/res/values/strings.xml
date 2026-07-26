@@ -22,6 +22,8 @@
     <string name="blocking_all_enabled_until">Active, until %1$s</string>
     <string name="blocking_all_disabled">Inactive</string>
     <string name="blocking_all_missing_permissions">Missing permissions</string>
+    <string name="block_all_for_a_period">Block all for&#8230;</string>
+    <string name="until_manually_disabled">Until manual deactivation</string>
 
     <!-- Navigation -->
     <string name="nav_block_list">Numbers</string>
@@ -100,7 +102,7 @@
 
     <string name="incoming_call_blocking_title">Incoming call blocking</string>
     <string name="incoming_call_blocking_description">Configure which incoming calls to block, by schedule, groups, countries, and more.</string>
-    <string name="incoming_call_bloquing_button">Configure</string>
+    <string name="incoming_call_blocking_button">Configure</string>
 
     <string name="blocking_rules_description">These rules only apply to numbers or prefixes that you have not explicitly accepted, which are never blocked, even if the \"block all incoming calls\" option is active.</string>
 
@@ -371,7 +373,6 @@
     <string name="hours_and_minutes">%1$dh %2$dm</string>
     <string name="minutes">%1$dm</string>
     <string name="hours_and_minutes_large">%1$s and %2$s</string>
-    <string name="until_manually_disabled">Hasta que lo desactive</string>
     <string name="add_description">Add</string>
     <string name="remove_element_description">Remove %1$s</string>
     <string name="error_title">Error</string>
