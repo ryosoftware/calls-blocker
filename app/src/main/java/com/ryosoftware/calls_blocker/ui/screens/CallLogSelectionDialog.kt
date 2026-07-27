@@ -52,6 +52,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -233,10 +234,11 @@ fun CallLogPickerDialog(
                     Text(
                         text = pluralStringResource(R.plurals.numbers_selected, selectedPhoneNumbers.size, selectedPhoneNumbers.size, pluralStringResource(R.plurals.calls, selectedEntries.size, selectedEntries.size)),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
                     )
-
-                    Spacer(modifier = Modifier.weight(1f))
 
                     TextButton(onClick = { onConfirmAction("block") }) {
                         Text(stringResource(R.string.action_block))
@@ -263,6 +265,7 @@ fun CallLogPickerDialog(
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
+
                     Button(onClick = onRequestCallLogPermission) {
                         Text(stringResource(R.string.grant_permission))
                     }
