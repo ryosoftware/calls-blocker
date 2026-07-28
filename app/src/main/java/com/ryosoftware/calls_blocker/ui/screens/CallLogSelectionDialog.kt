@@ -24,7 +24,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.CallMade
 import androidx.compose.material.icons.automirrored.filled.CallReceived
 import androidx.compose.material.icons.automirrored.filled.PhoneMissed
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
@@ -62,6 +63,7 @@ import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.CountryNameProvider
 import com.ryosoftware.calls_blocker.data.findCountryByPhoneNumber
+import com.ryosoftware.calls_blocker.ui.theme.ExpressiveDialog
 import com.ryosoftware.calls_blocker.ui.rememberContactInfo
 import java.text.DateFormat
 import java.time.Instant
@@ -365,12 +367,13 @@ fun CallLogPickerDialog(
         else
             stringResource(R.string.confirm_allow_multiple_numbers_detail, displayNumbers, remaining)
 
-        AlertDialog(
+        ExpressiveDialog(
             onDismissRequest = {
                 showConfirmDialog = false
                 pendingAction = null
             },
-            title = { Text(actionTitle) },
+            icon = if (isBlockAction) Icons.Default.Block else Icons.Default.CheckCircle,
+            title = actionTitle,
             text = { Text(confirmText) },
             confirmButton = {
                 TextButton(onClick = { executeAction() }) {

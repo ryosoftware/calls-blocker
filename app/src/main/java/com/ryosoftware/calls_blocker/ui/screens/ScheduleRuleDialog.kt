@@ -1,13 +1,15 @@
 package com.ryosoftware.calls_blocker.ui.screens
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -29,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.db.ScheduleRule
+import com.ryosoftware.calls_blocker.ui.theme.ExpressiveDialog
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -52,13 +55,12 @@ fun ScheduleRuleDialog(
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
 
-    AlertDialog(
+    ExpressiveDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Text(stringResource(
-                if (isEditing) R.string.schedule_blocking_edit else R.string.schedule_blocking_add
-            ))
-        },
+        icon = Icons.Default.Schedule,
+        title = stringResource(
+            if (isEditing) R.string.schedule_blocking_edit else R.string.schedule_blocking_add
+        ),
         text = {
             Column {
                 Text(
@@ -185,10 +187,18 @@ private fun TimePickerDialog(
     onDismiss: () -> Unit
 ) {
     val state = rememberTimePickerState(initialHour, initialMinute, is24Hour = true)
-    AlertDialog(
+    ExpressiveDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.schedule_blocking_select_time)) },
-        text = { TimePicker(state = state) },
+        icon = Icons.Default.Schedule,
+        title = stringResource(R.string.schedule_blocking_select_time),
+        text = {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                TimePicker(state = state)
+            }
+        },
         confirmButton = {
             TextButton(onClick = { onConfirm(state.hour, state.minute) }) {
                 Text(stringResource(R.string.ok))
@@ -210,9 +220,10 @@ private fun DayPickerDialog(
 ) {
     val weekDays = stringArrayResource(R.array.week_day_names)
 
-    AlertDialog(
+    ExpressiveDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.schedule_blocking_select_day)) },
+        icon = Icons.Default.Schedule,
+        title = stringResource(R.string.schedule_blocking_select_day),
         text = {
             Column {
                 weekDays.forEachIndexed { index, name ->

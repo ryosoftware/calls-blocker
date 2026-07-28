@@ -60,6 +60,7 @@ import androidx.compose.ui.layout.ContentScale
 import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material.icons.filled.History
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringArrayResource
@@ -70,6 +71,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.ui.rememberContactInfo
+import com.ryosoftware.calls_blocker.ui.theme.EmptyState
 import com.ryosoftware.calls_blocker.data.db.Direction
 import com.ryosoftware.calls_blocker.data.findCountryByPhoneNumber
 import com.ryosoftware.calls_blocker.data.db.HistoryEntry
@@ -208,20 +210,16 @@ fun HistoryScreen(
 
             if (history.isEmpty()) {
                 item {
-                    Text(
-                        text = stringResource(R.string.history_empty),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 32.dp)
+                    EmptyState(
+                        icon = Icons.Default.History,
+                        title = stringResource(R.string.history_empty)
                     )
                 }
             } else if (searchVisible && searchQuery.isNotBlank() && filteredHistory.isEmpty()) {
                 item {
-                    Text(
-                        text = stringResource(R.string.no_results),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 32.dp)
+                    EmptyState(
+                        icon = Icons.Default.Search,
+                        title = stringResource(R.string.no_results)
                     )
                 }
             } else {

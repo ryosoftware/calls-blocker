@@ -4,10 +4,6 @@
 
     <color name="splash_background">#FFFBFE</color>
 
-    <color name="primary">#EF6C00</color>
-    <color name="on_primary">#FFFFFFFF</color>
-    <color name="primary_container">#FFFFDBC2</color>
-    <color name="on_primary_container">#FF2C1600</color>
     <color name="status_active_container">#FFC8E6C9</color>
     <color name="status_active_text">#FF1B5E20</color>
     <color name="status_inactive_container">#FFFFCDD2</color>

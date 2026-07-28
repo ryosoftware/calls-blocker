@@ -20,7 +20,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -58,6 +58,7 @@ import com.ryosoftware.calls_blocker.data.Country
 import com.ryosoftware.calls_blocker.data.countries
 import com.ryosoftware.calls_blocker.data.db.Action
 import com.ryosoftware.calls_blocker.data.db.Type
+import com.ryosoftware.calls_blocker.ui.theme.ExpressiveDialog
 import com.ryosoftware.calls_blocker.viewmodel.NumbersViewModel.AddNumberError
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -114,9 +115,10 @@ fun AddNumberDialog(
         countrySearchText = ""
     }
 
-    AlertDialog(
+    ExpressiveDialog(
         onDismissRequest = onDismiss,
-        title = { Text(title) },
+        icon = Icons.Default.Phone,
+        title = title,
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 OutlinedTextField(

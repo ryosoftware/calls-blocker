@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -76,6 +77,7 @@ import com.ryosoftware.calls_blocker.Main.Companion.hasReadCallLogPermission
 import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.ui.rememberContactInfo
+import com.ryosoftware.calls_blocker.ui.theme.EmptyState
 import com.ryosoftware.calls_blocker.data.db.Action
 import com.ryosoftware.calls_blocker.data.Country
 import com.ryosoftware.calls_blocker.data.findCountryByPhoneNumber
@@ -291,20 +293,16 @@ fun NumbersListScreen(
 
                 if (blockedNumbersCount + allowedNumbersCount == 0) {
                     item {
-                        Text(
-                            text = stringResource(R.string.numbers_list_empty),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = 32.dp)
+                        EmptyState(
+                            icon = Icons.Default.Block,
+                            title = stringResource(R.string.numbers_list_empty)
                         )
                     }
                 } else if (searchVisible && searchQuery.isNotBlank() && allFiltered.isEmpty()) {
                     item {
-                        Text(
-                            text = stringResource(R.string.no_results),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = 32.dp)
+                        EmptyState(
+                            icon = Icons.Default.Search,
+                            title = stringResource(R.string.no_results)
                         )
                     }
                 } else {

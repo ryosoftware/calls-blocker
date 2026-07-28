@@ -11,6 +11,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -21,6 +26,7 @@ import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,7 +59,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.compose.material3.AlertDialog
 import com.ryosoftware.calls_blocker.Main.Companion.safeStartActivity
 import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
@@ -68,6 +73,7 @@ import com.ryosoftware.calls_blocker.ui.screens.NumbersListScreen
 import com.ryosoftware.calls_blocker.ui.screens.CallBlockingRulesScreen
 import com.ryosoftware.calls_blocker.ui.screens.SettingsScreen
 import com.ryosoftware.calls_blocker.ui.theme.CallsBlockerTheme
+import com.ryosoftware.calls_blocker.ui.theme.ExpressiveDialog
 import com.ryosoftware.calls_blocker.viewmodel.HistoryViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -220,9 +226,10 @@ fun CallsBlockerApp(
     }
 
     if (showScreeningDialog) {
-        AlertDialog(
+        ExpressiveDialog(
             onDismissRequest = { showScreeningDialog = false },
-            title = { Text(stringResource(R.string.screening_dialog_title)) },
+            icon = Icons.Default.VerifiedUser,
+            title = stringResource(R.string.screening_dialog_title),
             text = {
                 Text(
                     stringResource(
@@ -419,7 +426,23 @@ fun CallsBlockerApp(
         NavHost(
             navController = navController,
             startDestination = startRoute,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
+            enterTransition = {
+                fadeIn(animationSpec = tween(300)) +
+                    slideInHorizontally(animationSpec = tween(300)) { it }
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(300)) +
+                    slideOutHorizontally(animationSpec = tween(300)) { it }
+            },
+            popEnterTransition = {
+                fadeIn(animationSpec = tween(300)) +
+                    slideInHorizontally(animationSpec = tween(300)) { -it }
+            },
+            popExitTransition = {
+                fadeOut(animationSpec = tween(300)) +
+                    slideOutHorizontally(animationSpec = tween(300)) { -it }
+            }
         ) {
             composable(Screen.BlockList.route) {
                 NumbersListScreen(
