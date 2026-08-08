@@ -21,6 +21,11 @@ enum class NormalizeError(val description: String) {
     FORMAT_ERROR("format error"),
 }
 
+data class InternationalSplit(
+    val countryCode: String,
+    val nationalNumber: String,
+)
+
 class PhoneUtils {
     companion object {
         fun getNumberType(phoneNumber: String): NumberType {
@@ -57,6 +62,18 @@ class PhoneUtils {
             } catch (_: Exception) {
                 phone
             }
+        }
+
+        fun splitInternationalNumber(phoneNumber: String): InternationalSplit? {
+            if (!phoneNumber.startsWith("+")) return null
+            return runCatching {
+                val phoneUtil = PhoneNumberUtil.getInstance()
+                val parsed = phoneUtil.parse(phoneNumber, null)
+                InternationalSplit(
+                    countryCode = parsed.countryCode.toString(),
+                    nationalNumber = phoneUtil.getNationalSignificantNumber(parsed),
+                )
+            }.getOrNull()
         }
 
         fun getNetworkCountriesIso(context: Context): Set<String>? {

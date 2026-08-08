@@ -53,6 +53,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.Country
 import com.ryosoftware.calls_blocker.data.countries
@@ -113,6 +114,14 @@ fun AddNumberDialog(
         }
         selectedCountry = null
         countrySearchText = ""
+    }
+
+    LaunchedEffect(phoneNumber) {
+        val split = PhoneUtils.splitInternationalNumber(phoneNumber) ?: return@LaunchedEffect
+        if (countries.any { it.code == split.countryCode }) {
+            countryCode = split.countryCode
+            phoneNumber = split.nationalNumber
+        }
     }
 
     ExpressiveDialog(
