@@ -464,6 +464,7 @@ fun NumbersListScreen(
             countryNameProvider = countryNameProvider,
             blockedNumbers = blockedExactNumbers,
             allowedNumbers = allowedExactNumbers,
+            defaultCountryIso = defaultCountryIso,
             onMultiSelect = { entries, action ->
                 if (entries.isNotEmpty()) {
                     val phoneNumbers = entries.map { it.phoneNumber }.distinct()

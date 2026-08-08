@@ -116,6 +116,7 @@ fun CallLogPickerDialog(
     countryNameProvider: CountryNameProvider,
     blockedNumbers: Set<String>,
     allowedNumbers: Set<String>,
+    defaultCountryIso: String = "",
     onMultiSelect: (List<CallLogEntry>, String) -> Unit,  // action: "block" or "allow"
     onDismiss: () -> Unit,
     onRequestCallLogPermission: () -> Unit
@@ -148,7 +149,7 @@ fun CallLogPickerDialog(
 
     LaunchedEffect(hasCallLogPermission) {
         if (hasCallLogPermission) {
-            callLogEntries = queryCallLog(context)
+            callLogEntries = queryCallLog(context, defaultCountryIso)
         }
     }
 
@@ -533,7 +534,7 @@ private fun CallLogRow(
     }
 }
 
-private fun queryCallLog(context: Context): List<CallLogEntry> {
+private fun queryCallLog(context: Context, defaultCountryIso: String): List<CallLogEntry> {
     val entries = mutableListOf<CallLogEntry>()
 
     val projection = arrayOf(
@@ -560,7 +561,7 @@ private fun queryCallLog(context: Context): List<CallLogEntry> {
         while (cursor.moveToNext()) {
             entries.add(
                 CallLogEntry(
-                    phoneNumber = cursor.getString(numberIndex) ?: "",
+                    phoneNumber = toInternationalPhoneNumber(cursor.getString(numberIndex) ?: "", defaultCountryIso),
                     callType = cursor.getInt(typeIndex),
                     duration = cursor.getInt(durationIndex),
                     timestamp = cursor.getLong(dateIndex),
@@ -571,6 +572,12 @@ private fun queryCallLog(context: Context): List<CallLogEntry> {
 
     return entries
 }
+
+private fun toInternationalPhoneNumber(raw: String, defaultCountryIso: String): String =
+    PhoneUtils.normalizeToE164OrNull(
+        phoneNumber = raw,
+        networkCountryIso = defaultCountryIso,
+    )?.normalizedPhoneNumber ?: raw
 
 fun getStringTimeFromInterval(context: Context, minutes: Int): String {
     val days = minutes / (24 * 60)
