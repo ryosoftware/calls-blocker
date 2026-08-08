@@ -32,6 +32,7 @@ import com.ryosoftware.calls_blocker.data.repository.BlockSuggestionsRepository
 import com.ryosoftware.calls_blocker.data.repository.NumberRepository
 import com.ryosoftware.calls_blocker.receiver.SuggestionNotificationActionsReceiver
 import com.ryosoftware.calls_blocker.ui.activities.FindMyPhoneActivity
+import com.ryosoftware.calls_blocker.ui.lookupContact
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.time.Instant
@@ -81,10 +82,22 @@ class PostServiceWorker @AssistedInject constructor(
         return context.resources.getQuantityString(R.plurals.date_and_time, dateTime.hour, dateText, timeText)
     }
 
+    private fun getNotificationNumber(phoneNumber: String): String {
+        if (phoneNumber.isEmpty()) return phoneNumber
+
+        val formattedNumber = PhoneUtils.formatPhoneNumber(phoneNumber)
+
+        val contactName = lookupContact(phoneNumber, applicationContext).name
+            ?.takeIf { it.isNotBlank() }
+            ?: return formattedNumber
+
+        return applicationContext.getString(R.string.phone_name_with_number, contactName, formattedNumber)
+    }
+
     private fun postBlockedNumberNotification(phoneNumber: String, reason: Reason, time: Long) {
         if (!applicationContext.hasPostNotificationsPermission()) return
 
-        val formattedNumber = PhoneUtils.formatPhoneNumber(phoneNumber)
+        val formattedNumber = getNotificationNumber(phoneNumber)
 
         val intent = Intent(applicationContext, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -125,7 +138,7 @@ class PostServiceWorker @AssistedInject constructor(
 
         val notificationId = getNotificationId(phoneNumber)
 
-        val formattedNumber = PhoneUtils.formatPhoneNumber(phoneNumber)
+        val formattedNumber = getNotificationNumber(phoneNumber)
 
         val blockIntent = Intent(applicationContext, SuggestionNotificationActionsReceiver::class.java).apply {
             action = SuggestionNotificationActionsReceiver.ACTION_BLOCK

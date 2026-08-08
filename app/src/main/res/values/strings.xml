@@ -13,6 +13,7 @@
     <string name="notification_suggestion_channel_name">Block suggestions</string>
     <string name="notification_suggestion_title" />
     <string name="notification_suggestion_body">%1$s has called %2$s.</string>
+    <string name="phone_name_with_number">%1$s (%2$s)</string>
     <string name="notification_suggestion_block">Block</string>
     <string name="notification_suggestion_dismiss">Isn\'t spam</string>
 
