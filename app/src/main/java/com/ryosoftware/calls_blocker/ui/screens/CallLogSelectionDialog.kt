@@ -226,7 +226,9 @@ fun CallLogPickerDialog(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
         ) {
-            if (selectedPhoneNumbers.isNotEmpty()) {
+            if (selectedPhoneNumbers.isEmpty()) {
+                Spacer(Modifier.height(8.dp))
+            } else {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
