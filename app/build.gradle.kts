@@ -18,8 +18,8 @@ android {
         minSdk = 30
         targetSdk = compileSdk
 
-        versionCode = 19
-        versionName = "1.19"
+        versionCode = 20
+        versionName = "1.20"
 
         buildConfigField(
             "String",
@@ -58,8 +58,8 @@ kotlin {
 }
 
 dependencies {
-    implementation(platform("androidx.compose:compose-bom:2026.06.01"))
-    implementation("androidx.compose.foundation:foundation:1.11.4")
+    implementation(platform("androidx.compose:compose-bom:2026.08.00"))
+    implementation("androidx.compose.foundation:foundation:1.12.0")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -73,7 +73,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
     implementation("androidx.core:core-ktx:1.19.0")
-    implementation("com.googlecode.libphonenumber:libphonenumber:9.0.36")
+    implementation("com.googlecode.libphonenumber:libphonenumber:9.0.37")
     implementation("com.google.errorprone:error_prone_annotations:2.50.0")
     implementation("androidx.room:room-runtime:2.8.4")
     implementation("androidx.room:room-ktx:2.8.4")

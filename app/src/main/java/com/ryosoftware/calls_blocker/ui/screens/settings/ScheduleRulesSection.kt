@@ -147,9 +147,33 @@ internal fun getScheduleRuleString(context: Context, rule: ScheduleRule): String
         formattedEndTime
     )
 
-    return context.resources.getString(
-        R.string.schedule_blocking_period,
-        startWeekDayAndTime,
-        endWeekDayAndTime
+    val parts = mutableListOf(
+        context.resources.getString(
+            R.string.schedule_blocking_period,
+            startWeekDayAndTime,
+            endWeekDayAndTime
+        )
     )
+
+    val repeatedDays = (0..6).filter {
+        rule.repeatDays and (1 shl it) != 0 && it + 1 != rule.startDay
+    }
+    if (repeatedDays.isNotEmpty()) {
+        val dayNames = repeatedDays.map { weekDays[it] }
+        val joinedDayNames = dayNames.dropLast(1).joinToString(
+            context.resources.getString(R.string.middle_strings_separator)
+        ) + if (dayNames.size > 1) {
+            context.resources.getString(R.string.last_strings_separator) + dayNames.last()
+        } else {
+            dayNames.first()
+        }
+        parts.add(
+            context.resources.getString(
+                R.string.schedule_blocking_repeats,
+                joinedDayNames
+            )
+        )
+    }
+
+    return parts.joinToString(" · ")
 }

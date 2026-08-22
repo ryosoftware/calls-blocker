@@ -12,6 +12,16 @@
         <item>Domingo</item>
     </string-array>
 
+    <string-array name="week_day_initials">
+        <item>Lu</item>
+        <item>Ma</item>
+        <item>Mi</item>
+        <item>Ju</item>
+        <item>Vi</item>
+        <item>Sá</item>
+        <item>Do</item>
+    </string-array>
+
     <string-array name="month_names">
         <item>Enero</item>
         <item>Febrero</item>

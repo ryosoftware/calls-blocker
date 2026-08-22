@@ -1,6 +1,8 @@
 package com.ryosoftware.calls_blocker.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +10,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,6 +29,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,6 +56,7 @@ fun ScheduleRuleDialog(
     var endDay by remember { mutableIntStateOf(initialRule?.endDay ?: 3) }
     var endHour by remember { mutableIntStateOf(initialRule?.let { it.endMinute / 60 } ?: 9) }
     var endMinute by remember { mutableIntStateOf(initialRule?.let { it.endMinute % 60 } ?: 0) }
+    var repeatDays by remember { mutableIntStateOf(initialRule?.repeatDays ?: 0) }
     var showStartDayPicker by remember { mutableStateOf(false) }
     var showEndDayPicker by remember { mutableStateOf(false) }
     var showStartTimePicker by remember { mutableStateOf(false) }
@@ -118,6 +125,47 @@ fun ScheduleRuleDialog(
                     val formattedEndTime = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).format(endTime)
                     Text(formattedEndTime)
                 }
+
+                Spacer(Modifier.height(16.dp))
+
+                Text(
+                    text = stringResource(R.string.schedule_blocking_repeat_days),
+                    style = MaterialTheme.typography.titleSmall
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                val weekDayInitials = stringArrayResource(R.array.week_day_initials)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    weekDayInitials.forEachIndexed { index, initial ->
+                        val isStartDay = index == startDay - 1
+                        val selected = !isStartDay && repeatDays and (1 shl index) != 0
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(38.dp)
+                                .alpha(if (isStartDay) 0.4f else 1f)
+                                .clip(CircleShape)
+                                .background(
+                                    if (selected) MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.surfaceVariant
+                                )
+                                .clickable(enabled = !isStartDay) {
+                                    repeatDays = repeatDays xor (1 shl index)
+                                }
+                        ) {
+                            Text(
+                                text = initial,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = if (selected) MaterialTheme.colorScheme.onPrimary
+                                else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
             }
         },
         confirmButton = {
@@ -129,7 +177,8 @@ fun ScheduleRuleDialog(
                             startDay = startDay,
                             startMinute = startHour * 60 + startMinute,
                             endDay = endDay,
-                            endMinute = endHour * 60 + endMinute
+                            endMinute = endHour * 60 + endMinute,
+                            repeatDays = repeatDays and (1 shl (startDay - 1)).inv()
                         )
                     )
                 }

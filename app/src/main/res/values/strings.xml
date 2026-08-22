@@ -247,6 +247,8 @@
     <string name="schedule_blocking_select_day">Select day</string>
     <string name="schedule_blocking_select_time">Select time</string>
     <string name="schedule_blocking_period">%1$s → %2$s</string>
+    <string name="schedule_blocking_repeat_days">Repeat on</string>
+    <string name="schedule_blocking_repeats">It repeats on %1$s</string>
 
     <!-- Test screening -->
     <string name="test_screening_title">Test if number be blocked</string>
@@ -386,6 +388,8 @@
     <string name="back">Back</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="middle_strings_separator">,&#160;</string>
+    <string name="last_strings_separator">&#160;and&#160;</string>
     <string name="call">Call</string>
     <string name="copy">Copy</string>
 

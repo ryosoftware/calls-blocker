@@ -10,7 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [Number::class, HistoryEntry::class, BlockSuggestion::class, ScheduleRule::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(ActionConverter::class, DirectionConverter::class, NumberTypeConverter::class, ReasonConverter::class, TypeConverter::class)
@@ -28,6 +28,10 @@ abstract class AppDatabase : RoomDatabase() {
             database.execSQL("ALTER TABLE history ADD COLUMN flags INTEGER NOT NULL DEFAULT 0")
         }
 
+        private val MIGRATION_2_3 = Migration(2, 3) { database ->
+            database.execSQL("ALTER TABLE schedule_rules ADD COLUMN repeat_days INTEGER NOT NULL DEFAULT 0")
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -35,7 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "calls_blocker.db"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build()
                 INSTANCE = instance
                 instance

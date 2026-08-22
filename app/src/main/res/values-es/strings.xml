@@ -2,7 +2,7 @@
 
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <string name="app_name">Bloqueador de Llamadas</string>
+    <string name="app_name">Bloqueo de Llamadas</string>
 
     <!-- Notification channels -->
     <string name="notification_channel_name">Llamadas bloqueadas</string>
@@ -249,6 +249,8 @@
     <string name="schedule_blocking_select_day">Seleccionar día</string>
     <string name="schedule_blocking_select_time">Seleccionar hora</string>
     <string name="schedule_blocking_period">%1$s → %2$s</string>
+    <string name="schedule_blocking_repeat_days">Repetir los días</string>
+    <string name="schedule_blocking_repeats">Se repite los %1$s</string>
 
     <!-- Test screening -->
     <string name="test_screening_title">Probar el bloqueo</string>
@@ -388,6 +390,8 @@
     <string name="back">Atrás</string>
     <string name="yes">Sí</string>
     <string name="no">No</string>
+    <string name="middle_strings_separator">,&#160;</string>
+    <string name="last_strings_separator">&#160;y&#160;</string>
     <string name="call">Llamar</string>
     <string name="copy">Copiar</string>
 

@@ -96,6 +96,7 @@ class BackupManager @Inject constructor(
                     startMinute = rule.startMinute,
                     endDay = rule.endDay,
                     endMinute = rule.endMinute,
+                    repeatDays = rule.repeatDays,
                 )
             },
         )
@@ -165,6 +166,7 @@ class BackupManager @Inject constructor(
                 startMinute = scheduleEntry.startMinute,
                 endDay = scheduleEntry.endDay,
                 endMinute = scheduleEntry.endMinute,
+                repeatDays = scheduleEntry.repeatDays,
             )
         })
     }
@@ -212,5 +214,6 @@ data class BackupData(
         @SerialName("start-minute") val startMinute: Int,
         @SerialName("end-day") val endDay: Int,
         @SerialName("end-minute") val endMinute: Int,
+        @SerialName("repeat-days") val repeatDays: Int = 0,
     )
 }

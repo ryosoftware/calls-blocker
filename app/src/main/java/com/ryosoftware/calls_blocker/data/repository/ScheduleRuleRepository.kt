@@ -31,17 +31,30 @@ class ScheduleRuleRepository(private val dao: ScheduleRuleDao) {
         val now = java.time.ZonedDateTime.now()
         val currentDay = now.dayOfWeek.value
         val currentMinute = now.toLocalTime().toSecondOfDay() / 60
+        val current = (currentDay - 1) * 1440 + currentMinute
 
         return _rules.value.any { rule ->
             val start = (rule.startDay - 1) * 1440 + rule.startMinute
             val end = (rule.endDay - 1) * 1440 + rule.endMinute
-            val current = (currentDay - 1) * 1440 + currentMinute
+            var span = end - start
+            if (span <= 0) span += WEEK_MINUTES
 
-            if (start < end) {
-                current in start until end
-            } else {
-                current >= start || current < end
+            val occurrenceDays = buildList {
+                add(rule.startDay)
+                for (day in 1..DAYS_PER_WEEK) {
+                    if (rule.repeatDays and (1 shl (day - 1)) != 0 && day != rule.startDay) add(day)
+                }
+            }
+
+            occurrenceDays.any { day ->
+                val occurrenceStart = (day - 1) * 1440 + rule.startMinute
+                (current - occurrenceStart).mod(WEEK_MINUTES) < span
             }
         }
+    }
+
+    companion object {
+        private const val DAYS_PER_WEEK = 7
+        private const val WEEK_MINUTES = DAYS_PER_WEEK * 1440
     }
 }

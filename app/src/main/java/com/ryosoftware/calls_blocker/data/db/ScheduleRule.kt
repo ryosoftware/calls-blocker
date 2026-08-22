@@ -16,4 +16,6 @@ data class ScheduleRule(
     val endDay: Int,
     @ColumnInfo(name = "end_minute")
     val endMinute: Int,
+    @ColumnInfo(name = "repeat_days", defaultValue = "0")
+    val repeatDays: Int = 0,
 )

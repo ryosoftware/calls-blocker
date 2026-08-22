@@ -12,6 +12,16 @@
         <item>Sunday</item>
     </string-array>
 
+    <string-array name="week_day_initials">
+        <item>Mo</item>
+        <item>Tu</item>
+        <item>We</item>
+        <item>Th</item>
+        <item>Fr</item>
+        <item>Sa</item>
+        <item>Su</item>
+    </string-array>
+
     <string-array name="month_names">
         <item>January</item>
         <item>February</item>
