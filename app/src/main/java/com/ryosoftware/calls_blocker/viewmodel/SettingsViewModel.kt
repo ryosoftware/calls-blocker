@@ -86,6 +86,7 @@ class SettingsViewModel @Inject constructor(
     var blockAll by settingsManager::blockAll
 
     var blockAllUntil by settingsManager::blockAllUntil
+    var blockWhenDnd by settingsManager::blockWhenDnd
     var blockInternational by settingsManager::blockInternational
     var allowedCountryIsos by settingsManager::allowedCountryIsos
     var contactsPermissionRequested by settingsManager::contactsPermissionRequested
@@ -129,6 +130,8 @@ class SettingsViewModel @Inject constructor(
     var findMyPhoneVibrationPattern by settingsManager::findMyPhoneVibrationPattern
 
     fun isInScheduleBlock(): Boolean = scheduleRuleRepository.isInScheduleBlock()
+
+    fun isDndActive(): Boolean = settingsManager.isDndActive()
 
     fun isScheduleRuleActive(rule: ScheduleRule): Boolean = scheduleRuleRepository.isRuleActive(rule)
 

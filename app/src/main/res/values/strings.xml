@@ -122,9 +122,12 @@
 
     <string name="block_all_title">Block all</string>
     <string name="block_all_description">Blocks all incoming calls</string>
+    <string name="block_dnd_title">Block during Do Not Disturb</string>
+    <string name="block_dnd_description">Blocks all calls while the \"Do Not Disturb\" mode is active</string>
     <string name="all_calls_blocked_reason_block_all">All calls are being blocked because \"block all calls\" is active</string>
     <string name="all_calls_blocked_reason_international">All calls are being blocked because international calls are being blocked and no allowed countries have been selected</string>
     <string name="all_calls_blocked_reason_schedule">All calls are being blocked because a schedule blocking period is active</string>
+    <string name="all_calls_blocked_reason_dnd">All calls are being blocked because the \"Do Not Disturb\" mode is active</string>
     <string name="block_all_enabled">\"Block all calls\" is enabled</string>
     <string name="block_all_enabled_for">\"Block all calls\" is enabled for %1$s</string>
     <string name="block_all_enabled_until">Enabled until %1$s</string>
@@ -179,6 +182,7 @@
     <string name="open_app_settings">Open app settings</string>
 
     <string name="grant_permission">Grant permission</string>
+    <string name="open_settings">Open settings</string>
 
     <string name="debug_screen_title">Debug</string>
     <string name="debug_information">Debug information</string>
@@ -200,6 +204,10 @@
     <string name="permission_call_log_required">Call log access</string>
     <string name="permission_call_log_rationale_title">Call log access</string>
     <string name="permission_call_log_rationale_message">We need your permission to read the call log to detect repeated calls and dialed calls.</string>
+
+    <string name="permission_notification_policy_required">Do Not Disturb access</string>
+    <string name="permission_notification_policy_rationale_title">Do Not Disturb access</string>
+    <string name="permission_notification_policy_rationale_message">We need to know when the \"Do Not Disturb\" mode is active to block calls while it\'s enabled. Please grant \"Do Not Disturb access\" in the system settings.</string>
 
     <string name="permission_ignore_battery_optimizations_required">Allow background execution</string>
 
@@ -230,6 +238,7 @@
     <string name="reason_whitelisted_number">Whitelisted number</string>
     <string name="reason_whitelisted_prefix">Whitelisted prefix</string>
     <string name="reason_block_all">Block all</string>
+    <string name="reason_dnd">Do Not Disturb</string>
     <string name="reason_hidden">Hidden number</string>
     <string name="reason_blacklisted_number">Blacklisted number</string>
     <string name="reason_blacklisted_prefix">Blacklisted prefix</string>

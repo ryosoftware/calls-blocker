@@ -1,6 +1,7 @@
 package com.ryosoftware.calls_blocker.data
 
 import android.app.role.RoleManager
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -22,6 +23,7 @@ class SettingsManager(private val context: Context) {
         private const val KEY_BLOCK_HIDDEN = "block-hidden"
         private const val KEY_BLOCK_ALL = "block-all"
         private const val KEY_BLOCK_ALL_UNTIL = "block-all-until"
+        private const val KEY_BLOCK_DND = "block-dnd"
         private const val KEY_BLOCK_GROUPS = "block-groups"
         private const val KEY_BLOCKED_GROUP_IDS = "blocked-group-ids"
         private const val KEY_BLOCK_INTERNATIONAL = "block-international"
@@ -125,6 +127,7 @@ class SettingsManager(private val context: Context) {
     var blockHidden by booleanPref(KEY_BLOCK_HIDDEN, false)
     var blockAll by booleanPref(KEY_BLOCK_ALL, false)
     var blockAllUntil by longPref(KEY_BLOCK_ALL_UNTIL, Long.MAX_VALUE)
+    var blockWhenDnd by booleanPref(KEY_BLOCK_DND, false)
 
     fun temporaryBlockAll(until: Long) {
         blockAllUntil = until
@@ -146,6 +149,20 @@ class SettingsManager(private val context: Context) {
     fun isScreeningActive(): Boolean {
         val roleManager = context.applicationContext.getSystemService(Context.ROLE_SERVICE) as? RoleManager ?: return false
         return roleManager.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)
+    }
+
+    fun isDndActive(): Boolean {
+        val notificationManager = context.getSystemService(NotificationManager::class.java)
+
+        if (!notificationManager.isNotificationPolicyAccessGranted) {
+            return false
+        }
+
+        return runCatching {
+            val interruptionFilter = notificationManager.currentInterruptionFilter
+            interruptionFilter != NotificationManager.INTERRUPTION_FILTER_ALL &&
+                interruptionFilter != NotificationManager.INTERRUPTION_FILTER_UNKNOWN
+        }.getOrDefault(false)
     }
 
     fun createRequestRoleIntent(): Intent? {

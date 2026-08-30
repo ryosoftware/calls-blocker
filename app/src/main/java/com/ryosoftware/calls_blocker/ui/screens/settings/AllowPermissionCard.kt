@@ -78,6 +78,9 @@ fun AllowPermissionCard(
                                 Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS ->
                                     stringResource(R.string.permission_ignore_battery_optimizations_required)
 
+                                Manifest.permission.ACCESS_NOTIFICATION_POLICY ->
+                                    stringResource(R.string.permission_notification_policy_required)
+
                                 else -> ""
                             },
                             style = MaterialTheme.typography.bodySmall,

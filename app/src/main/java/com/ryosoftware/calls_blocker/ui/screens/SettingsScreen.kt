@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.NotificationManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
@@ -55,6 +56,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -130,6 +132,8 @@ fun SettingsScreen(
     var isImportingNumbers by remember { mutableStateOf(false) }
     var blockAll by remember { mutableStateOf(viewModel.blockAll) }
     var blockAllUntil by remember { mutableLongStateOf(viewModel.blockAllUntil) }
+    var blockWhenDnd by remember { mutableStateOf(viewModel.blockWhenDnd) }
+    var isDndActive by remember { mutableStateOf(viewModel.isDndActive()) }
     val scheduleRules by viewModel.scheduleRules.collectAsStateWithLifecycle()
     val now by produceState(System.currentTimeMillis()) {
         while (true) {
@@ -139,6 +143,7 @@ fun SettingsScreen(
     }
     val allCallsBlockedReasonRes = when {
         blockAll && blockAllUntil > now -> R.string.all_calls_blocked_reason_block_all
+        blockWhenDnd && isDndActive -> R.string.all_calls_blocked_reason_dnd
         viewModel.blockInternational && viewModel.allowedCountryIsos.split(",").none { it.trim().isNotEmpty() } -> R.string.all_calls_blocked_reason_international
         viewModel.isInScheduleBlock() -> R.string.all_calls_blocked_reason_schedule
         else -> null
@@ -167,6 +172,28 @@ fun SettingsScreen(
             @SuppressLint("UnspecifiedRegisterReceiverFlag")
             context.registerReceiver(receiver, filter)
         }
+
+        onDispose {
+            context.unregisterReceiver(receiver)
+        }
+    }
+
+    DisposableEffect(Unit) {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (intent.action == NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED) {
+                    isDndActive = viewModel.isDndActive()
+                }
+            }
+        }
+
+        val filter = IntentFilter(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED)
+        ContextCompat.registerReceiver(
+            context,
+            receiver,
+            filter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
 
         onDispose {
             context.unregisterReceiver(receiver)
@@ -314,6 +341,8 @@ fun SettingsScreen(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 permissionCheckTrigger++
+                isDndActive = viewModel.isDndActive()
+                blockWhenDnd = viewModel.blockWhenDnd
                 val callLogGranted = context.hasReadCallLogPermission()
                 if (callLogGranted && pendingFindMyPhoneToggle != null) {
                     findMyPhoneEnabled = pendingFindMyPhoneToggle!!

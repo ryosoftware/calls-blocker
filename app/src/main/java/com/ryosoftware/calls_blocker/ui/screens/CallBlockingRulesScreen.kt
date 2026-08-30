@@ -1,11 +1,11 @@
 package com.ryosoftware.calls_blocker.ui.screens
 
 import android.Manifest
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -60,6 +61,9 @@ fun CallBlockingRulesScreen(
     var blockAll by blockAllState
     val blockAllUntilState = remember { mutableStateOf(viewModel.blockAllUntil) }
     var blockAllUntil by blockAllUntilState
+    var blockWhenDnd by remember { mutableStateOf(viewModel.blockWhenDnd) }
+    var pendingDndToggle by remember { mutableStateOf<Boolean?>(null) }
+    var showDndAccessRationale by remember { mutableStateOf(false) }
     var blockHidden by remember { mutableStateOf(viewModel.blockHidden) }
     var blockUnknown by remember { mutableStateOf(viewModel.blockUnknown) }
     var blockInternational by remember { mutableStateOf(viewModel.blockInternational) }
@@ -91,6 +95,10 @@ fun CallBlockingRulesScreen(
 
     val contactsPermissionGranted = remember(permissionCheckTrigger) {
         context.hasReadContactsPermission()
+    }
+
+    val dndAccessGranted = remember(permissionCheckTrigger) {
+        context.getSystemService(NotificationManager::class.java).isNotificationPolicyAccessGranted
     }
 
     val callLogPermissionGranted = remember(permissionCheckTrigger) {
@@ -163,11 +171,12 @@ fun CallBlockingRulesScreen(
             }
         }
         val filter = IntentFilter(BlockAllTileService.ACTION_BLOCK_ALL_CHANGED)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            context.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            context.registerReceiver(receiver, filter)
-        }
+        ContextCompat.registerReceiver(
+            context,
+            receiver,
+            filter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
         onDispose { context.unregisterReceiver(receiver) }
     }
 
@@ -175,6 +184,12 @@ fun CallBlockingRulesScreen(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 permissionCheckTrigger++
+                val dndAccessGranted = context.getSystemService(NotificationManager::class.java).isNotificationPolicyAccessGranted
+                if (dndAccessGranted && pendingDndToggle != null) {
+                    blockWhenDnd = pendingDndToggle!!
+                    viewModel.blockWhenDnd = pendingDndToggle!!
+                    pendingDndToggle = null
+                }
                 val contactsGranted = context.hasReadContactsPermission()
                 if (contactsGranted) {
                     if (pendingUnknownToggle != null) {
@@ -239,6 +254,19 @@ fun CallBlockingRulesScreen(
                 blockAllUntil = Long.MAX_VALUE
                 viewModel.blockAllUntil = blockAllUntil
             },
+            blockWhenDnd = blockWhenDnd,
+            onBlockWhenDndChange = { enabled ->
+                if (enabled && !dndAccessGranted) {
+                    pendingDndToggle = true
+                    showDndAccessRationale = true
+                } else {
+                    pendingDndToggle = null
+                    blockWhenDnd = enabled
+                    viewModel.blockWhenDnd = enabled
+                }
+            },
+            dndAccessGranted = dndAccessGranted,
+            onRequestDndAccess = { showDndAccessRationale = true },
             blockUnknown = blockUnknown,
             onBlockUnknownChange = { enabled ->
                 if (enabled && !contactsPermissionGranted) {
@@ -347,6 +375,33 @@ fun CallBlockingRulesScreen(
             onAddRule = { editingScheduleRule = null; showScheduleRuleDialog = true },
             onEditRule = { editingScheduleRule = it; showScheduleRuleDialog = true },
             onRemoveRule = viewModel::removeScheduleRule,
+        )
+    }
+
+    if (showDndAccessRationale) {
+        AlertDialog(
+            onDismissRequest = {
+                showDndAccessRationale = false
+                pendingDndToggle = null
+            },
+            title = { Text(stringResource(R.string.permission_notification_policy_rationale_title)) },
+            text = { Text(stringResource(R.string.permission_notification_policy_rationale_message)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDndAccessRationale = false
+                    context.startActivity(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
+                }) {
+                    Text(stringResource(R.string.open_settings))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showDndAccessRationale = false
+                    pendingDndToggle = null
+                }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
         )
     }
 

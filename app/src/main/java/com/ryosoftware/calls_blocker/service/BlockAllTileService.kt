@@ -86,6 +86,8 @@ class BlockAllTileService : TileService() {
 
                 R.drawable.ic_tile_block_all to string
             }
+            settingsManager.blockWhenDnd && settingsManager.isDndActive() ->
+                R.drawable.ic_tile_block_all_dnd to getString(R.string.blocking_all_enabled)
             settingsManager.blockInternational &&
                 settingsManager.allowedCountryIsos.split(",").none { it.trim().isNotEmpty() } ->
                 R.drawable.ic_tile_block_all_international to getString(R.string.blocking_all_enabled)

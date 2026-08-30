@@ -34,6 +34,7 @@ enum class Reason(val code: Int, val resource: Int? = 0) {
     REJECTED_BEFORE(72, R.string.reason_rejected_before),
     REPEATED_CALL(73, R.string.reason_repeated_call),
     SCHEDULE(81, R.string.reason_schedule),
+    DND_ACTIVE(82, R.string.reason_dnd),
     FIND_MY_PHONE(91, R.string.reason_find_my_phone),
     FIND_MY_PHONE_CANCELLED(92, R.string.reason_find_my_phone_cancelled);
 

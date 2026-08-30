@@ -46,6 +46,10 @@ fun BlockingRulesSection(
     blockAll: Boolean,
     blockAllUntil: Long,
     onBlockAllChange: (Boolean) -> Unit,
+    blockWhenDnd: Boolean,
+    onBlockWhenDndChange: (Boolean) -> Unit,
+    dndAccessGranted: Boolean,
+    onRequestDndAccess: () -> Unit,
     blockUnknown: Boolean,
     onBlockUnknownChange: (Boolean) -> Unit,
     blockHidden: Boolean,
@@ -112,6 +116,42 @@ fun BlockingRulesSection(
             }
         }
 
+    }
+
+    Spacer(Modifier.height(12.dp))
+
+    AllowPermissionCard(
+        canShowPermissionNotAllowed = blockWhenDnd,
+        permission = Manifest.permission.ACCESS_NOTIFICATION_POLICY,
+        isPermissionAllowed = dndAccessGranted,
+        onShowRationaleRequested = onRequestDndAccess
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onBlockWhenDndChange(!blockWhenDnd) },
+            verticalAlignment = Alignment.Top
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.block_dnd_title),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                Text(
+                    text = stringResource(R.string.block_dnd_description),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Spacer(Modifier.width(24.dp))
+
+            Switch(
+                checked = blockWhenDnd,
+                onCheckedChange = null
+            )
+        }
     }
 
     Spacer(Modifier.height(12.dp))

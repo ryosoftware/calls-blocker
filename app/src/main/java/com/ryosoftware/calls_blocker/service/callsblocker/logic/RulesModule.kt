@@ -12,6 +12,7 @@ import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockNotDi
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockPrefixNumberRule
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockRejectedCallsRule
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockRepeatedCallsRule
+import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockWhenDndRule
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -91,6 +92,12 @@ abstract class RuleModule {
     @IntoSet
     abstract fun bindBlockRepeatedCallsRule(
         rule: BlockRepeatedCallsRule
+    ): AbstractBlockRule
+
+    @Binds
+    @IntoSet
+    abstract fun bindBlockWhenDndRule(
+        rule: BlockWhenDndRule
     ): AbstractBlockRule
 }
 

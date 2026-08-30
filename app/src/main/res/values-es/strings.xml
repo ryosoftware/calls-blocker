@@ -123,9 +123,12 @@
 
     <string name="block_all_title">Bloquear todas</string>
     <string name="block_all_description">Bloquea todas las llamadas entrantes</string>
+    <string name="block_dnd_title">Bloquear con «No molestar»</string>
+    <string name="block_dnd_description">Bloquea todas las llamadas mientras el modo «no molestar» esté activo</string>
     <string name="all_calls_blocked_reason_block_all">Se están bloqueando todas las llamadas porque \"bloquear todas las llamadas\" está activo</string>
     <string name="all_calls_blocked_reason_international">Se están bloqueando todas las llamadas porque se están bloqueando las llamadas internacionales y no se han seleccionado países permitidos</string>
     <string name="all_calls_blocked_reason_schedule">Se están bloqueando todas las llamadas porque estamos en horario restringido</string>
+    <string name="all_calls_blocked_reason_dnd">Se están bloqueando todas las llamadas porque el modo no molestar está activo</string>
     <string name="block_all_enabled">\"Bloquear todas las llamadas\" activado</string>
     <string name="block_all_enabled_for">\"Bloquear todas las llamadas\" activado durante %1$s</string>
     <string name="block_all_enabled_until">Activado hasta el %1$s</string>
@@ -180,6 +183,7 @@
     <string name="open_app_settings">Abrir ajustes de la app</string>
 
     <string name="grant_permission">Otorgar permiso</string>
+    <string name="open_settings">Abrir ajustes</string>
 
     <string name="debug_screen_title">Depuración</string>
     <string name="debug_information">Información de depuración</string>
@@ -202,6 +206,10 @@
     <string name="permission_call_log_required">Acceso al registro de llamadas</string>
     <string name="permission_call_log_rationale_title">Acceso al registro de llamadas</string>
     <string name="permission_call_log_rationale_message">Para bloquear llamadas repetidas o a números a los que no has llamado, necesitamos poder acceder al registro de llamadas.</string>
+
+    <string name="permission_notification_policy_required">Acceso al modo No molestar</string>
+    <string name="permission_notification_policy_rationale_title">Acceso al modo No molestar</string>
+    <string name="permission_notification_policy_rationale_message">Para saber cuándo el modo «no molestar» está activo y poder bloquear llamadas mientras esté encendido, necesitamos acceso al modo No molestar. Concede «Acceso al modo No molestar» en los ajustes del sistema.</string>
 
     <string name="permission_ignore_battery_optimizations_required">Permitir ejecución en segundo plano</string>
 
@@ -232,6 +240,7 @@
     <string name="reason_whitelisted_number">Número aceptado</string>
     <string name="reason_whitelisted_prefix">Prefijo aceptado</string>
     <string name="reason_block_all">Bloquer todas</string>
+    <string name="reason_dnd">No molestar</string>
     <string name="reason_hidden">Número oculto</string>
     <string name="reason_blacklisted_number">Número rechazado</string>
     <string name="reason_blacklisted_prefix">Prefijo rechazado</string>

@@ -622,6 +622,7 @@ private fun HistoryItem(
         Reason.REJECTED_BEFORE,
         Reason.REPEATED_CALL,
         Reason.SCHEDULE,
+        Reason.DND_ACTIVE,
         Reason.FIND_MY_PHONE,
         Reason.FIND_MY_PHONE_CANCELLED -> colorResource(if ((entry.flags and FLAG_CALL_SILENCED) == 0) R.color.blocked_call else R.color.silenced_call)
         Reason.WHITELISTED_NUMBER,
