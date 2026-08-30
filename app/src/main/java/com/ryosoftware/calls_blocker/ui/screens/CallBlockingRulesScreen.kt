@@ -343,6 +343,7 @@ fun CallBlockingRulesScreen(
 
         ScheduleRulesSection(
             scheduleRules = scheduleRules,
+            isRuleActive = viewModel::isScheduleRuleActive,
             onAddRule = { editingScheduleRule = null; showScheduleRuleDialog = true },
             onEditRule = { editingScheduleRule = it; showScheduleRuleDialog = true },
             onRemoveRule = viewModel::removeScheduleRule,

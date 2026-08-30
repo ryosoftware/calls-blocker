@@ -128,6 +128,10 @@ class SettingsViewModel @Inject constructor(
     var findMyPhoneRingtoneUri by settingsManager::findMyPhoneRingtoneUri
     var findMyPhoneVibrationPattern by settingsManager::findMyPhoneVibrationPattern
 
+    fun isInScheduleBlock(): Boolean = scheduleRuleRepository.isInScheduleBlock()
+
+    fun isScheduleRuleActive(rule: ScheduleRule): Boolean = scheduleRuleRepository.isRuleActive(rule)
+
     fun getContactGroups(): List<ContactGroup> = fetchContactGroups(context, context.contentResolver)
 
     fun getCountryName(country: Country): String =

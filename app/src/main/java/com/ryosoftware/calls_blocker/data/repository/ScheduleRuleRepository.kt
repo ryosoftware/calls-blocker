@@ -28,29 +28,41 @@ class ScheduleRuleRepository(private val dao: ScheduleRuleDao) {
     suspend fun remove(rule: ScheduleRule) = dao.delete(rule)
 
     fun isInScheduleBlock(): Boolean {
+        val current = currentMinuteOfWeek()
+
+        return _rules.value.any { rule -> isRuleActive(rule, current) }
+    }
+
+    fun isRuleActive(rule: ScheduleRule): Boolean {
+        val current = currentMinuteOfWeek()
+
+        return isRuleActive(rule, current)
+    }
+
+    private fun isRuleActive(rule: ScheduleRule, current: Int): Boolean {
+        val start = (rule.startDay - 1) * 1440 + rule.startMinute
+        val end = (rule.endDay - 1) * 1440 + rule.endMinute
+        var span = end - start
+        if (span <= 0) span += WEEK_MINUTES
+
+        val occurrenceDays = buildList {
+            add(rule.startDay)
+            for (day in 1..DAYS_PER_WEEK) {
+                if (rule.repeatDays and (1 shl (day - 1)) != 0 && day != rule.startDay) add(day)
+            }
+        }
+
+        return occurrenceDays.any { day ->
+            val occurrenceStart = (day - 1) * 1440 + rule.startMinute
+            (current - occurrenceStart).mod(WEEK_MINUTES) < span
+        }
+    }
+
+    private fun currentMinuteOfWeek(): Int {
         val now = java.time.ZonedDateTime.now()
         val currentDay = now.dayOfWeek.value
         val currentMinute = now.toLocalTime().toSecondOfDay() / 60
-        val current = (currentDay - 1) * 1440 + currentMinute
-
-        return _rules.value.any { rule ->
-            val start = (rule.startDay - 1) * 1440 + rule.startMinute
-            val end = (rule.endDay - 1) * 1440 + rule.endMinute
-            var span = end - start
-            if (span <= 0) span += WEEK_MINUTES
-
-            val occurrenceDays = buildList {
-                add(rule.startDay)
-                for (day in 1..DAYS_PER_WEEK) {
-                    if (rule.repeatDays and (1 shl (day - 1)) != 0 && day != rule.startDay) add(day)
-                }
-            }
-
-            occurrenceDays.any { day ->
-                val occurrenceStart = (day - 1) * 1440 + rule.startMinute
-                (current - occurrenceStart).mod(WEEK_MINUTES) < span
-            }
-        }
+        return (currentDay - 1) * 1440 + currentMinute
     }
 
     companion object {

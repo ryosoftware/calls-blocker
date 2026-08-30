@@ -21,6 +21,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -29,18 +32,27 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.db.ScheduleRule
+import kotlinx.coroutines.delay
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun ScheduleRulesSection(
     scheduleRules: List<ScheduleRule>,
+    isRuleActive: (ScheduleRule) -> Boolean,
     onAddRule: () -> Unit,
     onEditRule: (ScheduleRule) -> Unit,
     onRemoveRule: (ScheduleRule) -> Unit,
 ) {
     val context = LocalContext.current
+    val now by produceState(System.currentTimeMillis()) {
+        while (true) {
+            value = System.currentTimeMillis()
+            delay((60_000L - value.mod(60_000)).milliseconds)
+        }
+    }
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -63,35 +75,49 @@ fun ScheduleRulesSection(
                 )
             } else {
                 scheduleRules.forEach { rule ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = getScheduleRuleString(context, rule),
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { onEditRule(rule) }
-                        )
+                    val activeNow = remember(rule, now) { isRuleActive(rule) }
 
-                        Surface(
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            modifier = Modifier.size(32.dp),
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                IconButton(
-                                    onClick = { onRemoveRule(rule) },
-                                    modifier = Modifier.size(20.dp)
-                                ) {
-                                    Icon(
-                                        Icons.Default.Close,
-                                        contentDescription = stringResource(R.string.delete),
-                                        modifier = Modifier.size(16.dp)
-                                    )
+                            Text(
+                                text = getScheduleRuleString(context, rule),
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable { onEditRule(rule) }
+                            )
+
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                modifier = Modifier.size(32.dp),
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    IconButton(
+                                        onClick = { onRemoveRule(rule) },
+                                        modifier = Modifier.size(20.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Close,
+                                            contentDescription = stringResource(R.string.delete),
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
                                 }
                             }
+                        }
+
+                        if (activeNow) {
+                            Spacer(Modifier.height(4.dp))
+
+                            Text(
+                                text = stringResource(R.string.schedule_blocking_rule_active),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error
+                            )
                         }
                     }
                 }
@@ -175,5 +201,5 @@ internal fun getScheduleRuleString(context: Context, rule: ScheduleRule): String
         )
     }
 
-    return parts.joinToString(" · ")
+    return parts.joinToString("\n")
 }

@@ -43,7 +43,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -77,9 +79,11 @@ import com.ryosoftware.calls_blocker.ui.screens.settings.FindMyPhoneSection
 import com.ryosoftware.calls_blocker.viewmodel.BackupEvent
 import com.ryosoftware.calls_blocker.viewmodel.SettingsViewModel
 import com.ryosoftware.calls_blocker.service.BlockAllTileService
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun SettingsScreen(
@@ -124,17 +128,33 @@ fun SettingsScreen(
     var pendingImportNumbersCount by remember { mutableIntStateOf(0) }
     var importNumbersValidationLevel by remember { mutableIntStateOf(2) }
     var isImportingNumbers by remember { mutableStateOf(false) }
+    var blockAll by remember { mutableStateOf(viewModel.blockAll) }
+    var blockAllUntil by remember { mutableLongStateOf(viewModel.blockAllUntil) }
     val scheduleRules by viewModel.scheduleRules.collectAsStateWithLifecycle()
+    val now by produceState(System.currentTimeMillis()) {
+        while (true) {
+            value = System.currentTimeMillis()
+            delay((60_000L - value.mod(60_000)).milliseconds)
+        }
+    }
+    val allCallsBlockedReasonRes = when {
+        blockAll && blockAllUntil > now -> R.string.all_calls_blocked_reason_block_all
+        viewModel.blockInternational && viewModel.allowedCountryIsos.split(",").none { it.trim().isNotEmpty() } -> R.string.all_calls_blocked_reason_international
+        viewModel.isInScheduleBlock() -> R.string.all_calls_blocked_reason_schedule
+        else -> null
+    }
 
     DisposableEffect(Unit) {
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 if (intent.action == BlockAllTileService.ACTION_BLOCK_ALL_CHANGED) {
-                    val blockAll = intent.getBooleanExtra(BlockAllTileService.EXTRA_VALUE, false)
-                    viewModel.blockAll = blockAll
-                    if (blockAll) {
-                        val blockAllUntil = intent.getLongExtra(BlockAllTileService.EXTRA_UNTIL, Long.MAX_VALUE)
-                        viewModel.blockAllUntil = blockAllUntil
+                    val newBlockAll = intent.getBooleanExtra(BlockAllTileService.EXTRA_VALUE, false)
+                    viewModel.blockAll = newBlockAll
+                    blockAll = newBlockAll
+                    if (newBlockAll) {
+                        val newBlockAllUntil = intent.getLongExtra(BlockAllTileService.EXTRA_UNTIL, Long.MAX_VALUE)
+                        viewModel.blockAllUntil = newBlockAllUntil
+                        blockAllUntil = newBlockAllUntil
                     }
                 }
             }
@@ -403,6 +423,16 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(stringResource(R.string.incoming_call_blocking_button))
+                }
+
+                allCallsBlockedReasonRes?.let { resId ->
+                    Spacer(Modifier.height(8.dp))
+
+                    Text(
+                        text = stringResource(resId),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
 
                 Spacer(Modifier.height(12.dp))

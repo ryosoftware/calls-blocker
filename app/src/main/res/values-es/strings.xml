@@ -75,8 +75,6 @@
     <string name="confirm_block_multiple_numbers_detail">¿Bloquear estos números?\n\n%1$s%2$s</string>
     <string name="confirm_allow_multiple_numbers_detail">¿Permitir estos números?\n\n%1$s%2$s</string>
 
-    <!-- Call Log Selection Dialog -->
-
     <!-- History Screen -->
     <string name="history_empty">No hay llamadas registradas</string>
     <string name="delete_history_entry_message">¿Eliminar esta entrada del historial?</string>
@@ -113,6 +111,7 @@
     <string name="schedule_blocking_add">Añadir</string>
     <string name="schedule_blocking_edit">Editar periodo</string>
     <string name="schedule_blocking_no_rules">No hay periodos añadidos</string>
+    <string name="schedule_blocking_rule_active">Esta regla está activa ahora</string>
 
     <string name="block_unknown_title">Bloquear números desconocidos</string>
     <string name="block_unknown_description">Se bloquearán los llamadas desde números que no estén en su agenda de contactos</string>
@@ -124,6 +123,9 @@
 
     <string name="block_all_title">Bloquear todas</string>
     <string name="block_all_description">Bloquea todas las llamadas entrantes</string>
+    <string name="all_calls_blocked_reason_block_all">Se están bloqueando todas las llamadas porque \"bloquear todas las llamadas\" está activo</string>
+    <string name="all_calls_blocked_reason_international">Se están bloqueando todas las llamadas porque se están bloqueando las llamadas internacionales y no se han seleccionado países permitidos</string>
+    <string name="all_calls_blocked_reason_schedule">Se están bloqueando todas las llamadas porque estamos en horario restringido</string>
     <string name="block_all_enabled">\"Bloquear todas las llamadas\" activado</string>
     <string name="block_all_enabled_for">\"Bloquear todas las llamadas\" activado durante %1$s</string>
     <string name="block_all_enabled_until">Activado hasta el %1$s</string>

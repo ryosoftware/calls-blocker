@@ -74,8 +74,6 @@
     <string name="confirm_block_multiple_numbers_detail">Block these numbers?\n\n%1$s%2$s</string>
     <string name="confirm_allow_multiple_numbers_detail">Allow these numbers?\n\n%1$s%2$s</string>
 
-    <!-- Call Log Selection Dialog -->
-
     <!-- History Screen -->
     <string name="history_empty">No logged calls</string>
     <string name="delete_history_entry_message">Remove this entry from the history?</string>
@@ -112,6 +110,7 @@
     <string name="schedule_blocking_add">Add</string>
     <string name="schedule_blocking_edit">Edit period</string>
     <string name="schedule_blocking_no_rules">No time periods added</string>
+    <string name="schedule_blocking_rule_active">This rule is active now</string>
 
     <string name="block_unknown_title">Block unknown numbers</string>
     <string name="block_unknown_description">Blocks calls from numbers not in your contacts</string>
@@ -123,6 +122,9 @@
 
     <string name="block_all_title">Block all</string>
     <string name="block_all_description">Blocks all incoming calls</string>
+    <string name="all_calls_blocked_reason_block_all">All calls are being blocked because \"block all calls\" is active</string>
+    <string name="all_calls_blocked_reason_international">All calls are being blocked because international calls are being blocked and no allowed countries have been selected</string>
+    <string name="all_calls_blocked_reason_schedule">All calls are being blocked because a schedule blocking period is active</string>
     <string name="block_all_enabled">\"Block all calls\" is enabled</string>
     <string name="block_all_enabled_for">\"Block all calls\" is enabled for %1$s</string>
     <string name="block_all_enabled_until">Enabled until %1$s</string>
