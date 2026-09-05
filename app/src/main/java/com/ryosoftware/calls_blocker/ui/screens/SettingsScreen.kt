@@ -132,8 +132,7 @@ fun SettingsScreen(
     var isImportingNumbers by remember { mutableStateOf(false) }
     var blockAll by remember { mutableStateOf(viewModel.blockAll) }
     var blockAllUntil by remember { mutableLongStateOf(viewModel.blockAllUntil) }
-    var blockWhenDnd by remember { mutableStateOf(viewModel.blockWhenDnd) }
-    var isDndActive by remember { mutableStateOf(viewModel.isDndActive()) }
+    var dndStateTick by remember { mutableIntStateOf(0) }
     val scheduleRules by viewModel.scheduleRules.collectAsStateWithLifecycle()
     val now by produceState(System.currentTimeMillis()) {
         while (true) {
@@ -141,12 +140,14 @@ fun SettingsScreen(
             delay((60_000L - value.mod(60_000)).milliseconds)
         }
     }
-    val allCallsBlockedReasonRes = when {
-        blockAll && blockAllUntil > now -> R.string.all_calls_blocked_reason_block_all
-        blockWhenDnd && isDndActive -> R.string.all_calls_blocked_reason_dnd
-        viewModel.blockInternational && viewModel.allowedCountryIsos.split(",").none { it.trim().isNotEmpty() } -> R.string.all_calls_blocked_reason_international
-        viewModel.isInScheduleBlock() -> R.string.all_calls_blocked_reason_schedule
-        else -> null
+    val allCallsBlockedReasonRes = remember(blockAll, blockAllUntil, now, dndStateTick) {
+        when {
+            blockAll && blockAllUntil > now -> R.string.all_calls_blocked_reason_block_all
+            viewModel.shouldBlockDueToDnd() -> R.string.all_calls_blocked_reason_dnd
+            viewModel.blockInternational && viewModel.allowedCountryIsos.split(",").none { it.trim().isNotEmpty() } -> R.string.all_calls_blocked_reason_international
+            viewModel.shouldBlockDueToSchedule() -> R.string.all_calls_blocked_reason_schedule
+            else -> null
+        }
     }
 
     DisposableEffect(Unit) {
@@ -161,6 +162,7 @@ fun SettingsScreen(
                         viewModel.blockAllUntil = newBlockAllUntil
                         blockAllUntil = newBlockAllUntil
                     }
+                    dndStateTick++
                 }
             }
         }
@@ -182,7 +184,7 @@ fun SettingsScreen(
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 if (intent.action == NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED) {
-                    isDndActive = viewModel.isDndActive()
+                    dndStateTick++
                 }
             }
         }
@@ -341,8 +343,7 @@ fun SettingsScreen(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 permissionCheckTrigger++
-                isDndActive = viewModel.isDndActive()
-                blockWhenDnd = viewModel.blockWhenDnd
+                dndStateTick++
                 val callLogGranted = context.hasReadCallLogPermission()
                 if (callLogGranted && pendingFindMyPhoneToggle != null) {
                     findMyPhoneEnabled = pendingFindMyPhoneToggle!!

@@ -167,6 +167,11 @@ fun CallBlockingRulesScreen(
                         viewModel.blockAllUntil = blockAllUntil
                         blockAllUntilState.value = blockAllUntil
                     }
+                    blockWhenDnd = intent.getBooleanExtra(BlockAllTileService.EXTRA_BLOCK_WHEN_DND, blockWhenDnd)
+                    viewModel.blockWhenDnd = blockWhenDnd
+                    blockInternational = intent.getBooleanExtra(BlockAllTileService.EXTRA_BLOCK_INTERNATIONAL, blockInternational)
+                    viewModel.blockInternational = blockInternational
+                    permissionCheckTrigger++
                 }
             }
         }
@@ -221,6 +226,9 @@ fun CallBlockingRulesScreen(
                 }
                 blockAll = viewModel.blockAll
                 blockAllUntil = viewModel.blockAllUntil
+                blockWhenDnd = viewModel.blockWhenDnd
+                blockInternational = viewModel.blockInternational
+                allowedCountryIsos = viewModel.allowedCountryIsos
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

@@ -87,6 +87,8 @@ class SettingsViewModel @Inject constructor(
 
     var blockAllUntil by settingsManager::blockAllUntil
     var blockWhenDnd by settingsManager::blockWhenDnd
+    var blockWhenDndPaused by settingsManager::blockWhenDndPaused
+    var scheduleBlockingPausedUntil by settingsManager::scheduleBlockingPausedUntil
     var blockInternational by settingsManager::blockInternational
     var allowedCountryIsos by settingsManager::allowedCountryIsos
     var contactsPermissionRequested by settingsManager::contactsPermissionRequested
@@ -133,7 +135,13 @@ class SettingsViewModel @Inject constructor(
 
     fun isDndActive(): Boolean = settingsManager.isDndActive()
 
-    fun isScheduleRuleActive(rule: ScheduleRule): Boolean = scheduleRuleRepository.isRuleActive(rule)
+    fun shouldBlockDueToDnd(): Boolean = settingsManager.shouldBlockDueToDnd()
+
+    fun shouldBlockDueToSchedule(): Boolean =
+        settingsManager.shouldBlockDueToSchedule(scheduleRuleRepository.isInScheduleBlock())
+
+    fun isScheduleRuleActive(rule: ScheduleRule): Boolean =
+        scheduleRuleRepository.isRuleActive(rule) && !settingsManager.isScheduleBlockingPaused()
 
     fun getContactGroups(): List<ContactGroup> = fetchContactGroups(context, context.contentResolver)
 

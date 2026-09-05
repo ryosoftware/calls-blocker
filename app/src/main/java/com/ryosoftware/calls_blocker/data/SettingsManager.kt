@@ -24,6 +24,9 @@ class SettingsManager(private val context: Context) {
         private const val KEY_BLOCK_ALL = "block-all"
         private const val KEY_BLOCK_ALL_UNTIL = "block-all-until"
         private const val KEY_BLOCK_DND = "block-dnd"
+        private const val KEY_BLOCK_DND_PAUSED = "block-dnd-paused"
+        private const val KEY_SCHEDULE_BLOCKING_PAUSED_UNTIL = "schedule-blocking-paused-until"
+        private const val KEY_TILE_DISABLED_CAUSES = "tile-disabled-causes"
         private const val KEY_BLOCK_GROUPS = "block-groups"
         private const val KEY_BLOCKED_GROUP_IDS = "blocked-group-ids"
         private const val KEY_BLOCK_INTERNATIONAL = "block-international"
@@ -128,6 +131,9 @@ class SettingsManager(private val context: Context) {
     var blockAll by booleanPref(KEY_BLOCK_ALL, false)
     var blockAllUntil by longPref(KEY_BLOCK_ALL_UNTIL, Long.MAX_VALUE)
     var blockWhenDnd by booleanPref(KEY_BLOCK_DND, false)
+    var blockWhenDndPaused by booleanPref(KEY_BLOCK_DND_PAUSED, false)
+    var scheduleBlockingPausedUntil by longPref(KEY_SCHEDULE_BLOCKING_PAUSED_UNTIL, 0L)
+    var tileDisabledCauses by stringPref(KEY_TILE_DISABLED_CAUSES)
 
     fun temporaryBlockAll(until: Long) {
         blockAllUntil = until
@@ -163,6 +169,35 @@ class SettingsManager(private val context: Context) {
             interruptionFilter != NotificationManager.INTERRUPTION_FILTER_ALL &&
                 interruptionFilter != NotificationManager.INTERRUPTION_FILTER_UNKNOWN
         }.getOrDefault(false)
+    }
+
+    fun shouldBlockDueToDnd(): Boolean {
+        if (!blockWhenDnd) return false
+
+        val dndActive = isDndActive()
+        if (blockWhenDndPaused) {
+            if (!dndActive) blockWhenDndPaused = false
+            return false
+        }
+
+        return dndActive
+    }
+
+    fun isScheduleBlockingPaused(): Boolean {
+        val pausedUntil = scheduleBlockingPausedUntil
+        if (pausedUntil <= System.currentTimeMillis()) {
+            if (pausedUntil != 0L) scheduleBlockingPausedUntil = 0L
+            return false
+        }
+        return true
+    }
+
+    fun shouldBlockDueToSchedule(scheduleActive: Boolean): Boolean {
+        if (!scheduleActive) {
+            if (scheduleBlockingPausedUntil != 0L) scheduleBlockingPausedUntil = 0L
+            return false
+        }
+        return !isScheduleBlockingPaused()
     }
 
     fun createRequestRoleIntent(): Intent? {

@@ -1,5 +1,6 @@
 package com.ryosoftware.calls_blocker.service.callsblocker.logic.block
 
+import com.ryosoftware.calls_blocker.data.SettingsManager
 import com.ryosoftware.calls_blocker.data.db.Reason
 import com.ryosoftware.calls_blocker.data.repository.ScheduleRuleRepository
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractBlockRule
@@ -7,12 +8,15 @@ import jakarta.inject.Inject
 
 class ScheduleRule @Inject constructor(
     private val scheduleRuleRepository: ScheduleRuleRepository,
+    private val settingsManager: SettingsManager,
 ): AbstractBlockRule {
     override suspend fun evaluate(normalizedPhoneNumber: String, phoneNumber: String, normalizeToE164: (String?) -> String, isHiddenNumber: (String?) -> Boolean): Reason {
-        if (scheduleRuleRepository.isInScheduleBlock()) {
-            return Reason.SCHEDULE
-        }
+        val scheduleActive = scheduleRuleRepository.isInScheduleBlock()
 
-        return Reason.NONE
+        return if (settingsManager.shouldBlockDueToSchedule(scheduleActive)) {
+            Reason.SCHEDULE
+        } else {
+            Reason.NONE
+        }
     }
 }

@@ -21,6 +21,9 @@
     <string name="blocking_all">Bloquear todas</string>
     <string name="blocking_all_enabled">Activado</string>
     <string name="blocking_all_enabled_until">Activado, hasta %1$s</string>
+    <string name="blocking_all_enabled_by_dnd">Activado, por DND</string>
+    <string name="blocking_all_enabled_by_intl">Activado, por bloqueo de internacionales</string>
+    <string name="blocking_all_enabled_by_scheduler">Activado, por horario</string>
     <string name="blocking_all_disabled">Desactivado</string>
     <string name="blocking_all_missing_permissions">Error de permisos</string>
     <string name="block_all_for_a_period">Bloquear todas durante&#8230;</string>
@@ -133,6 +136,8 @@
     <string name="block_all_enabled_for">\"Bloquear todas las llamadas\" activado durante %1$s</string>
     <string name="block_all_enabled_until">Activado hasta el %1$s</string>
     <string name="block_all_disabled">\"Bloquear todas las llamadas\" desactivado</string>
+    <string name="tile_blocking_deactivated">Se ha desactivado el bloqueo de llamadas</string>
+    <string name="tile_blocking_re_enabled">Se ha reactivado el bloqueo de llamadas</string>
 
     <string name="block_groups_title">Bloqueo de grupos</string>
     <string name="block_groups_description">Bloquea las llamadas de contactos que pertenecen a los grupos seleccionados</string>

@@ -39,6 +39,42 @@ class ScheduleRuleRepository(private val dao: ScheduleRuleDao) {
         return isRuleActive(rule, current)
     }
 
+    fun scheduleWindowEndMillis(): Long? {
+        val now = java.time.ZonedDateTime.now()
+        val current = currentMinuteOfWeek()
+        val nowMillis = now.toInstant().toEpochMilli()
+
+        var latest: Long? = null
+
+        for (rule in _rules.value) {
+            if (!isRuleActive(rule, current)) continue
+
+            val start = (rule.startDay - 1) * 1440 + rule.startMinute
+            val end = (rule.endDay - 1) * 1440 + rule.endMinute
+            var span = end - start
+            if (span <= 0) span += WEEK_MINUTES
+
+            val occurrenceDays = buildList {
+                add(rule.startDay)
+                for (day in 1..DAYS_PER_WEEK) {
+                    if (rule.repeatDays and (1 shl (day - 1)) != 0 && day != rule.startDay) add(day)
+                }
+            }
+
+            for (day in occurrenceDays) {
+                val occ = (day - 1) * 1440 + rule.startMinute
+                val elapsed = (current - occ).mod(WEEK_MINUTES)
+                if (elapsed < span) {
+                    val endMillis = nowMillis + (span - elapsed) * MINUTE_MILLIS
+                    latest = maxOf(latest ?: endMillis, endMillis)
+                    break
+                }
+            }
+        }
+
+        return latest
+    }
+
     private fun isRuleActive(rule: ScheduleRule, current: Int): Boolean {
         val start = (rule.startDay - 1) * 1440 + rule.startMinute
         val end = (rule.endDay - 1) * 1440 + rule.endMinute
@@ -68,5 +104,6 @@ class ScheduleRuleRepository(private val dao: ScheduleRuleDao) {
     companion object {
         private const val DAYS_PER_WEEK = 7
         private const val WEEK_MINUTES = DAYS_PER_WEEK * 1440
+        private const val MINUTE_MILLIS = 60_000L
     }
 }
