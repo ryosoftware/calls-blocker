@@ -120,6 +120,9 @@ class SettingsViewModel @Inject constructor(
     var blockRepeated by settingsManager::blockRepeated
     var repeatedCallCount by settingsManager::repeatedCallCount
     var repeatedCallWindowMinutes by settingsManager::repeatedCallWindowMinutes
+    var allowRepeated by settingsManager::allowRepeated
+    var allowRepeatedCallCount by settingsManager::allowRepeatedCallCount
+    var allowRepeatedCallWindowMinutes by settingsManager::allowRepeatedCallWindowMinutes
     var blockNotCalled by settingsManager::blockNotCalled
     var notCalledWindowDays by settingsManager::notCalledWindowDays
     var blockRejected by settingsManager::blockRejected
@@ -182,7 +185,8 @@ class SettingsViewModel @Inject constructor(
         val isAllowed = (reason in listOf(
             Reason.NONE,
             Reason.WHITELISTED_NUMBER,
-            Reason.WHITELISTED_PREFIX
+            Reason.WHITELISTED_PREFIX,
+            Reason.ALLOWED_REPEATED_CALL
         ))
 
         return if (isAllowed) null else reason

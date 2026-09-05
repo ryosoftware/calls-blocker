@@ -231,7 +231,8 @@ fun HistoryScreen(
                             val blockedCallsCount = entries.count {
                                 it.reason != Reason.NONE &&
                                 it.reason != Reason.WHITELISTED_NUMBER &&
-                                it.reason != Reason.WHITELISTED_PREFIX
+                                it.reason != Reason.WHITELISTED_PREFIX &&
+                                it.reason != Reason.ALLOWED_REPEATED_CALL
                             }
                             add(HistoryListItem.Header(header, entries.size, blockedCallsCount))
                             if (header !in collapsedHeaders) {
@@ -626,7 +627,8 @@ private fun HistoryItem(
         Reason.FIND_MY_PHONE,
         Reason.FIND_MY_PHONE_CANCELLED -> colorResource(if ((entry.flags and FLAG_CALL_SILENCED) == 0) R.color.blocked_call else R.color.silenced_call)
         Reason.WHITELISTED_NUMBER,
-        Reason.WHITELISTED_PREFIX -> colorResource(R.color.allowed_call)
+        Reason.WHITELISTED_PREFIX,
+        Reason.ALLOWED_REPEATED_CALL -> colorResource(R.color.allowed_call)
         Reason.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 

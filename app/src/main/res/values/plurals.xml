@@ -60,5 +60,9 @@
         <item quantity="one">%1$s at %2$s</item>
         <item quantity="other">%1$s at %2$s</item>
     </plurals>
+    <plurals name="allow_repeated_summary">
+        <item quantity="one">A number that calls 1 time or more in %2$d minutes will not be blocked, unless it has been explicitly blocked</item>
+        <item quantity="other">A number that calls %1$d times or more in %2$d minutes will not be blocked, unless it has been explicitly blocked</item>
+    </plurals>
 </resources>
 

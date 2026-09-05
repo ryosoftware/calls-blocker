@@ -38,6 +38,9 @@ class SettingsManager(private val context: Context) {
         private const val KEY_BLOCK_REPEATED = "block-repeated"
         private const val KEY_BLOCK_REPEATED_CALL_COUNT = "block-repeated-count"
         private const val KEY_BLOCK_REPEATED_CALL_WINDOW_MINUTES = "block-repeated-window-minutes"
+        private const val KEY_ALLOW_REPEATED = "allow-repeated"
+        private const val KEY_ALLOW_REPEATED_CALL_COUNT = "allow-repeated-count"
+        private const val KEY_ALLOW_REPEATED_CALL_WINDOW_MINUTES = "allow-repeated-window-minutes"
         private const val KEY_SKIP_CALL_LOG = "skip-call-log"
         private const val KEY_SKIP_MISSED_CALL_NOTIFICATION = "skip-missed-call-notification"
         private const val KEY_SILENCE_INSTEAD_OF_HANGUP = "silence-instead-of-hangup"
@@ -233,6 +236,9 @@ class SettingsManager(private val context: Context) {
     var blockRepeated by booleanPref(KEY_BLOCK_REPEATED, false)
     var repeatedCallCount by intPref(KEY_BLOCK_REPEATED_CALL_COUNT, context.resources.getInteger(R.integer.repeated_call_count_default))
     var repeatedCallWindowMinutes by intPref(KEY_BLOCK_REPEATED_CALL_WINDOW_MINUTES, context.resources.getInteger(R.integer.repeated_call_window_minutes_default))
+    var allowRepeated by booleanPref(KEY_ALLOW_REPEATED, false)
+    var allowRepeatedCallCount by intPref(KEY_ALLOW_REPEATED_CALL_COUNT, context.resources.getInteger(R.integer.repeated_call_count_default))
+    var allowRepeatedCallWindowMinutes by intPref(KEY_ALLOW_REPEATED_CALL_WINDOW_MINUTES, context.resources.getInteger(R.integer.repeated_call_window_minutes_default))
     var blockNotCalled by booleanPref(KEY_BLOCK_NOT_CALLED, false)
     var notCalledWindowDays by intPref(KEY_BLOCK_NOT_CALLED_WINDOW_DAYS, context.resources.getInteger(R.integer.not_called_window_days_default))
     var blockRejected by booleanPref(KEY_BLOCK_REJECTED, false)

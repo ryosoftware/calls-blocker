@@ -6,6 +6,7 @@ interface AbstractRule {
     suspend fun evaluate(normalizedPhoneNumber: String, phoneNumber: String, normalizeToE164: (String?) -> String, isHiddenNumber: (String?) -> Boolean): Reason
 }
 
-interface AbstractAllowRule : AbstractRule
-interface AbstractBlockRule : AbstractRule
-interface AbstractPriorityBlockRule : AbstractRule
+interface AbstractFirstLevelAllowRule : AbstractRule
+interface AbstractFirstLevelBlockRule : AbstractRule
+interface AbstractSecondLevelAllowRule : AbstractRule
+interface AbstractSecondLevelBlockRule : AbstractRule

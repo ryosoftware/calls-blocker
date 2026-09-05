@@ -27,6 +27,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -47,6 +48,7 @@ import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.ContactGroup
 import com.ryosoftware.calls_blocker.data.db.ScheduleRule
 import com.ryosoftware.calls_blocker.service.BlockAllTileService
+import com.ryosoftware.calls_blocker.ui.screens.settings.AllowRepeatedCallsSection
 import com.ryosoftware.calls_blocker.ui.screens.settings.BlockingRulesSection
 import com.ryosoftware.calls_blocker.ui.screens.settings.CallLogRulesSection
 import com.ryosoftware.calls_blocker.ui.screens.settings.ScheduleRulesSection
@@ -59,7 +61,7 @@ fun CallBlockingRulesScreen(
     val context = LocalContext.current
     val blockAllState = remember { mutableStateOf(viewModel.blockAll) }
     var blockAll by blockAllState
-    val blockAllUntilState = remember { mutableStateOf(viewModel.blockAllUntil) }
+    val blockAllUntilState = remember { mutableLongStateOf(viewModel.blockAllUntil) }
     var blockAllUntil by blockAllUntilState
     var blockWhenDnd by remember { mutableStateOf(viewModel.blockWhenDnd) }
     var pendingDndToggle by remember { mutableStateOf<Boolean?>(null) }
@@ -74,6 +76,9 @@ fun CallBlockingRulesScreen(
     var blockRepeated by remember { mutableStateOf(viewModel.blockRepeated) }
     var repeatedCallCount by remember { mutableIntStateOf(viewModel.repeatedCallCount) }
     var repeatedCallWindowMinutes by remember { mutableIntStateOf(viewModel.repeatedCallWindowMinutes) }
+    var allowRepeated by remember { mutableStateOf(viewModel.allowRepeated) }
+    var allowRepeatedCallCount by remember { mutableIntStateOf(viewModel.allowRepeatedCallCount) }
+    var allowRepeatedWindowMinutes by remember { mutableIntStateOf(viewModel.allowRepeatedCallWindowMinutes) }
     var blockNotCalled by remember { mutableStateOf(viewModel.blockNotCalled) }
     var notCalledWindowDays by remember { mutableIntStateOf(viewModel.notCalledWindowDays) }
     var blockRejected by remember { mutableStateOf(viewModel.blockRejected) }
@@ -88,6 +93,7 @@ fun CallBlockingRulesScreen(
     var pendingBlockRepeatedToggle by remember { mutableStateOf<Boolean?>(null) }
     var pendingBlockNotCalledToggle by remember { mutableStateOf<Boolean?>(null) }
     var pendingBlockRejectedToggle by remember { mutableStateOf<Boolean?>(null) }
+    var pendingAllowRepeatedToggle by remember { mutableStateOf<Boolean?>(null) }
     var showGroupDialog by remember { mutableStateOf(false) }
     var showScheduleRuleDialog by remember { mutableStateOf(false) }
     var editingScheduleRule by remember { mutableStateOf<ScheduleRule?>(null) }
@@ -146,10 +152,15 @@ fun CallBlockingRulesScreen(
                 blockRejected = pendingBlockRejectedToggle!!
                 viewModel.blockRejected = pendingBlockRejectedToggle!!
             }
+            if (pendingAllowRepeatedToggle != null) {
+                allowRepeated = pendingAllowRepeatedToggle!!
+                viewModel.allowRepeated = pendingAllowRepeatedToggle!!
+            }
         }
         pendingBlockRepeatedToggle = null
         pendingBlockNotCalledToggle = null
         pendingBlockRejectedToggle = null
+        pendingAllowRepeatedToggle = null
         permissionCheckTrigger++
     }
 
@@ -224,6 +235,11 @@ fun CallBlockingRulesScreen(
                     viewModel.blockRejected = pendingBlockRejectedToggle!!
                     pendingBlockRejectedToggle = null
                 }
+                if (callLogGranted && pendingAllowRepeatedToggle != null) {
+                    allowRepeated = pendingAllowRepeatedToggle!!
+                    viewModel.allowRepeated = pendingAllowRepeatedToggle!!
+                    pendingAllowRepeatedToggle = null
+                }
                 blockAll = viewModel.blockAll
                 blockAllUntil = viewModel.blockAllUntil
                 blockWhenDnd = viewModel.blockWhenDnd
@@ -241,6 +257,30 @@ fun CallBlockingRulesScreen(
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
+        AllowRepeatedCallsSection(
+            allowRepeated = allowRepeated,
+            onAllowRepeatedChange = { enabled ->
+                if (enabled && !callLogPermissionGranted) {
+                    pendingAllowRepeatedToggle = true
+                    showReadCallLogRationale = true
+                } else {
+                    pendingAllowRepeatedToggle = null
+                    allowRepeated = enabled
+                    viewModel.allowRepeated = enabled
+                }
+            },
+            allowRepeatedCallCount = allowRepeatedCallCount,
+            onAllowRepeatedCallCountChange = { allowRepeatedCallCount = it },
+            onAllowRepeatedCallCountChangeFinished = { viewModel.allowRepeatedCallCount = allowRepeatedCallCount },
+            allowRepeatedWindowMinutes = allowRepeatedWindowMinutes,
+            onAllowRepeatedWindowMinutesChange = { allowRepeatedWindowMinutes = it },
+            onAllowRepeatedWindowMinutesChangeFinished = { viewModel.allowRepeatedCallWindowMinutes = allowRepeatedWindowMinutes },
+            callLogPermissionGranted = callLogPermissionGranted,
+            onRequestCallLogPermission = { showReadCallLogRationale = true },
+        )
+
+        Spacer(Modifier.height(12.dp))
+
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
@@ -460,6 +500,7 @@ fun CallBlockingRulesScreen(
                 pendingBlockRepeatedToggle = null
                 pendingBlockNotCalledToggle = null
                 pendingBlockRejectedToggle = null
+                pendingAllowRepeatedToggle = null
             },
             title = { Text(stringResource(R.string.permission_call_log_rationale_title)) },
             text = { Text(stringResource(R.string.permission_call_log_rationale_message)) },
@@ -489,6 +530,7 @@ fun CallBlockingRulesScreen(
                     pendingBlockRepeatedToggle = null
                     pendingBlockNotCalledToggle = null
                     pendingBlockRejectedToggle = null
+                    pendingAllowRepeatedToggle = null
                 }) {
                     Text(stringResource(R.string.cancel))
                 }

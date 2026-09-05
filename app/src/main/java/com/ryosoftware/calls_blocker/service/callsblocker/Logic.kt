@@ -11,22 +11,11 @@ import com.ryosoftware.calls_blocker.data.SettingsManager
 import com.ryosoftware.calls_blocker.data.db.Reason
 import com.ryosoftware.calls_blocker.data.repository.NumberRepository
 import com.ryosoftware.calls_blocker.data.repository.ScheduleRuleRepository
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractAllowRule
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractBlockRule
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractPriorityBlockRule
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.allow.AllowExactNumberRule
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.allow.AllowPrefixNumberRule
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockAllRule
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockByCountryRule
+import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractFirstLevelAllowRule
+import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractFirstLevelBlockRule
+import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractSecondLevelAllowRule
+import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractSecondLevelBlockRule
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockByFindMyPhoneRule
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockExactNumberRule
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockGroupsOfContactsRule
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockNotContactsRule
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockNotDialedCallsRule
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockPrefixNumberRule
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockRejectedCallsRule
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockRepeatedCallsRule
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.ScheduleRule
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.evaluateFirst
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
@@ -40,9 +29,10 @@ class Logic @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val settingsManager: SettingsManager,
     private val findMyPhoneRule: BlockByFindMyPhoneRule,
-    private val allowRules: Set<@JvmSuppressWildcards AbstractAllowRule>,
-    private val priorityBlockRules: Set<@JvmSuppressWildcards AbstractPriorityBlockRule>,
-    private val otherBlockRules: Set<@JvmSuppressWildcards AbstractBlockRule>,
+    private val firstLevelAllowRules: Set<@JvmSuppressWildcards AbstractFirstLevelAllowRule>,
+    private val firstLevelBlockRules: Set<@JvmSuppressWildcards AbstractFirstLevelBlockRule>,
+    private val secondLevelAllowRules: Set<@JvmSuppressWildcards AbstractSecondLevelAllowRule>,
+    private val secondLevelBlockRules: Set<@JvmSuppressWildcards AbstractSecondLevelBlockRule>,
 
     private val logger: Logger,
 ) {
@@ -144,25 +134,33 @@ class Logic @Inject constructor(
             }
         }
 
-        // We evaluate allow rules
+        // We evaluate first level allow rules
 
-        val allowReason = allowRules.evaluateFirst(normalizedPhoneNumber, phoneNumber, ::normalizeToE164, ::isHiddenNumber)
+        val allowReason = firstLevelAllowRules.evaluateFirst(normalizedPhoneNumber, phoneNumber, ::normalizeToE164, ::isHiddenNumber)
 
         if (allowReason != Reason.NONE) {
             return allowReason
         }
 
-        // We evaulate priority block rules first
+        // We evaluate first level block rules first
 
-        val blockReason = priorityBlockRules.evaluateFirst(normalizedPhoneNumber, phoneNumber, ::normalizeToE164, ::isHiddenNumber)
+        val firstBlockReason = firstLevelBlockRules.evaluateFirst(normalizedPhoneNumber, phoneNumber, ::normalizeToE164, ::isHiddenNumber)
 
-        if (blockReason != Reason.NONE) {
-            return blockReason
+        if (firstBlockReason != Reason.NONE) {
+            return firstBlockReason
         }
 
-        // We evaulate block rules
+        // We evaluate second level allow rules
 
-        return otherBlockRules.evaluateFirst(normalizedPhoneNumber, phoneNumber, ::normalizeToE164, ::isHiddenNumber)
+        val secondAllowReason = secondLevelAllowRules.evaluateFirst(normalizedPhoneNumber, phoneNumber, ::normalizeToE164, ::isHiddenNumber)
+
+        if (secondAllowReason != Reason.NONE) {
+            return secondAllowReason
+        }
+
+        // We evaluate second level block rules
+
+        return secondLevelBlockRules.evaluateFirst(normalizedPhoneNumber, phoneNumber, ::normalizeToE164, ::isHiddenNumber)
     }
 
     private fun normalizePhoneNumber(phoneNumber: String?, subscriptionId: Int? = null): String? {

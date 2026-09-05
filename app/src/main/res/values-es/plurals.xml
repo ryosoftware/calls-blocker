@@ -75,5 +75,10 @@
         <item quantity="other">%1$s a las %2$s</item>
         <item quantity="many">%1$s a las %2$s</item>
     </plurals>
+    <plurals name="allow_repeated_summary">
+        <item quantity="one">Un número que llame 1 vez o más en %2$d minutos no será bloqueado, excepto si ha sido bloqueado explícitamente</item>
+        <item quantity="other">Un número que llame %1$d veces o más en %2$d minutos no será bloqueado, excepto si ha sido bloqueado explícitamente</item>
+        <item quantity="many">Un número que llame %1$d veces o más en %2$d minutos no será bloqueado, excepto si ha sido bloqueado explícitamente</item>
+    </plurals>
 </resources>
 

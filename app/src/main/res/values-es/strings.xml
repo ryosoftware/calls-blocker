@@ -107,7 +107,7 @@
     <string name="incoming_call_blocking_description">Configura qué llamadas entrantes bloquear: por horario, grupos, países y más.</string>
     <string name="incoming_call_blocking_button">Configurar</string>
 
-    <string name="blocking_rules_description">Estas reglas solo aplican a números o prefijos que no hayas aceptado explícitamente, que nunca se bloquean, ni siquiera si la opción \"bloquear todas las llamadas\" está activa.</string>
+    <string name="blocking_rules_description">Las reglas generales de permiso (ver más arriba) se evalúan justo después de comprobar si un número o prefijo ha sido permitido o bloqueado explícitamente.\n\nLas reglas generales de bloqueo (ver más abajo) se evalúan justo después de las reglas generales de permiso.</string>
 
     <string name="schedule_blocking_title">Bloqueo por horario</string>
     <string name="schedule_blocking_description">Se bloquearán las llamadas en los periodos indicados</string>
@@ -160,10 +160,15 @@
     <string name="rejected_window_label">Días a comprobar</string>
 
     <string name="block_repeated_title">Bloquear llamadas repetidas</string>
-    <string name="block_repeated_description">Bloquea llamadas desde números que llaman repetidamente</string>
-    <string name="repeated_call_count_label">Número de llamadas permitidas</string>
-    <string name="repeated_call_window_label">Tiempo</string>
+    <string name="block_repeated_description">Durante el intervalo de tiempo especificado, las llamadas del mismo número se bloquearán si su número alcanza o supera el umbral especificado.</string>
+    <string name="block_repeated_call_count_label">Número de llamadas</string>
+    <string name="block_repeated_call_window_label">Tiempo</string>
     <string name="value_in_minutes">%1$d min</string>
+
+    <string name="allow_repeated_title">Permitir llamadas repetidas</string>
+    <string name="allow_repeated_description">Dentro del intervalo de tiempo especificado, se permitirán las llamadas del mismo número si su número alcanza o supera el umbral especificado.\n\nSi el número de llamadas de un número concreto es inferior al umbral dentro de dicho intervalo de tiempo, la llamada se permitirá o bloqueará según las reglas de bloqueo configuradas.</string>
+    <string name="allow_repeated_call_count_label">Número de llamadas</string>
+    <string name="allow_repeated_call_window_label">Tiempo</string>
 
     <string name="blocking_options_description">Estas opciones solo se usan al bloquear llamadas</string>
 
@@ -244,6 +249,7 @@
     <string name="reason">%1$s</string>
     <string name="reason_whitelisted_number">Número aceptado</string>
     <string name="reason_whitelisted_prefix">Prefijo aceptado</string>
+    <string name="reason_allowed_repeated">Llamada repetida aceptada</string>
     <string name="reason_block_all">Bloquer todas</string>
     <string name="reason_dnd">No molestar</string>
     <string name="reason_hidden">Número oculto</string>

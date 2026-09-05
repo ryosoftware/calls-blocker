@@ -2,12 +2,12 @@ package com.ryosoftware.calls_blocker.service.callsblocker.logic.block
 
 import com.ryosoftware.calls_blocker.data.db.Reason
 import com.ryosoftware.calls_blocker.data.repository.NumberRepository
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractPriorityBlockRule
+import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractFirstLevelBlockRule
 import jakarta.inject.Inject
 
 class BlockExactNumberRule @Inject constructor(
     private val numberRepository: NumberRepository
-): AbstractPriorityBlockRule {
+): AbstractFirstLevelBlockRule {
     override suspend fun evaluate(normalizedPhoneNumber: String, phoneNumber: String, normalizeToE164: (String?) -> String, isHiddenNumber: (String?) -> Boolean): Reason {
         val blockExactNumber = numberRepository.isIncomingBlockedExact(normalizedPhoneNumber)
 

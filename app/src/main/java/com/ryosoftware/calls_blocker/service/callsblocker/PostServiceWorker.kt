@@ -291,7 +291,8 @@ class PostServiceWorker @AssistedInject constructor(
                 reason != Reason.NONE &&
                           reason != Reason.FIND_MY_PHONE &&
                           reason != Reason.WHITELISTED_NUMBER &&
-                          reason != Reason.WHITELISTED_PREFIX -> {
+                          reason != Reason.WHITELISTED_PREFIX &&
+                          reason != Reason.ALLOWED_REPEATED_CALL -> {
                     postBlockedNumberNotification(phoneNumber, reason, time)
                 }
             }

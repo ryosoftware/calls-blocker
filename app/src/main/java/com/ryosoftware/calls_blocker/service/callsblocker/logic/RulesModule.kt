@@ -3,6 +3,7 @@ package com.ryosoftware.calls_blocker.service.callsblocker.logic
 import com.ryosoftware.calls_blocker.data.db.Reason
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.allow.AllowExactNumberRule
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.allow.AllowPrefixNumberRule
+import com.ryosoftware.calls_blocker.service.callsblocker.logic.allow.AllowRepeatedCallsRule
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockAllRule
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockByCountryRule
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.block.BlockExactNumberRule
@@ -32,73 +33,79 @@ abstract class RuleModule {
     @IntoSet
     abstract fun bindAllowExactNumberRule(
         rule: AllowExactNumberRule
-    ): AbstractAllowRule
+    ): AbstractFirstLevelAllowRule
 
     @Binds
     @IntoSet
     abstract fun bindAllowPrefixNumberRule(
         rule: AllowPrefixNumberRule
-    ): AbstractAllowRule
+    ): AbstractFirstLevelAllowRule
+
+    @Binds
+    @IntoSet
+    abstract fun bindAllowRepeatedCallsRule(
+        rule: AllowRepeatedCallsRule
+    ): AbstractSecondLevelAllowRule
 
     @Binds
     @IntoSet
     abstract fun bindBlockExactNumberRule(
         rule: BlockExactNumberRule
-    ): AbstractPriorityBlockRule
+    ): AbstractFirstLevelBlockRule
 
     @Binds
     @IntoSet
     abstract fun bindBlockPrefixNumberRule(
         rule: BlockPrefixNumberRule
-    ): AbstractPriorityBlockRule
+    ): AbstractFirstLevelBlockRule
 
     @Binds
     @IntoSet
     abstract fun bindBlockAllRule(
         rule: BlockAllRule
-    ): AbstractBlockRule
+    ): AbstractSecondLevelBlockRule
 
     @Binds
     @IntoSet
     abstract fun bindBlockNotContactsRule(
         rule: BlockNotContactsRule
-    ): AbstractBlockRule
+    ): AbstractSecondLevelBlockRule
 
     @Binds
     @IntoSet
     abstract fun bindBlockGroupsNumberRule(
         rule: BlockGroupsOfContactsRule
-    ): AbstractBlockRule
+    ): AbstractSecondLevelBlockRule
 
     @Binds
     @IntoSet
     abstract fun bindBlockByCountryRule(
         rule: BlockByCountryRule
-    ): AbstractBlockRule
+    ): AbstractSecondLevelBlockRule
 
     @Binds
     @IntoSet
     abstract fun bindBlockNotDialledCallsRule(
         rule: BlockNotDialedCallsRule
-    ): AbstractBlockRule
+    ): AbstractSecondLevelBlockRule
 
     @Binds
     @IntoSet
     abstract fun bindBlockRejectedCallsRule(
         rule: BlockRejectedCallsRule
-    ): AbstractBlockRule
+    ): AbstractSecondLevelBlockRule
 
     @Binds
     @IntoSet
     abstract fun bindBlockRepeatedCallsRule(
         rule: BlockRepeatedCallsRule
-    ): AbstractBlockRule
+    ): AbstractSecondLevelBlockRule
 
     @Binds
     @IntoSet
     abstract fun bindBlockWhenDndRule(
         rule: BlockWhenDndRule
-    ): AbstractBlockRule
+    ): AbstractSecondLevelBlockRule
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)

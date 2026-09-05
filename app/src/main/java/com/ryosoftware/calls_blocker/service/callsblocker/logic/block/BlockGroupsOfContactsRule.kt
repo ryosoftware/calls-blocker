@@ -6,14 +6,14 @@ import android.provider.ContactsContract
 import com.ryosoftware.calls_blocker.Main.Companion.hasReadContactsPermission
 import com.ryosoftware.calls_blocker.data.SettingsManager
 import com.ryosoftware.calls_blocker.data.db.Reason
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractBlockRule
+import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractSecondLevelBlockRule
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
 
 class BlockGroupsOfContactsRule @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val settingsManager: SettingsManager,
-): AbstractBlockRule {
+): AbstractSecondLevelBlockRule {
     private fun isFromBlockedGroup(normalizedPhoneNumber: String): Boolean {
         if (!context.hasReadContactsPermission()) return false
 

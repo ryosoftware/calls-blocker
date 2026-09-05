@@ -5,7 +5,7 @@ import android.provider.CallLog
 import com.ryosoftware.calls_blocker.Main.Companion.hasReadCallLogPermission
 import com.ryosoftware.calls_blocker.data.SettingsManager
 import com.ryosoftware.calls_blocker.data.db.Reason
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractBlockRule
+import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractSecondLevelBlockRule
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.CallsLogHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
@@ -14,7 +14,7 @@ class BlockRejectedCallsRule @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val settingsManager: SettingsManager,
     private val callsLogHelper: CallsLogHelper
-): AbstractBlockRule {
+): AbstractSecondLevelBlockRule {
     private fun hasRejectedCallBefore(normalizedPhoneNumber: String, phoneNumber: String, windowDays: Int, normalizeToE164: (String?) -> String): Boolean {
         if (!context.hasReadCallLogPermission()) return false
 

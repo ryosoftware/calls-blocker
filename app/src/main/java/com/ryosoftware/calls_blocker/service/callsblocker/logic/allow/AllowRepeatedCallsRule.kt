@@ -1,27 +1,27 @@
-package com.ryosoftware.calls_blocker.service.callsblocker.logic.block
+package com.ryosoftware.calls_blocker.service.callsblocker.logic.allow
 
 import android.content.Context
 import com.ryosoftware.calls_blocker.data.SettingsManager
 import com.ryosoftware.calls_blocker.data.db.Reason
-import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractSecondLevelBlockRule
 import com.ryosoftware.calls_blocker.service.callsblocker.logic.CallsLogHelper
+import com.ryosoftware.calls_blocker.service.callsblocker.logic.AbstractSecondLevelAllowRule
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
 
-class BlockRepeatedCallsRule @Inject constructor(
+class AllowRepeatedCallsRule @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val settingsManager: SettingsManager,
     private val callsLogHelper: CallsLogHelper
-): AbstractSecondLevelBlockRule {
+): AbstractSecondLevelAllowRule {
     override suspend fun evaluate(normalizedPhoneNumber: String, phoneNumber: String, normalizeToE164: (String?) -> String, isHiddenNumber: (String?) -> Boolean): Reason {
-        val blockRepeated = settingsManager.blockRepeated
+        val allowRepeated = settingsManager.allowRepeated
 
-        if (blockRepeated) {
-            val windowMinutes = settingsManager.repeatedCallWindowMinutes
+        if (allowRepeated) {
+            val windowMinutes = settingsManager.allowRepeatedCallWindowMinutes
             val recentCalls = callsLogHelper.getRecentCallsCount(context, normalizedPhoneNumber, phoneNumber, windowMinutes, normalizeToE164) + 1
 
-            if (recentCalls >= settingsManager.repeatedCallCount) {
-                return Reason.REPEATED_CALL
+            if (recentCalls >= settingsManager.allowRepeatedCallCount) {
+                return Reason.ALLOWED_REPEATED_CALL
             }
         }
 

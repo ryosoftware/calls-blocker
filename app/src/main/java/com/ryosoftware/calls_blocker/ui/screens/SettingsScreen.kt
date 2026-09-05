@@ -475,7 +475,7 @@ fun SettingsScreen(
                 Spacer(Modifier.height(12.dp))
 
                 val needsContactsPermission = (viewModel.blockUnknown || viewModel.blockGroups) && !contactsPermissionGranted
-                val needsCallLogPermission = (viewModel.blockNotCalled || viewModel.blockRejected || viewModel.blockRepeated) && !callLogPermissionGranted
+                val needsCallLogPermission = (viewModel.blockNotCalled || viewModel.blockRejected || viewModel.blockRepeated || viewModel.allowRepeated) && !callLogPermissionGranted
                 val lines = mutableListOf(stringResource(R.string.test_screening_description))
                 if (scheduleRules.isNotEmpty()) lines.add(stringResource(R.string.test_screening_description_addon_scheduler))
                 if (needsContactsPermission || needsCallLogPermission) lines.add(stringResource(R.string.test_screening_description_addon_permissions))

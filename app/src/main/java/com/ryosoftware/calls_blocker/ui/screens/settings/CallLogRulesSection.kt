@@ -224,7 +224,7 @@ fun CallLogRulesSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(R.string.repeated_call_count_label),
+                    text = stringResource(R.string.block_repeated_call_count_label),
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -255,7 +255,7 @@ fun CallLogRulesSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(R.string.repeated_call_window_label),
+                    text = stringResource(R.string.block_repeated_call_window_label),
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.bodyLarge
                 )

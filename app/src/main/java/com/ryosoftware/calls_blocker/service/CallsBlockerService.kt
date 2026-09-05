@@ -115,7 +115,8 @@ class CallsBlockerService : CallScreeningService() {
                     val isAllowed = reason in listOf(
                         Reason.NONE,
                         Reason.WHITELISTED_NUMBER,
-                        Reason.WHITELISTED_PREFIX
+                        Reason.WHITELISTED_PREFIX,
+                        Reason.ALLOWED_REPEATED_CALL
                     )
 
                     if (isAllowed) {

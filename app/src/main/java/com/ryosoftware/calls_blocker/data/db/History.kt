@@ -23,6 +23,7 @@ enum class Reason(val code: Int, val resource: Int? = 0) {
     NONE(0),
     WHITELISTED_NUMBER(11, R.string.reason_whitelisted_number),
     WHITELISTED_PREFIX(12, R.string.reason_whitelisted_prefix),
+    ALLOWED_REPEATED_CALL(13, R.string.reason_allowed_repeated),
     BLOCK_ALL(21, R.string.reason_block_all),
     HIDDEN_NUMBER(31, R.string.reason_hidden),
     BLACKLISTED_NUMBER(41, R.string.reason_blacklisted_number),

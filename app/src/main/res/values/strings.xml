@@ -106,7 +106,7 @@
     <string name="incoming_call_blocking_description">Configure which incoming calls to block, by schedule, groups, countries, and more.</string>
     <string name="incoming_call_blocking_button">Configure</string>
 
-    <string name="blocking_rules_description">These rules only apply to numbers or prefixes that you have not explicitly accepted, which are never blocked, even if the \"block all incoming calls\" option is active.</string>
+    <string name="blocking_rules_description">The general permission rules (see above) are evaluated immediately after checking whether a number or prefix has been explicitly permitted or blocked.\n\nThe general blocking rules (see below) are evaluated immediately after the general permission rules.</string>
 
     <string name="schedule_blocking_title">Schedule blocking</string>
     <string name="schedule_blocking_description">Blocks calls in the specified periods</string>
@@ -159,10 +159,15 @@
     <string name="rejected_window_label">Days to check</string>
 
     <string name="block_repeated_title">Block repeated calls</string>
-    <string name="block_repeated_description">Blocks calls from numbers that call repeatedly</string>
-    <string name="repeated_call_count_label">Number of calls allowed</string>
-    <string name="repeated_call_window_label">Time window</string>
+    <string name="block_repeated_description">During the specified time window, calls from the same number will be blocked if the number reaches or exceeds the specified threshold.</string>
+    <string name="block_repeated_call_count_label">Number of calls</string>
+    <string name="block_repeated_call_window_label">Time window</string>
     <string name="value_in_minutes">%1$d min</string>
+
+    <string name="allow_repeated_title">Allow repeated calls</string>
+    <string name="allow_repeated_description">Within the specified time window, calls from the same number will be allowed if the number reaches or exceeds the specified threshold.\n\nIf the number of calls from a specific number is below the threshold within that time window, the call will be allowed or blocked according to the configured blocking rules.</string>
+    <string name="allow_repeated_call_count_label">Number of calls</string>
+    <string name="allow_repeated_call_window_label">Time window</string>
 
     <string name="blocking_options_description">These options are only used when blocking calls</string>
 
@@ -242,6 +247,7 @@
     <string name="reason">%1$s</string>
     <string name="reason_whitelisted_number">Whitelisted number</string>
     <string name="reason_whitelisted_prefix">Whitelisted prefix</string>
+    <string name="reason_allowed_repeated">Allowed repeated call</string>
     <string name="reason_block_all">Block all</string>
     <string name="reason_dnd">Do Not Disturb</string>
     <string name="reason_hidden">Hidden number</string>
