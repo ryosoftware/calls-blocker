@@ -48,6 +48,8 @@ fun BlockingRulesSection(
     onBlockAllChange: (Boolean) -> Unit,
     blockWhenDnd: Boolean,
     onBlockWhenDndChange: (Boolean) -> Unit,
+    blockWhenDndOnlyAlarmsOrSilent: Boolean,
+    onBlockWhenDndOnlyAlarmsOrSilentChange: (Boolean) -> Unit,
     dndAccessGranted: Boolean,
     onRequestDndAccess: () -> Unit,
     blockUnknown: Boolean,
@@ -151,6 +153,37 @@ fun BlockingRulesSection(
                 checked = blockWhenDnd,
                 onCheckedChange = null
             )
+        }
+
+        if (blockWhenDnd) {
+            Spacer(Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onBlockWhenDndOnlyAlarmsOrSilentChange(!blockWhenDndOnlyAlarmsOrSilent) },
+                verticalAlignment = Alignment.Top
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.block_dnd_only_alarms_or_silent_title),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+
+                    Text(
+                        text = stringResource(R.string.block_dnd_only_alarms_or_silent_description),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Spacer(Modifier.width(24.dp))
+
+                Switch(
+                    checked = blockWhenDndOnlyAlarmsOrSilent,
+                    onCheckedChange = null
+                )
+            }
         }
     }
 

@@ -128,6 +128,8 @@
     <string name="block_all_description">Blocks all incoming calls</string>
     <string name="block_dnd_title">Block during Do Not Disturb</string>
     <string name="block_dnd_description">Blocks all calls while the \"Do Not Disturb\" mode is active</string>
+    <string name="block_dnd_only_alarms_or_silent_title">Only in silence</string>
+    <string name="block_dnd_only_alarms_or_silent_description">Block all calls only if \"Do Not Disturb\" mode is set to \"total silence\" or \"alarms only\"</string>
     <string name="all_calls_blocked_reason_block_all">All calls are being blocked because \"block all calls\" is active</string>
     <string name="all_calls_blocked_reason_international">All calls are being blocked because international calls are being blocked and no allowed countries have been selected</string>
     <string name="all_calls_blocked_reason_schedule">All calls are being blocked because a schedule blocking period is active</string>

@@ -64,6 +64,7 @@ fun CallBlockingRulesScreen(
     val blockAllUntilState = remember { mutableLongStateOf(viewModel.blockAllUntil) }
     var blockAllUntil by blockAllUntilState
     var blockWhenDnd by remember { mutableStateOf(viewModel.blockWhenDnd) }
+    var blockWhenDndOnlyAlarmsOrSilent by remember { mutableStateOf(viewModel.blockWhenDndOnlyAlarmsOrSilent) }
     var pendingDndToggle by remember { mutableStateOf<Boolean?>(null) }
     var showDndAccessRationale by remember { mutableStateOf(false) }
     var blockHidden by remember { mutableStateOf(viewModel.blockHidden) }
@@ -243,6 +244,7 @@ fun CallBlockingRulesScreen(
                 blockAll = viewModel.blockAll
                 blockAllUntil = viewModel.blockAllUntil
                 blockWhenDnd = viewModel.blockWhenDnd
+                blockWhenDndOnlyAlarmsOrSilent = viewModel.blockWhenDndOnlyAlarmsOrSilent
                 blockInternational = viewModel.blockInternational
                 allowedCountryIsos = viewModel.allowedCountryIsos
             }
@@ -312,6 +314,11 @@ fun CallBlockingRulesScreen(
                     blockWhenDnd = enabled
                     viewModel.blockWhenDnd = enabled
                 }
+            },
+            blockWhenDndOnlyAlarmsOrSilent = blockWhenDndOnlyAlarmsOrSilent,
+            onBlockWhenDndOnlyAlarmsOrSilentChange = { enabled ->
+                blockWhenDndOnlyAlarmsOrSilent = enabled
+                viewModel.blockWhenDndOnlyAlarmsOrSilent = enabled
             },
             dndAccessGranted = dndAccessGranted,
             onRequestDndAccess = { showDndAccessRationale = true },

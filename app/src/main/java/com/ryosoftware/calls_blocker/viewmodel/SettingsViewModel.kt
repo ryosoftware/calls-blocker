@@ -88,6 +88,7 @@ class SettingsViewModel @Inject constructor(
     var blockAllUntil by settingsManager::blockAllUntil
     var blockWhenDnd by settingsManager::blockWhenDnd
     var blockWhenDndPaused by settingsManager::blockWhenDndPaused
+    var blockWhenDndOnlyAlarmsOrSilent by settingsManager::blockWhenDndOnlyAlarmsOrSilent
     var scheduleBlockingPausedUntil by settingsManager::scheduleBlockingPausedUntil
     var blockInternational by settingsManager::blockInternational
     var allowedCountryIsos by settingsManager::allowedCountryIsos

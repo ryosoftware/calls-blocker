@@ -129,6 +129,8 @@
     <string name="block_all_description">Bloquea todas las llamadas entrantes</string>
     <string name="block_dnd_title">Bloquear con «No molestar»</string>
     <string name="block_dnd_description">Bloquea todas las llamadas mientras el modo «no molestar» esté activo</string>
+    <string name="block_dnd_only_alarms_or_silent_title">Solo en silencio</string>
+    <string name="block_dnd_only_alarms_or_silent_description">Bloquea todas las llamadas solo si el modo \"no molestar\" esté configurado como \"silencio total\" o \"solo alarmas\"</string>
     <string name="all_calls_blocked_reason_block_all">Se están bloqueando todas las llamadas porque \"bloquear todas las llamadas\" está activo</string>
     <string name="all_calls_blocked_reason_international">Se están bloqueando todas las llamadas porque se están bloqueando las llamadas internacionales y no se han seleccionado países permitidos</string>
     <string name="all_calls_blocked_reason_schedule">Se están bloqueando todas las llamadas porque estamos en horario restringido</string>

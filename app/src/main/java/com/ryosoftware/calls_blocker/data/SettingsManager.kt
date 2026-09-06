@@ -25,6 +25,7 @@ class SettingsManager(private val context: Context) {
         private const val KEY_BLOCK_ALL_UNTIL = "block-all-until"
         private const val KEY_BLOCK_DND = "block-dnd"
         private const val KEY_BLOCK_DND_PAUSED = "block-dnd-paused"
+        private const val KEY_BLOCK_DND_ONLY_ALARMS_OR_SILENT = "block-dnd-only-alarms-or-silent"
         private const val KEY_SCHEDULE_BLOCKING_PAUSED_UNTIL = "schedule-blocking-paused-until"
         private const val KEY_TILE_DISABLED_CAUSES = "tile-disabled-causes"
         private const val KEY_BLOCK_GROUPS = "block-groups"
@@ -135,6 +136,7 @@ class SettingsManager(private val context: Context) {
     var blockAllUntil by longPref(KEY_BLOCK_ALL_UNTIL, Long.MAX_VALUE)
     var blockWhenDnd by booleanPref(KEY_BLOCK_DND, false)
     var blockWhenDndPaused by booleanPref(KEY_BLOCK_DND_PAUSED, false)
+    var blockWhenDndOnlyAlarmsOrSilent by booleanPref(KEY_BLOCK_DND_ONLY_ALARMS_OR_SILENT, false)
     var scheduleBlockingPausedUntil by longPref(KEY_SCHEDULE_BLOCKING_PAUSED_UNTIL, 0L)
     var tileDisabledCauses by stringPref(KEY_TILE_DISABLED_CAUSES)
 
@@ -174,8 +176,21 @@ class SettingsManager(private val context: Context) {
         }.getOrDefault(false)
     }
 
+    fun isDndBlockingFilterActive(): Boolean {
+        if (!isDndActive()) return false
+        if (!blockWhenDndOnlyAlarmsOrSilent) return true
+
+        val interruptionFilter = runCatching {
+            context.getSystemService(NotificationManager::class.java).currentInterruptionFilter
+        }.getOrDefault(NotificationManager.INTERRUPTION_FILTER_UNKNOWN)
+
+        return interruptionFilter == NotificationManager.INTERRUPTION_FILTER_NONE ||
+            interruptionFilter == NotificationManager.INTERRUPTION_FILTER_ALARMS
+    }
+
     fun shouldBlockDueToDnd(): Boolean {
         if (!blockWhenDnd) return false
+        if (!isDndBlockingFilterActive()) return false
 
         val dndActive = isDndActive()
         if (blockWhenDndPaused) {
