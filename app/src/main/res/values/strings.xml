@@ -24,6 +24,7 @@
     <string name="blocking_all_enabled_by_dnd">Active, by DND</string>
     <string name="blocking_all_enabled_by_intl">Active, by international calls block</string>
     <string name="blocking_all_enabled_by_scheduler">Active, by scheduler</string>
+    <string name="blocking_all_enabled_by_scheduler_until">Active, by scheduler until %1$s</string>
     <string name="blocking_all_disabled">Inactive</string>
     <string name="blocking_all_missing_permissions">Missing permissions</string>
     <string name="block_all_for_a_period">Block all for&#8230;</string>

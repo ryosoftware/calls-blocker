@@ -1,5 +1,6 @@
 package com.ryosoftware.calls_blocker.service
 
+import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -9,6 +10,7 @@ import android.graphics.drawable.Icon
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import com.ryosoftware.calls_blocker.BuildConfig
 import com.ryosoftware.calls_blocker.R
@@ -16,6 +18,7 @@ import com.ryosoftware.calls_blocker.data.SettingsManager
 import com.ryosoftware.calls_blocker.data.repository.ScheduleRuleRepository
 import dagger.hilt.android.AndroidEntryPoint
 import jakarta.inject.Inject
+import java.sql.Timestamp
 import java.text.DateFormat
 import java.time.ZoneId
 import java.util.Date
@@ -183,35 +186,39 @@ class BlockAllTileService : TileService() {
         return restored
     }
 
+    private fun getString(@StringRes noDatedString: Int, @StringRes datedString: Int, timestamp: Long?): String {
+        if ((timestamp == null) || (timestamp == Long.MAX_VALUE)) {
+            return getString(noDatedString)
+        }
+        val date = Date(timestamp)
+        return getString(
+            datedString,
+            resources.getQuantityString(
+                R.plurals.date_and_time,
+                date.toInstant().atZone(ZoneId.systemDefault()).hour,
+                DateFormat.getDateInstance(DateFormat.SHORT).format(date),
+                DateFormat.getTimeInstance(DateFormat.MEDIUM).format(date)
+            )
+        )
+    }
+
+    @SuppressLint("StringFormatInvalid")
     private fun getTileResources(): Pair<Int, String>? =
         when {
             settingsManager.blockAll && settingsManager.blockAllUntil > System.currentTimeMillis() -> {
-                val blockAllUntil = settingsManager.blockAllUntil
-
-                val string = if (blockAllUntil == Long.MAX_VALUE) {
-                    getString(R.string.blocking_all_enabled)
-                } else {
-                    val date = Date(blockAllUntil)
-                    getString(
-                        R.string.blocking_all_enabled_until,
-                        resources.getQuantityString(
-                            R.plurals.date_and_time,
-                            date.toInstant().atZone(ZoneId.systemDefault()).hour,
-                            DateFormat.getDateInstance(DateFormat.SHORT).format(date),
-                            DateFormat.getTimeInstance(DateFormat.MEDIUM).format(date)
-                        )
-                    )
-                }
-
+                val string = getString(R.string.blocking_all_enabled, R.string.blocking_all_enabled_until, settingsManager.blockAllUntil)
                 R.drawable.ic_tile_block_all to string
             }
             settingsManager.shouldBlockDueToDnd() ->
                 R.drawable.ic_tile_block_all_dnd to getString(R.string.blocking_all_enabled_by_dnd)
-            settingsManager.blockInternational &&
-                settingsManager.allowedCountryIsos.split(",").none { it.trim().isNotEmpty() } ->
+
+            settingsManager.blockInternational && settingsManager.allowedCountryIsos.split(",").none { it.trim().isNotEmpty() } ->
                 R.drawable.ic_tile_block_all_international to getString(R.string.blocking_all_enabled_by_intl)
-            settingsManager.shouldBlockDueToSchedule(scheduleRuleRepository.isInScheduleBlock()) ->
-                R.drawable.ic_tile_block_all_scheduler to getString(R.string.blocking_all_enabled_by_scheduler)
+
+            settingsManager.shouldBlockDueToSchedule(scheduleRuleRepository.isInScheduleBlock()) -> {
+                val string = getString(R.string.blocking_all_enabled_by_scheduler, R.string.blocking_all_enabled_by_scheduler_until, scheduleRuleRepository.scheduleWindowEndMillis())
+                R.drawable.ic_tile_block_all_scheduler to string
+            }
             else -> null
         }
 
@@ -226,7 +233,7 @@ class BlockAllTileService : TileService() {
             if (tileResources == null) {
                 tile.state = Tile.STATE_INACTIVE
                 tile.subtitle = getString(R.string.blocking_all_disabled)
-                tile.icon = Icon.createWithResource(this, R.drawable.ic_tile_block_all)
+                tile.icon = Icon.createWithResource(this, R.drawable.ic_tile_block_none)
             } else {
                 tile.state = Tile.STATE_ACTIVE
                 tile.subtitle = tileResources.second

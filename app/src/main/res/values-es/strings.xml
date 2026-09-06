@@ -24,6 +24,7 @@
     <string name="blocking_all_enabled_by_dnd">Activado, por DND</string>
     <string name="blocking_all_enabled_by_intl">Activado, por bloqueo de internacionales</string>
     <string name="blocking_all_enabled_by_scheduler">Activado, por horario</string>
+    <string name="blocking_all_enabled_by_scheduler_until">Activado, por horario hasta %1$s</string>
     <string name="blocking_all_disabled">Desactivado</string>
     <string name="blocking_all_missing_permissions">Error de permisos</string>
     <string name="block_all_for_a_period">Bloquear todas durante&#8230;</string>
