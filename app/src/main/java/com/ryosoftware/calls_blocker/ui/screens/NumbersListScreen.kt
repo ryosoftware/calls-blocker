@@ -352,7 +352,7 @@ fun NumbersListScreen(
                 Text(
                     stringResource(
                         if (remaining > 0) R.string.delete_numbers_and_x_more else R.string.delete_numbers,
-                        displayNumbers.joinToString("\n") { PhoneUtils.formatPhoneNumber(it.phoneNumber) },
+                        displayNumbers.joinToString("\n") { PhoneUtils.formatForDisplay(it.phoneNumber, it.type) },
                         remaining
                     )
                 )
@@ -377,7 +377,7 @@ fun NumbersListScreen(
     pendingRemoveEntry?.let { entry ->
         AlertDialog(
             onDismissRequest = { pendingRemoveEntry = null },
-            title = { Text(PhoneUtils.formatPhoneNumber(entry.phoneNumber)) },
+            title = { Text(PhoneUtils.formatForDisplay(entry.phoneNumber, entry.type)) },
             text = {
                 Text(
                     when (entry.action) {
@@ -411,7 +411,7 @@ fun NumbersListScreen(
                     showEditDescriptionDialog = false
                     pendingEditDescription = null
                 },
-                title = { Text(PhoneUtils.formatPhoneNumber(entry.phoneNumber)) },
+                title = { Text(PhoneUtils.formatForDisplay(entry.phoneNumber, entry.type)) },
                 text = {
                     OutlinedTextField(
                         value = newDescription,
@@ -576,7 +576,7 @@ private fun NumberItem(
                     }
 
                     Text(
-                        text = PhoneUtils.formatPhoneNumber(number.phoneNumber),
+                        text = PhoneUtils.formatForDisplay(number.phoneNumber, number.type),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium,
                         color = colorResource(when (number.action) {

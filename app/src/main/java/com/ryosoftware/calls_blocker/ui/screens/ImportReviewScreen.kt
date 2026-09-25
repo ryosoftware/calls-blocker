@@ -229,7 +229,7 @@ private fun ImportEntryCard(entry: ImportEntry) {
 
             Column(modifier = Modifier.padding(start = 12.dp)) {
                 Text(
-                    text = if (!entry.number.isNullOrEmpty()) PhoneUtils.formatPhoneNumber(entry.number) else entry.rawInput,
+                    text = if (!entry.number.isNullOrEmpty()) PhoneUtils.formatForDisplay(entry.number, entry.type) else entry.rawInput,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium
                 )

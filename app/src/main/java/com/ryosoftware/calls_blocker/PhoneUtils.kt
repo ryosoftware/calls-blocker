@@ -8,6 +8,7 @@ import android.telephony.TelephonyManager
 import androidx.core.app.ActivityCompat
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.ryosoftware.calls_blocker.data.db.NumberType
+import com.ryosoftware.calls_blocker.data.db.Type
 
 data class NormalizeResult(
     val normalizedPhoneNumber: String? = null,
@@ -62,6 +63,11 @@ class PhoneUtils {
             } catch (_: Exception) {
                 phone
             }
+        }
+
+        fun formatForDisplay(phone: String, type: Type): String {
+            val formatted = formatPhoneNumber(phone)
+            return if ((type == Type.PREFIX) && (!formatted.endsWith("*"))) "$formatted*" else formatted
         }
 
         fun splitInternationalNumber(phoneNumber: String): InternationalSplit? {
