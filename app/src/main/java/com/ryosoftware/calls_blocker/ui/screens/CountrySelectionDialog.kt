@@ -29,11 +29,10 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.Country
 import com.ryosoftware.calls_blocker.data.countries
+import com.ryosoftware.calls_blocker.ui.theme.AppDialog
 
 sealed interface CountryPickerMode {
     data class Single(val onSelect: (Country) -> Unit) : CountryPickerMode
@@ -91,15 +90,11 @@ fun CountryPickerDialog(
 
     val hasTopBar = mode is CountryPickerMode.Multi
 
-    Dialog(
+    AppDialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        modifier = Modifier.background(MaterialTheme.colorScheme.surface)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             if (hasTopBar) {
                 Row(
                     modifier = Modifier
@@ -116,11 +111,13 @@ fun CountryPickerDialog(
                             ),
                             style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(start = 12.dp)
+                            modifier = Modifier
+                                .padding(start = 12.dp)
+                                .weight(1f, fill = false)
                         )
+                    } else {
+                        Spacer(Modifier.weight(1f))
                     }
-
-                    Spacer(Modifier.weight(1f))
 
                     TextButton(onClick = onDismiss) {
                         Text(stringResource(R.string.cancel))

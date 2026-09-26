@@ -15,9 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Phone
@@ -48,6 +46,7 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -129,7 +128,7 @@ fun AddNumberDialog(
         icon = Icons.Default.Phone,
         title = title,
         text = {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+            Column {
                 OutlinedTextField(
                     value = countrySearchText,
                     onValueChange = { },
@@ -177,8 +176,6 @@ fun AddNumberDialog(
                 Spacer(Modifier.height(12.dp))
 
                 if (showActionSelector) {
-                    Spacer(Modifier.height(12.dp))
-
                     Text(
                         text = stringResource(R.string.action_label),
                         style = MaterialTheme.typography.titleSmall,
@@ -199,7 +196,10 @@ fun AddNumberDialog(
 
                         Spacer(Modifier.width(8.dp))
 
-                        Text(stringResource(R.string.action_block))
+                        Text(
+                            text = stringResource(R.string.action_block),
+                            modifier = Modifier.weight(1f)
+                        )
                     }
 
                     Row(
@@ -215,7 +215,10 @@ fun AddNumberDialog(
 
                         Spacer(Modifier.width(8.dp))
 
-                        Text(stringResource(R.string.action_allow))
+                        Text(
+                            text = stringResource(R.string.action_allow),
+                            modifier = Modifier.weight(1f)
+                        )
                     }
                 }
 
@@ -242,7 +245,10 @@ fun AddNumberDialog(
 
                         Spacer(Modifier.width(8.dp))
 
-                        Text(stringResource(R.string.number_type_exact))
+                        Text(
+                            text = stringResource(R.string.number_type_exact),
+                            modifier = Modifier.weight(1f)
+                        )
                     }
 
                     Row(
@@ -258,7 +264,10 @@ fun AddNumberDialog(
 
                         Spacer(Modifier.width(8.dp))
 
-                        Text(stringResource(R.string.number_type_prefix))
+                        Text(
+                            text = stringResource(R.string.number_type_prefix),
+                            modifier = Modifier.weight(1f)
+                        )
                     }
                 }
 
@@ -369,6 +378,7 @@ fun CombinedPhoneInput(
     )
 
     val showNumberHint = !isFocused && countryCode.isEmpty() && phoneNumber.isEmpty()
+    val fontScale = LocalDensity.current.fontScale
 
     Column(modifier = modifier) {
         Box(
@@ -437,7 +447,7 @@ fun CombinedPhoneInput(
                         }
                         .then(
                             if (showNumberHint) Modifier.weight(1f)
-                            else Modifier.width(48.dp)
+                            else Modifier.width(48.dp * fontScale)
                         )
                 )
 

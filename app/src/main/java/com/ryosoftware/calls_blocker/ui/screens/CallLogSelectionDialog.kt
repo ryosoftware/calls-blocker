@@ -56,13 +56,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.ryosoftware.calls_blocker.Main.Companion.hasReadCallLogPermission
 import com.ryosoftware.calls_blocker.PhoneUtils
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.CountryNameProvider
 import com.ryosoftware.calls_blocker.data.findCountryByPhoneNumber
+import com.ryosoftware.calls_blocker.ui.theme.AppDialog
 import com.ryosoftware.calls_blocker.ui.theme.ExpressiveDialog
 import com.ryosoftware.calls_blocker.ui.rememberContactInfo
 import java.text.DateFormat
@@ -218,15 +217,11 @@ fun CallLogPickerDialog(
         clearSelection()
     }
 
-    Dialog(
+    AppDialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        modifier = Modifier.background(MaterialTheme.colorScheme.surface)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             if (selectedPhoneNumbers.isEmpty()) {
                 Spacer(Modifier.height(8.dp))
             } else {

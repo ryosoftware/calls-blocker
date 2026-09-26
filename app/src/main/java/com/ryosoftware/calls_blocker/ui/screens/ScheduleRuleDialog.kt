@@ -2,15 +2,15 @@ package com.ryosoftware.calls_blocker.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Schedule
@@ -137,8 +137,7 @@ fun ScheduleRuleDialog(
 
                 val weekDayInitials = stringArrayResource(R.array.week_day_initials)
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     weekDayInitials.forEachIndexed { index, initial ->
                         val isStartDay = index == startDay - 1
@@ -146,7 +145,9 @@ fun ScheduleRuleDialog(
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
-                                .size(38.dp)
+                                .weight(1f)
+                                .widthIn(max = 38.dp)
+                                .aspectRatio(1f)
                                 .alpha(if (isStartDay) 0.4f else 1f)
                                 .clip(CircleShape)
                                 .background(
@@ -161,7 +162,8 @@ fun ScheduleRuleDialog(
                                 text = initial,
                                 style = MaterialTheme.typography.labelMedium,
                                 color = if (selected) MaterialTheme.colorScheme.onPrimary
-                                else MaterialTheme.colorScheme.onSurfaceVariant
+                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1
                             )
                         }
                     }

@@ -28,10 +28,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.data.ContactGroup
+import com.ryosoftware.calls_blocker.ui.theme.AppDialog
 
 @Composable
 fun GroupSelectionDialog(
@@ -59,15 +58,11 @@ fun GroupSelectionDialog(
         }
     }
 
-    Dialog(
+    AppDialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        modifier = Modifier.background(MaterialTheme.colorScheme.surface)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -83,11 +78,13 @@ fun GroupSelectionDialog(
                         ),
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 12.dp)
+                        modifier = Modifier
+                            .padding(start = 12.dp)
+                            .weight(1f, fill = false)
                     )
+                } else {
+                    Spacer(Modifier.weight(1f))
                 }
-
-                Spacer(Modifier.weight(1f))
 
                 TextButton(onClick = onDismiss) {
                     Text(stringResource(R.string.cancel))
