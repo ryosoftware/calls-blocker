@@ -8,6 +8,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.ryosoftware.calls_blocker.BuildConfig
 import com.ryosoftware.calls_blocker.R
+import com.ryosoftware.calls_blocker.data.db.Reason
 import kotlin.reflect.KProperty
 
 fun String.toVibrationPattern(): LongArray =
@@ -36,6 +37,8 @@ class SettingsManager(private val context: Context) {
         private const val KEY_BLOCK_NOT_CALLED_WINDOW_DAYS = "block-not-called-window-days"
         private const val KEY_BLOCK_REJECTED = "block-rejected"
         private const val KEY_BLOCK_REJECTED_WINDOW_DAYS = "block-rejected-window-days"
+        private const val KEY_NOTIFY_BLOCKED_BY_EXACT = "notify-blocked-by-exact"
+        private const val KEY_NOTIFY_BLOCKED_BY_PREFIX = "notify-blocked-by-prefix"
         private const val KEY_BLOCK_REPEATED = "block-repeated"
         private const val KEY_BLOCK_REPEATED_CALL_COUNT = "block-repeated-count"
         private const val KEY_BLOCK_REPEATED_CALL_WINDOW_MINUTES = "block-repeated-window-minutes"
@@ -258,4 +261,14 @@ class SettingsManager(private val context: Context) {
     var notCalledWindowDays by intPref(KEY_BLOCK_NOT_CALLED_WINDOW_DAYS, context.resources.getInteger(R.integer.not_called_window_days_default))
     var blockRejected by booleanPref(KEY_BLOCK_REJECTED, false)
     var rejectedWindowDays by intPref(KEY_BLOCK_REJECTED_WINDOW_DAYS, context.resources.getInteger(R.integer.rejected_window_days_default))
+    var notifyBlockedCallsByExactCoincidence by booleanPref(KEY_NOTIFY_BLOCKED_BY_EXACT, true)
+    var notifyBlockedCallsByPrefix by booleanPref(KEY_NOTIFY_BLOCKED_BY_PREFIX, true)
+
+    fun shouldNotifyForReason(reason: Reason): Boolean {
+        return when (reason) {
+            Reason.BLACKLISTED_NUMBER -> notifyBlockedCallsByExactCoincidence
+            Reason.BLACKLISTED_PREFIX -> notifyBlockedCallsByPrefix
+            else -> true
+        }
+    }
 }

@@ -174,6 +174,8 @@
 
     <string name="blocking_options_description">These options are only used when blocking calls</string>
 
+    <string name="phone_app_behavior">Behavior on call block</string>
+
     <string name="skip_call_log_title">Don\'t log blocked calls</string>
     <string name="skip_call_log_description">Prevents blocked calls from appearing in the Phone calls log</string>
 
@@ -182,6 +184,14 @@
 
     <string name="silence_instead_of_hangup_title">Silence instead of hang up</string>
     <string name="silence_instead_of_hangup_description">The call will be silenced instead of being rejected</string>
+
+    <string name="app_notifications">App Notifications</string>
+
+    <string name="notify_blocked_calls_by_exact">Notify blocked by exact coincidence</string>
+    <string name="notify_blocked_calls_by_exact_description">Uncheck this box to stop receiving notifications about calls blocked from numbers you have added to the exact-match block list</string>
+
+    <string name="notify_blocked_calls_by_prefix">Notify blocked by prefix</string>
+    <string name="notify_blocked_calls_by_prefix_description">Uncheck to stop receiving notifications about calls blocked from numbers you have added to the prefix-match block list</string>
 
     <string name="find_my_phone_background_permission_description">If this feature is not working properly, consider allowing the app to run in the background and to auto-start (these options are usually found within the \"Battery\" section).</string>
     <string name="find_my_phone_title">Find my phone</string>

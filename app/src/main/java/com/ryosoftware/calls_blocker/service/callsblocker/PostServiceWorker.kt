@@ -22,6 +22,7 @@ import com.ryosoftware.calls_blocker.ui.activities.MainActivity
 import com.ryosoftware.calls_blocker.R
 import com.ryosoftware.calls_blocker.NORMALIZED_PHONE_NUMBER_REF
 import com.ryosoftware.calls_blocker.PhoneUtils
+import com.ryosoftware.calls_blocker.data.SettingsManager
 import com.ryosoftware.calls_blocker.data.db.Direction
 import com.ryosoftware.calls_blocker.data.db.HistoryEntry
 import com.ryosoftware.calls_blocker.data.db.NumberType
@@ -59,6 +60,7 @@ class PostServiceWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters,
     private val historyRepository: HistoryRepository,
     private val numberRepository: NumberRepository,
+    private val settingsManager: SettingsManager,
     private val blockSuggestionsRepository: BlockSuggestionsRepository,
     private val logger: Logger,
     private val findMyPhonePlayer: FindMyPhonePlayer,
@@ -292,7 +294,9 @@ class PostServiceWorker @AssistedInject constructor(
                           reason != Reason.FIND_MY_PHONE &&
                           reason != Reason.WHITELISTED_NUMBER &&
                           reason != Reason.WHITELISTED_PREFIX &&
-                          reason != Reason.ALLOWED_REPEATED_CALL -> {
+                          reason != Reason.ALLOWED_REPEATED_CALL &&
+
+                        settingsManager.shouldNotifyForReason(reason) -> {
                     postBlockedNumberNotification(phoneNumber, reason, time)
                 }
             }

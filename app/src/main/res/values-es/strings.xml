@@ -175,6 +175,8 @@
 
     <string name="blocking_options_description">Estas opciones solo se usan al bloquear llamadas</string>
 
+    <string name="phone_app_behavior">Comportamiento al rechazar</string>
+
     <string name="skip_call_log_title">No registrar llamadas bloqueadas</string>
     <string name="skip_call_log_description">Evita que las llamadas bloqueadas aparezcan en el registro de llamadas del teléfono</string>
 
@@ -183,6 +185,14 @@
 
     <string name="silence_instead_of_hangup_title">Silenciar en lugar de colgar</string>
     <string name="silence_instead_of_hangup_description">Se silenciará la llamada en lugar de rechazarla</string>
+
+    <string name="app_notifications">Notificaciones</string>
+
+    <string name="notify_blocked_calls_by_exact">Notificar bloqueadas por coincidencia exacta</string>
+    <string name="notify_blocked_calls_by_exact_description">Desmarque para no recibir notificaciones sobre llamadas bloqueadas por números que ha añadido a la lista de bloqueados por coincidencia exacta</string>
+
+    <string name="notify_blocked_calls_by_prefix">Notificar bloqueadas por prefijo</string>
+    <string name="notify_blocked_calls_by_prefix_description">Desmarque para no recibir notificaciones sobre llamadas bloqueadas por números que ha añadido a la lista de bloqueados por prefijo</string>
 
     <string name="find_my_phone_background_permission_description">Si esta característica no está funcionando correctamente, considera permitir que la app pueda ejecutarse en segundo plano y que pueda iniciarse automáticamente (habitualmente estas opciones se encuentran dentro de la sección \"Batería\").</string>
     <string name="find_my_phone_title">Buscar mi teléfono</string>
@@ -207,7 +217,6 @@
     <string name="app_version">%1$s (%2$s)</string>
 
     <!-- Permissions -->
-
     <string name="permission_read_phone_state_required">Acceso al estado del teléfono</string>
     <string name="permission_read_phone_state_rationale_title">Estado del teléfono</string>
     <string name="permission_read_phone_state_rationale_message">Para poder obtener el estado del teléfono y el número desde el que se reciben las llamadas, necesitamos tu permiso para ver el estado del teléfono.</string>

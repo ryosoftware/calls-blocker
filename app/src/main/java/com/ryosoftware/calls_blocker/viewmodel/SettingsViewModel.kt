@@ -128,6 +128,8 @@ class SettingsViewModel @Inject constructor(
     var notCalledWindowDays by settingsManager::notCalledWindowDays
     var blockRejected by settingsManager::blockRejected
     var rejectedWindowDays by settingsManager::rejectedWindowDays
+    var notifyBlockedCallsByExactCoincidence by settingsManager::notifyBlockedCallsByExactCoincidence
+    var notifyBlockedCallsByPrefix by settingsManager::notifyBlockedCallsByPrefix
     var findMyPhoneEnabled by settingsManager::findMyPhoneEnabled
     var findMyPhonePhoneNumbers by settingsManager::findMyPhonePhoneNumbers
     var findMyPhoneCallCount by settingsManager::findMyPhoneCallCount

@@ -101,6 +101,8 @@ fun SettingsScreen(
     var skipMissedCallNotification by remember { mutableStateOf(viewModel.skipMissedCallNotification) }
     var silenceInsteadOfHangup by remember { mutableStateOf(viewModel.silenceInsteadOfHangup) }
     var defaultCountryIso by remember { mutableStateOf(viewModel.defaultCountryIso) }
+    var notifyBlockedCallsByExactCoincidence by remember { mutableStateOf(viewModel.notifyBlockedCallsByExactCoincidence) }
+    var notifyBlockedCallsByPrefix by remember { mutableStateOf(viewModel.notifyBlockedCallsByPrefix) }
     val screeningEnabled by viewModel.isScreeningEnabled.collectAsState()
     var showDefaultCountryDialog by remember { mutableStateOf(false) }
     var isLoggingToFile by remember { mutableStateOf(viewModel.isLoggingToFile) }
@@ -474,8 +476,10 @@ fun SettingsScreen(
 
                 Spacer(Modifier.height(12.dp))
 
-                val needsContactsPermission = (viewModel.blockUnknown || viewModel.blockGroups) && !contactsPermissionGranted
-                val needsCallLogPermission = (viewModel.blockNotCalled || viewModel.blockRejected || viewModel.blockRepeated || viewModel.allowRepeated) && !callLogPermissionGranted
+                val needsContactsPermission =
+                    (viewModel.blockUnknown || viewModel.blockGroups) && !contactsPermissionGranted
+                val needsCallLogPermission =
+                    (viewModel.blockNotCalled || viewModel.blockRejected || viewModel.blockRepeated || viewModel.allowRepeated) && !callLogPermissionGranted
                 val lines = mutableListOf(stringResource(R.string.test_screening_description))
                 if (scheduleRules.isNotEmpty()) lines.add(stringResource(R.string.test_screening_description_addon_scheduler))
                 if (needsContactsPermission || needsCallLogPermission) lines.add(stringResource(R.string.test_screening_description_addon_permissions))
@@ -502,6 +506,13 @@ fun SettingsScreen(
                     text = stringResource(R.string.blocking_options_description),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                Text(
+                    text = stringResource(R.string.phone_app_behavior),
+                    style = MaterialTheme.typography.bodyLarge
                 )
 
                 Spacer(Modifier.height(12.dp))
@@ -596,6 +607,79 @@ fun SettingsScreen(
 
                     Switch(
                         checked = silenceInsteadOfHangup,
+                        onCheckedChange = null
+                    )
+                }
+
+                Spacer(Modifier.height(12.dp))
+
+                Text(
+                    text = stringResource(R.string.app_notifications),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            notifyBlockedCallsByExactCoincidence =
+                                !notifyBlockedCallsByExactCoincidence
+                            viewModel.notifyBlockedCallsByExactCoincidence =
+                                notifyBlockedCallsByExactCoincidence
+                        },
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.notify_blocked_calls_by_exact),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+
+                        Text(
+                            text = stringResource(R.string.notify_blocked_calls_by_exact_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Spacer(Modifier.width(24.dp))
+
+                    Switch(
+                        checked = notifyBlockedCallsByExactCoincidence,
+                        onCheckedChange = null
+                    )
+                }
+
+                Spacer(Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            notifyBlockedCallsByPrefix = !notifyBlockedCallsByPrefix
+                            viewModel.notifyBlockedCallsByPrefix = notifyBlockedCallsByPrefix
+                        },
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.notify_blocked_calls_by_prefix),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+
+                        Text(
+                            text = stringResource(R.string.notify_blocked_calls_by_prefix_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Spacer(Modifier.width(24.dp))
+
+                    Switch(
+                        checked = notifyBlockedCallsByPrefix,
                         onCheckedChange = null
                     )
                 }
