@@ -18,8 +18,8 @@ android {
         minSdk = 30
         targetSdk = compileSdk
 
-        versionCode = 24
-        versionName = "1.24"
+        versionCode = 25
+        versionName = "1.25"
 
         buildConfigField(
             "String",
@@ -73,8 +73,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
     implementation("androidx.core:core-ktx:1.19.1")
-    implementation("com.googlecode.libphonenumber:libphonenumber:9.0.40")
-    implementation("com.google.errorprone:error_prone_annotations:2.50.0")
+    implementation("com.googlecode.libphonenumber:libphonenumber:9.0.42")
+    implementation("com.google.errorprone:error_prone_annotations:2.52.0")
     implementation("androidx.room:room-runtime:2.8.5")
     implementation("androidx.room:room-ktx:2.8.5")
     ksp("androidx.room:room-compiler:2.8.5")
@@ -82,6 +82,6 @@ dependencies {
     ksp("com.google.dagger:hilt-compiler:2.60.1")
     ksp("androidx.hilt:hilt-compiler:1.4.0")
     implementation("androidx.hilt:hilt-navigation-compose:1.4.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
