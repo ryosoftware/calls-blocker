@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">电话拦截</string>
+    <string name="notification_channel_name">已拦截的来电</string>
+    <string name="notification_blocked_title">来电已拦截</string>
+    <string name="notification_blocked_body">%1$s 于 %3$s 来电</string>
+    <string name="notification_suggestion_channel_name">拦截建议</string>
+    <string name="notification_suggestion_title" />
+    <string name="notification_suggestion_body">%1$s 于 %2$s 来电。</string>
+    <string name="phone_name_with_number">%1$s（%2$s）</string>
+    <string name="notification_suggestion_block">拦截</string>
+    <string name="notification_suggestion_dismiss">不是骚扰电话</string>
+    <string name="blocking_all">拦截所有来电</string>
+    <string name="blocking_all_enabled">已启用</string>
+    <string name="blocking_all_enabled_until">已启用，截止时间：%1$s</string>
+    <string name="blocking_all_enabled_by_dnd">因勿扰模式而启用</string>
+    <string name="blocking_all_enabled_by_intl">因拦截国际来电而启用</string>
+    <string name="blocking_all_enabled_by_scheduler">因定时规则而启用</string>
+    <string name="blocking_all_enabled_by_scheduler_until">因定时规则而启用，截止时间：%1$s</string>
+    <string name="blocking_all_disabled">已停用</string>
+    <string name="blocking_all_missing_permissions">缺少权限</string>
+    <string name="block_all_for_a_period">暂时拦截所有来电…</string>
+    <string name="until_manually_disabled">直到手动关闭</string>
+    <string name="nav_block_list">号码</string>
+    <string name="nav_history">通话记录</string>
+    <string name="nav_settings">设置</string>
+    <string name="nav_call_blocking_rules">来电拦截</string>
+    <string name="numbers_list_empty">没有号码</string>
+    <string name="search">搜索</string>
+    <string name="search_numbers_hint">搜索号码…</string>
+    <string name="no_results">没有结果</string>
+    <string name="add_number">添加号码</string>
+    <string name="delete">删除</string>
+    <string name="label_exact">完全匹配</string>
+    <string name="label_prefix">前缀</string>
+    <string name="label_allowed">已允许</string>
+    <string name="label_blocked">已拦截</string>
+    <string name="delete_entries_title">移除</string>
+    <string name="stop_blocking">停止拦截</string>
+    <string name="stop_allowing">取消允许</string>
+    <string name="confirm_stop_blocking">停止拦截？</string>
+    <string name="confirm_stop_allowing">取消允许？</string>
+    <string name="delete_numbers">移除
+%1$s</string>
+    <string name="delete_numbers_and_x_more">移除
+
+%1$s
+
+以及另外 %2$d 个…</string>
+    <string name="add_number_title">添加号码</string>
+    <string name="phone_number_label">电话号码</string>
+    <string name="country_label">国家/地区</string>
+    <string name="description_label">描述（可选）</string>
+    <string name="number_type_label">号码类型</string>
+    <string name="number_type_exact">完整号码</string>
+    <string name="number_type_prefix">号码前缀</string>
+    <string name="action_label">操作</string>
+    <string name="action_block">拦截</string>
+    <string name="action_unblock">取消拦截</string>
+    <string name="action_allow">允许</string>
+    <string name="action_unallow">取消允许</string>
+    <string name="confirm_block_number">拦截 %1$s？</string>
+    <string name="confirm_allow_number">允许 %1$s？</string>
+    <string name="confirm_unblock_number">取消拦截 %1$s？</string>
+    <string name="confirm_unallow_number">取消允许 %1$s？</string>
+    <string name="confirm_block_multiple_numbers_detail">拦截以下号码？
+
+%1$s%2$s</string>
+    <string name="confirm_allow_multiple_numbers_detail">允许以下号码？
+
+%1$s%2$s</string>
+    <string name="history_empty">没有通话记录</string>
+    <string name="delete_history_entry_message">要从通话记录中移除此条记录吗？</string>
+    <string name="delete_history_entries_title">移除记录？</string>
+    <string name="also_unblock">同时取消拦截此号码</string>
+    <string name="also_unallow">同时取消允许此号码</string>
+    <string name="delete_all_entries_for_number">删除此号码的全部 %1$d 条记录</string>
+    <string name="history_header_today">今天：%1$s</string>
+    <string name="history_header_yesterday">昨天：%1$s</string>
+    <string name="history_header_this_week">本周：%1$s</string>
+    <string name="history_header_this_month">本月：%1$s</string>
+    <string name="history_header_month_without_year">%2$s：%1$s</string>
+    <string name="history_header_month_with_year">%3$d年%2$s：%1$s</string>
+    <string name="history_export">导出为 CSV</string>
+    <string name="history_export_success">通话记录已成功导出</string>
+    <string name="hidden_number">隐藏号码</string>
+    <string name="no_blocked_calls">没有拦截来电</string>
+    <string name="all_calls_blocked">全部已拦截</string>
+    <string name="calls_and_blocked_calls">%1$s，%2$s</string>
+    <string name="default_country_title">所在国家/地区</string>
+    <string name="default_country_description">在导入号码不含国家/地区代码，或来电缺少国家/地区代码且系统未提供接收来电的 SIM 卡或其所属国家/地区信息时，将使用此设置。</string>
+    <string name="default_country_not_set">未设置</string>
+    <string name="incoming_call_blocking_title">来电拦截</string>
+    <string name="incoming_call_blocking_description">设置要拦截的来电，例如按时间、联系人分组或国家/地区拦截。</string>
+    <string name="incoming_call_blocking_button">配置</string>
+    <string name="blocking_rules_description">通用允许规则（见上方）会在检查号码或前缀是否被明确允许或拦截后立即评估。
+
+通用拦截规则（见下方）会在通用允许规则之后立即评估。</string>
+    <string name="schedule_blocking_title">定时拦截</string>
+    <string name="schedule_blocking_description">在指定时段拦截来电</string>
+    <string name="schedule_blocking_add">添加</string>
+    <string name="schedule_blocking_edit">编辑时段</string>
+    <string name="schedule_blocking_no_rules">尚未添加时段</string>
+    <string name="schedule_blocking_rule_active">此规则当前生效</string>
+    <string name="block_unknown_title">拦截陌生号码</string>
+    <string name="block_unknown_description">拦截不在联系人的号码</string>
+    <string name="block_hidden_title">拦截隐藏号码</string>
+    <string name="block_hidden_description">拦截私人号码或隐藏号码</string>
+    <string name="unblock_hidden_title">允许隐藏号码</string>
+    <string name="unblock_hidden_description">不再拦截隐藏号码来电</string>
+    <string name="block_all_title">拦截所有来电</string>
+    <string name="block_all_description">拦截所有来电</string>
+    <string name="block_dnd_title">勿扰模式期间拦截</string>
+    <string name="block_dnd_description">启用“勿扰模式”时拦截所有来电</string>
+    <string name="block_dnd_only_alarms_or_silent_title">仅在完全静音或仅闹钟时</string>
+    <string name="block_dnd_only_alarms_or_silent_description">仅当“勿扰模式”设为“完全静音”或“仅闹钟”时拦截所有来电</string>
+    <string name="all_calls_blocked_reason_block_all">由于“拦截所有来电”已启用，所有来电均被拦截</string>
+    <string name="all_calls_blocked_reason_international">由于国际来电拦截已启用且未选择允许的国家/地区，所有来电均被拦截</string>
+    <string name="all_calls_blocked_reason_schedule">由于定时拦截时段当前生效，所有来电均被拦截</string>
+    <string name="all_calls_blocked_reason_dnd">由于“勿扰模式”已启用，所有来电均被拦截</string>
+    <string name="block_all_enabled">“拦截所有来电”已启用</string>
+    <string name="block_all_enabled_for">“拦截所有来电”已启用 %1$s</string>
+    <string name="block_all_enabled_until">启用至 %1$s</string>
+    <string name="block_all_disabled">“拦截所有来电”已停用</string>
+    <string name="tile_blocking_deactivated">来电拦截已停用</string>
+    <string name="tile_blocking_re_enabled">来电拦截已重新启用</string>
+    <string name="block_groups_title">拦截联系人分组</string>
+    <string name="block_groups_description">拦截所选分组中联系人的来电</string>
+    <string name="no_groups_warning">未选择任何分组。
+所有联系人来电都将被允许。</string>
+    <string name="group_contacts_count_zero">没有联系人</string>
+    <string name="block_international_title">拦截国际来电</string>
+    <string name="block_international_description">拦截来自其他国家/地区的来电</string>
+    <string name="select_allowed_countries">允许的国家/地区</string>
+    <string name="country_name_and_flag">%2$s %1$s</string>
+    <string name="country_name_and_flag_and_number_type">%2$s %1$s，%3$s</string>
+    <string name="no_allowed_countries_warning">处理规则前，所有号码都会被规范化为国际格式。如果至少不允许一个国家/地区，所有来电都将被拦截。</string>
+    <string name="block_not_called_title">拦截从未拨打过的号码</string>
+    <string name="block_not_called_description">拦截此前未拨打过的号码</string>
+    <string name="not_called_window_label">检查天数</string>
+    <string name="block_rejected_title">拦截曾拒接的号码</string>
+    <string name="block_rejected_description">拦截此前拒接过的号码。
+
+请注意，这里指在电话应用中拒接的来电，不包括被本应用拦截的来电。</string>
+    <string name="rejected_window_label">检查天数</string>
+    <string name="block_repeated_title">拦截重复来电</string>
+    <string name="block_repeated_description">在指定时间范围内，如果同一号码的来电次数达到或超过设定的阈值，则拦截该号码。</string>
+    <string name="block_repeated_call_count_label">来电次数</string>
+    <string name="block_repeated_call_window_label">时间范围</string>
+    <string name="value_in_minutes">%1$d 分钟</string>
+    <string name="allow_repeated_title">允许重复来电</string>
+    <string name="allow_repeated_description">在指定时间范围内，如果同一号码的来电次数达到或超过设定的阈值，则允许该号码来电。
+
+如果该号码在此时间范围内的来电次数未达到阈值，则根据已配置的拦截规则决定允许或拦截来电。</string>
+    <string name="allow_repeated_call_count_label">来电次数</string>
+    <string name="allow_repeated_call_window_label">时间范围</string>
+    <string name="blocking_options_description">这些选项仅在拦截来电时生效</string>
+    <string name="phone_app_behavior">拦截来电时的行为</string>
+    <string name="skip_call_log_title">不记录被拦截的来电</string>
+    <string name="skip_call_log_description">不在电话应用的通话记录中显示被拦截的来电</string>
+    <string name="silence_missed_call_notification_title">不显示未接来电通知</string>
+    <string name="silence_missed_call_notification_description">拦截来电时不显示未接来电通知</string>
+    <string name="silence_instead_of_hangup_title">静音而非挂断</string>
+    <string name="silence_instead_of_hangup_description">将来电静音，而不是拒接</string>
+    <string name="app_notifications">应用通知</string>
+    <string name="notify_blocked_calls_by_exact">通知被完整号码规则拦截的来电</string>
+    <string name="notify_blocked_calls_by_exact_description">取消勾选后，将不再收到由完整号码拦截列表中的号码所拦截来电的通知</string>
+    <string name="notify_blocked_calls_by_prefix">通知被号码前缀规则拦截的来电</string>
+    <string name="notify_blocked_calls_by_prefix_description">取消勾选后，将不再收到由号码前缀拦截列表中的前缀所拦截来电的通知</string>
+    <string name="find_my_phone_background_permission_description">如果此功能无法正常工作，请尝试允许应用在后台运行并自动启动（这些选项通常位于“电池”设置中）。</string>
+    <string name="find_my_phone_title">查找我的手机</string>
+    <string name="find_my_phone_description">即使手机处于静音状态，当预设号码在短时间内多次来电时，也能让手机响铃。
+
+这不是来电拦截功能，但它可能会拦截来电。
+
+工作方式：收到预设号码的来电时，应用会按照已配置的规则正常响铃或拦截来电。如果达到下方设定的来电次数和时间间隔条件，应用会自动拒接来电并让手机大声响铃。
+
+授权号码的新来电会取消此功能。</string>
+    <string name="find_my_phone_enabled_label">启用</string>
+    <string name="permissions_title">其他权限</string>
+    <string name="permissions_description">这些权限不是必需的，但建议授予</string>
+    <string name="permission_notifications">通知</string>
+    <string name="permission_battery">忽略电池优化</string>
+    <string name="open_app_settings">打开应用设置</string>
+    <string name="grant_permission">授予权限</string>
+    <string name="open_settings">打开设置</string>
+    <string name="debug_screen_title">调试</string>
+    <string name="debug_information">调试信息</string>
+    <string name="debug_information_enabled">已启用记录到文件</string>
+    <string name="debug_information_disabled">已停用记录到文件</string>
+    <string name="about_title">关于</string>
+    <string name="app_version">%1$s（%2$s）</string>
+    <string name="permission_read_phone_state_required">读取电话状态</string>
+    <string name="permission_read_phone_state_rationale_title">读取电话状态</string>
+    <string name="permission_read_phone_state_rationale_message">需要此权限来读取电话状态和来电号码。</string>
+    <string name="permission_read_contacts_required">读取联系人</string>
+    <string name="permission_read_contacts_rationale_title">读取联系人</string>
+    <string name="permission_read_contacts_rationale_message">需要此权限来读取联系人，以识别陌生号码并拦截联系人分组。</string>
+    <string name="permission_call_log_required">访问通话记录</string>
+    <string name="permission_call_log_rationale_title">访问通话记录</string>
+    <string name="permission_call_log_rationale_message">需要此权限来读取通话记录，以检测重复来电和已拨号码。</string>
+    <string name="permission_notification_policy_required">勿扰模式访问权限</string>
+    <string name="permission_notification_policy_rationale_title">勿扰模式访问权限</string>
+    <string name="permission_notification_policy_rationale_message">需要了解“勿扰模式”何时启用，以便在启用期间拦截来电。请在系统设置中授予“勿扰模式访问权限”。</string>
+    <string name="permission_ignore_battery_optimizations_required">允许后台运行</string>
+    <string name="permission_notifications_rationale_title">通知</string>
+    <string name="permission_notifications_rationale_message">希望获得发送通知的权限，以便告知您来电拦截情况并快速管理拦截功能。</string>
+    <string name="find_my_phone_add">添加</string>
+    <string name="find_my_phone_remove">移除</string>
+    <string name="find_my_phone_trusted_numbers">信任的号码</string>
+    <string name="find_my_phone_no_numbers">尚未添加号码</string>
+    <string name="find_my_phone_call_count_label">所需来电次数</string>
+    <string name="find_my_phone_window_label">时间</string>
+    <string name="find_my_phone_select_ringtone">选择铃声</string>
+    <string name="find_my_phone_no_ringtone_selected">未选择铃声</string>
+    <string name="find_my_phone_vibration_pattern">振动模式</string>
+    <string name="find_my_phone_no_vibration_pattern_selected">未选择模式</string>
+    <string name="find_my_phone_activated_no_number">查找我的手机</string>
+    <string name="find_my_phone_activated_from">查找我的手机已由以下号码触发：
+%1$s</string>
+    <string name="find_my_phone_stop_sound">找到了！</string>
+    <string name="find_my_phone_test_button">测试</string>
+    <string name="find_my_phone_test_title">查找我的手机</string>
+    <string name="find_my_phone_test_message">即将测试“查找我的手机”。
+
+点击“接受”按钮，然后关闭屏幕。
+
+测试将在 5 秒后开始…</string>
+    <string name="find_my_phone_contact">“查找我的手机”联系人</string>
+    <string name="reason">%1$s</string>
+    <string name="reason_whitelisted_number">已加入允许列表的号码</string>
+    <string name="reason_whitelisted_prefix">已加入允许列表的前缀</string>
+    <string name="reason_allowed_repeated">允许的重复来电</string>
+    <string name="reason_block_all">拦截所有来电</string>
+    <string name="reason_dnd">勿扰模式</string>
+    <string name="reason_hidden">隐藏号码</string>
+    <string name="reason_blacklisted_number">已加入拦截列表的号码</string>
+    <string name="reason_blacklisted_prefix">已加入拦截列表的前缀</string>
+    <string name="reason_group">已拦截的联系人分组</string>
+    <string name="reason_international">国际来电</string>
+    <string name="reason_not_called">此前未拨打过</string>
+    <string name="reason_rejected_before">此前已拒接</string>
+    <string name="reason_repeated_call">重复来电</string>
+    <string name="reason_schedule">定时规则</string>
+    <string name="reason_find_my_phone">查找我的手机</string>
+    <string name="reason_find_my_phone_cancelled">取消“查找我的手机”</string>
+    <string name="reason_unknown">未知</string>
+    <string name="schedule_blocking_start">开始</string>
+    <string name="schedule_blocking_end">结束</string>
+    <string name="schedule_blocking_select_day">选择日期</string>
+    <string name="schedule_blocking_select_time">选择时间</string>
+    <string name="schedule_blocking_period">%1$s → %2$s</string>
+    <string name="schedule_blocking_repeat_days">重复日期</string>
+    <string name="schedule_blocking_repeats">每周在%1$s重复</string>
+    <string name="test_screening_title">测试号码是否会被拦截</string>
+    <string name="test_screening_description">检查当前配置是否会拦截某个电话号码。</string>
+    <string name="test_screening_description_addon_scheduler">检查定时拦截规则时，假定来电发生在当前时间。</string>
+    <string name="test_screening_description_addon_permissions">部分已启用的规则需要尚未授予的权限。</string>
+    <string name="test_screening_description_addon_find_my_phone">由于“查找我的手机”只会拦截来自允许号码的部分来电，因此未对此功能进行测试。</string>
+    <string name="test_screening_button">测试</string>
+    <string name="test_screening_result_blocked">来自号码 %1$s 的来电将被拦截（%2$s）</string>
+    <string name="test_screening_result_blocked_find_by_phone">来自号码 %1$s 的来电可能会被拦截（%2$s）</string>
+    <string name="test_screening_result_not_blocked">来自号码 %1$s 的来电不会被拦截</string>
+    <string name="screening_permissions_description">如果应用未筛选来电，或有来电未显示在“通话记录”页签中，可考虑授予以下权限；部分设备需要这些权限。</string>
+    <string name="screening_active_title">来电筛选已启用</string>
+    <string name="screening_active_description">“%1$s”可以筛选来电</string>
+    <string name="screening_inactive_title">来电筛选未启用</string>
+    <string name="screening_inactive_description">启用来电筛选，以允许“%1$s”拦截骚扰来电</string>
+    <string name="screening_enable_button">启用来电筛选</string>
+    <string name="screening_dialog_title">启用来电拦截？</string>
+    <string name="screening_dialog_message">“%1$s”需要获得筛选来电并拦截骚扰号码的权限。现在启用吗？</string>
+    <string name="screening_dialog_allow">启用</string>
+    <string name="screening_dialog_later">稍后</string>
+    <string name="settings_backup_title">设置</string>
+    <string name="settings_backup_description">导出内容包括设置、号码、通话记录和建议。
+导入会使用文件中的数据替换当前数据。</string>
+    <string name="backup_export">备份</string>
+    <string name="backup_import">恢复</string>
+    <string name="backup_success">备份成功</string>
+    <string name="backup_restore_success">恢复成功</string>
+    <string name="backup_restore_confirm_title">恢复备份</string>
+    <string name="backup_restore_confirm_message">当前数据将被备份替换。
+
+设置、号码、通话记录和已忽略的建议都将丢失。
+
+确定要继续吗？</string>
+    <string name="blocked_numbers_backup_title">已拦截的号码</string>
+    <string name="blocked_numbers_backup_description">导出仅包含已拦截的号码、前缀及其描述（如果有）。
+导入不会移除已被拦截的号码。</string>
+    <string name="backup_export_numbers">导出</string>
+    <string name="backup_import_numbers">导入</string>
+    <string name="backup_export_numbers_success">已成功导出拦截号码</string>
+    <string name="import_title">导入</string>
+    <string name="processing_data_title">@string/import_title</string>
+    <string name="processing_data_message">正在分析文件中的号码…</string>
+    <string name="importing_data_title">@string/import_title</string>
+    <string name="importing_data_message">正在保存可导入的号码…</string>
+    <string name="import_preview_title">导入预览</string>
+    <string name="import_confirm">导入</string>
+    <string name="import_success_toast">导入完成</string>
+    <string name="import_error_toast">无法完成导入</string>
+    <string name="import_file_summary">文件包含%1$s。
+
+请配置号码验证方式：</string>
+    <string name="import_validation_none">不验证</string>
+    <string name="force_possible_number">可能有效的号码</string>
+    <string name="force_possible_number_description">基本验证：号码长度符合该国家/地区的编号规则</string>
+    <string name="force_valid_number">有效号码</string>
+    <string name="force_valid_number_description">高级验证：号码还属于该国家/地区编号计划中已分配的号段</string>
+    <string name="collapse">收起</string>
+    <string name="expand">展开</string>
+    <string name="blank_after_removing_non_digits_error">移除非数字字符后为空</string>
+    <string name="not_possible_number">号码长度不符合规则</string>
+    <string name="not_valid_number">号码无效</string>
+    <string name="parse_error">号码解析错误</string>
+    <string name="format_error">号码格式错误</string>
+    <string name="log_to_file">记录到文件</string>
+    <string name="share_log">分享日志文件</string>
+    <string name="save_log">保存日志文件</string>
+    <string name="cant_read_log_file">读取日志文件时出错</string>
+    <string name="log_file_has_been_saved">日志文件已保存</string>
+    <string name="logging_dialog_title">日志记录</string>
+    <string name="start_logging_dialog_body">要删除当前日志文件并开始记录新日志吗？</string>
+    <string name="saving_log_title">正在保存</string>
+    <string name="saving_log_message">正在保存日志文件…</string>
+    <string name="obfuscate_phone_numbers_title">隐私</string>
+    <string name="obfuscate_phone_numbers_message">要隐藏电话号码中的部分数字吗？</string>
+    <string name="no_log_data">没有日志数据</string>
+    <string name="deleting_title">请稍候</string>
+    <string name="deleting_message">正在删除记录…</string>
+    <string name="csv_column_phone_number">电话号码</string>
+    <string name="csv_column_date">日期</string>
+    <string name="csv_column_reason">原因</string>
+    <string name="find_my_phone_vibration_aggressive">强烈</string>
+    <string name="find_my_phone_vibration_siren">警笛</string>
+    <string name="find_my_phone_vibration_hammer">敲击</string>
+    <string name="find_my_phone_vibration_sos">SOS</string>
+    <string name="find_my_phone_vibration_continuous">持续</string>
+    <string name="find_my_phone_vibration_alarm">闹钟</string>
+    <string name="find_my_phone_vibration_double_knock">双重敲击</string>
+    <string name="number_type_mobile">移动电话</string>
+    <string name="number_type_fixed_line">固定电话</string>
+    <string name="number_type_voip">网络电话</string>
+    <string name="number_type_toll_free">免费电话</string>
+    <string name="number_type_premium_rate">高资费号码</string>
+    <string name="number_type_shared_cost">分摊费用号码</string>
+    <string name="number_type_personal_number">个人号码</string>
+    <string name="number_type_pager">寻呼机</string>
+    <string name="number_type_uan">统一接入号码</string>
+    <string name="number_type_voicemail">语音信箱</string>
+    <string name="flag_call_silenced">来电已静音</string>
+    <string name="flag_skip_call_log">来电未加入通话记录</string>
+    <string name="flag_skip_notification">已跳过未接来电通知</string>
+    <string name="call_log_permission_required">需要访问通话记录才能显示来电列表。</string>
+    <string name="add_from_call_log">从通话记录添加</string>
+    <string name="add_manually">手动添加</string>
+    <string name="call_date_and_duration">%1$s，%2$s</string>
+    <string name="rejected_call">来电已拒接</string>
+    <string name="blocked_call">来电已拦截</string>
+    <string name="days_and_hours_and_minutes">%1$d天 %2$d小时 %3$d分钟</string>
+    <string name="hours_and_minutes">%1$d小时 %2$d分钟</string>
+    <string name="minutes">%1$d分钟</string>
+    <string name="hours_and_minutes_large">%1$s和%2$s</string>
+    <string name="add_description">添加</string>
+    <string name="remove_element_description">移除%1$s</string>
+    <string name="error_title">错误</string>
+    <string name="save">保存</string>
+    <string name="cancel">取消</string>
+    <string name="error_duplicate_exact">该完整号码已存在</string>
+    <string name="error_duplicate_prefix">该号码前缀已存在</string>
+    <string name="edit_description">编辑描述</string>
+    <string name="ok">确定</string>
+    <string name="back">返回</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="middle_strings_separator">、</string>
+    <string name="last_strings_separator">和</string>
+    <string name="call">呼叫</string>
+    <string name="copy">复制</string>
+</resources>

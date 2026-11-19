@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="import_preview_message">
+        <item quantity="other">新增 %1$d 个号码</item>
+    </plurals>
+    <plurals name="import_preview_already_blocked_or_allowed">
+        <item quantity="other">已添加 %1$d 个</item>
+    </plurals>
+    <plurals name="import_preview_errors">
+        <item quantity="other">%1$d 个错误</item>
+    </plurals>
+    <plurals name="n_selected">
+        <item quantity="other">已选择 %d 项</item>
+    </plurals>
+    <plurals name="log_file_messages_count">
+        <item quantity="other">%1$d 条消息</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="other">%d 天</item>
+    </plurals>
+    <plurals name="hours">
+        <item quantity="other">%d 小时</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="other">%d 分钟</item>
+    </plurals>
+    <plurals name="group_contacts_count">
+        <item quantity="other">%1$d 位联系人</item>
+    </plurals>
+    <plurals name="calls">
+        <item quantity="other">%d 通来电</item>
+    </plurals>
+    <plurals name="blocked_calls">
+        <item quantity="other">已拦截 %d 通</item>
+    </plurals>
+    <plurals name="numbers">
+        <item quantity="other">%d 个号码</item>
+    </plurals>
+    <plurals name="numbers_selected">
+        <item quantity="other">已选择 %1$d 个号码（%2$s）</item>
+    </plurals>
+    <plurals name="date_and_time">
+        <item quantity="other">%1$s %2$s</item>
+    </plurals>
+    <plurals name="weekday_and_time">
+        <item quantity="other">%1$s %2$s</item>
+    </plurals>
+    <plurals name="allow_repeated_summary">
+        <item quantity="other">在 %2$d 分钟内，同一号码来电达到 %1$d 次或以上时将允许来电，但明确拦截的号码除外</item>
+    </plurals>
+</resources>
